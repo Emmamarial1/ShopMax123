@@ -10,7 +10,6 @@ from io import BytesIO
 import csv
 import json
 import secrets
-from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 import re
 from functools import wraps
@@ -78,7 +77,6 @@ migrate = Migrate(app, db)
 
 # ==================== SOCKET.IO INITIALIZATION ====================
 # Add Socket.IO right here after db initialization
-from flask_socketio import SocketIO
 from flask_cors import CORS
 
 # ==================== DATABASE MODELS ====================
@@ -3489,10 +3487,8 @@ def get_issue_details(issue_id):
 
 # ==================== SOCKET.IO INITIALIZATION ====================
 # ADD THIS RIGHT HERE - AFTER ALL HELPER FUNCTIONS BUT BEFORE ANY ROUTES
-from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 
-socketio = SocketIO(app, cors_allowed_origins="*", ping_timeout=60, ping_interval=25)
 CORS(app)
 
 
