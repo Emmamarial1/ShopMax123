@@ -1,0 +1,1174 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User - {{ target_user.fullname }} - Admin - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .admin-edit-page {
+        padding: 30px 0;
+        background: var(--white);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: var(--white);
+        padding: 10px 16px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px 25px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-outline-light {
+        background: rgba(255,255,255,0.15);
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline-light:hover {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    .btn-outline-orange {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-outline-orange:hover {
+        background: var(--secondary-dark);
+    }
+
+    /* Main Content Grid */
+    .edit-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 20px;
+    }
+
+    /* Profile Card */
+    .profile-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        position: sticky;
+        top: 20px;
+    }
+
+    .profile-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px;
+        text-align: center;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        background: var(--secondary);
+        border-radius: 80px;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--white);
+        border: 3px solid rgba(255,255,255,0.3);
+        overflow: hidden;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-header h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+
+    .profile-header p {
+        font-size: 0.7rem;
+        opacity: 0.8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .profile-badge {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 3px 10px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 30px;
+        font-size: 0.6rem;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .profile-body {
+        padding: 15px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.7rem;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-icon {
+        width: 30px;
+        height: 30px;
+        background: var(--gray-light);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--secondary);
+        font-size: 0.8rem;
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+    .info-label {
+        font-size: 0.6rem;
+        color: var(--gray);
+        margin-bottom: 1px;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.7rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+    }
+
+    .badge-admin {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .badge-seller {
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    .badge-buyer {
+        background: rgba(0, 0, 128, 0.1);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    .badge-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .badge-inactive {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    /* Quick Stats */
+    .stats-card {
+        background: var(--gray-light);
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 15px;
+    }
+
+    .stats-title {
+        color: var(--primary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .stats-title i {
+        color: var(--secondary);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .stat-item {
+        background: var(--white);
+        border-radius: 6px;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .stat-label {
+        font-size: 0.55rem;
+        color: var(--gray);
+        text-transform: uppercase;
+    }
+
+    /* Form Card */
+    .form-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .form-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-header i {
+        color: var(--secondary);
+        font-size: 1rem;
+    }
+
+    .form-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .form-body {
+        padding: 20px;
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .section-title {
+        color: var(--primary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .section-title i {
+        color: var(--secondary);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--primary);
+        font-weight: 500;
+        font-size: 0.7rem;
+    }
+
+    .form-group label i {
+        color: var(--secondary);
+        margin-right: 4px;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.7rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--secondary);
+        outline: none;
+    }
+
+    .form-control[readonly] {
+        background: var(--gray-light);
+        cursor: not-allowed;
+    }
+
+    textarea.form-control {
+        min-height: 60px;
+        resize: vertical;
+    }
+
+    small {
+        font-size: 0.6rem;
+        color: var(--gray);
+    }
+
+    /* Image Upload */
+    .current-image {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background: var(--gray-light);
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .current-image img {
+        width: 40px;
+        height: 40px;
+        border-radius: 40px;
+        object-fit: cover;
+        border: 2px solid var(--secondary);
+    }
+
+    .current-image .info h5 {
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .current-image .info p {
+        font-size: 0.6rem;
+        color: var(--gray);
+    }
+
+    .image-upload-area {
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        cursor: pointer;
+        background: var(--gray-light);
+    }
+
+    .image-upload-area i {
+        font-size: 1.5rem;
+        color: var(--secondary);
+        margin-bottom: 5px;
+    }
+
+    .image-upload-area p {
+        font-size: 0.65rem;
+        color: var(--gray);
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-primary {
+        flex: 2;
+        padding: 8px 16px;
+        background: var(--secondary);
+        color: var(--white);
+        border: none;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn-primary:hover {
+        background: var(--secondary-dark);
+    }
+
+    .btn-secondary {
+        flex: 1;
+        padding: 8px 16px;
+        background: var(--white);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn-secondary:hover {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    /* Danger Zone */
+    .danger-zone {
+        border: 1px solid var(--danger);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .danger-header {
+        background: var(--danger);
+        color: var(--white);
+        padding: 10px 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .danger-header i {
+        font-size: 0.9rem;
+    }
+
+    .danger-header h4 {
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .danger-body {
+        padding: 15px;
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    .danger-action {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+        gap: 10px;
+    }
+
+    .danger-action:last-child {
+        border-bottom: none;
+    }
+
+    .danger-info h5 {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .danger-info p {
+        font-size: 0.6rem;
+        color: var(--gray);
+    }
+
+    .btn-xs {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        white-space: nowrap;
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: var(--white);
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+    }
+
+    .btn-success {
+        background: var(--success);
+        color: var(--white);
+    }
+
+    .btn-success:hover {
+        background: #0f9b6e;
+    }
+
+    .btn-warning {
+        background: var(--warning);
+        color: var(--white);
+    }
+
+    .btn-warning:hover {
+        background: #e65100;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .edit-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .profile-card {
+            position: static;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .danger-action {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .btn-xs {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-edit-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_users') }}">Users</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Edit</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Edit User</h1>
+                    <p><i class="fas fa-map-pin"></i> {{ target_user.email }}</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{{ url_for('admin_users') }}" class="btn-sm btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <button class="btn-sm btn-outline-orange" onclick="saveUser()">
+                    <i class="fas fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="edit-grid">
+            <!-- Left Column - Profile Card -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        {% if target_user.profile_image %}
+                        <img src="{{ url_for('static', filename='uploads/' + target_user.profile_image) }}" alt="{{ target_user.fullname }}">
+                        {% else %}
+                        {{ target_user.fullname[:1] }}
+                        {% endif %}
+                    </div>
+                    <h2>{{ target_user.fullname }}</h2>
+                    <p><i class="fas fa-envelope"></i> {{ target_user.email }}</p>
+                    <span class="profile-badge">ID: {{ target_user.id }}</span>
+                </div>
+
+                <div class="profile-body">
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-tag"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Type</div>
+                            <div class="info-value">
+                                <span class="badge badge-{{ target_user.user_type }}">
+                                    {{ target_user.user_type|upper }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-circle"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">
+                                <span class="badge badge-{{ 'active' if target_user.is_active else 'inactive' }}">
+                                    {{ 'Active' if target_user.is_active else 'Inactive' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-calendar"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Joined</div>
+                            <div class="info-value">{{ target_user.created_at.strftime('%d %b %Y') if target_user.created_at else 'N/A' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-phone"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value">{{ target_user.phone or 'N/A' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Location</div>
+                            <div class="info-value">{{ target_user.location or 'N/A' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="stats-card">
+                        <h4 class="stats-title"><i class="fas fa-chart-bar"></i> Stats</h4>
+                        <div class="stats-grid">
+                            {% if target_user.user_type == 'seller' %}
+                            <div class="stat-item">
+                                <div class="stat-value">{{ target_user.products|length }}</div>
+                                <div class="stat-label">Products</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ target_user.order_items|length }}</div>
+                                <div class="stat-label">Sales</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if target_user.user_type == 'buyer' %}
+                            <div class="stat-item">
+                                <div class="stat-value">{{ target_user.orders|length }}</div>
+                                <div class="stat-label">Orders</div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="stat-item">
+                                <div class="stat-value">{{ target_user.wishlists|length }}</div>
+                                <div class="stat-label">Wishlist</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">{{ target_user.reviews|length }}</div>
+                                <div class="stat-label">Reviews</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Edit Form -->
+            <div>
+                <form id="editUserForm" method="POST" action="{{ url_for('admin_edit_user', user_id=target_user.id) }}" enctype="multipart/form-data">
+                    <div class="form-card">
+                        <div class="form-header">
+                            <i class="fas fa-user-edit"></i>
+                            <h3>Edit Information</h3>
+                        </div>
+
+                        <div class="form-body">
+                            <!-- Basic Info -->
+                            <div class="form-section">
+                                <h4 class="section-title"><i class="fas fa-info-circle"></i> Basic Info</h4>
+
+                                <div class="form-group">
+                                    <label><i class="fas fa-user"></i> Full Name</label>
+                                    <input type="text" class="form-control" name="fullname" value="{{ target_user.fullname }}" required>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label><i class="fas fa-envelope"></i> Email</label>
+                                        <input type="email" class="form-control" value="{{ target_user.email }}" readonly>
+                                        <small>Cannot be changed</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><i class="fas fa-phone"></i> Phone</label>
+                                        <input type="tel" class="form-control" name="phone" value="{{ target_user.phone or '' }}" placeholder="0755123456">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label><i class="fas fa-map-marker-alt"></i> Location</label>
+                                    <input type="text" class="form-control" name="location" value="{{ target_user.location or '' }}" placeholder="UCU Campus">
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label><i class="fas fa-tag"></i> User Type</label>
+                                        <select class="form-select" name="user_type" id="userType" {% if target_user.id == user.id %}disabled{% endif %}>
+                                            <option value="buyer" {% if target_user.user_type == 'buyer' %}selected{% endif %}>Buyer</option>
+                                            <option value="seller" {% if target_user.user_type == 'seller' %}selected{% endif %}>Seller</option>
+                                            <option value="admin" {% if target_user.user_type == 'admin' %}selected{% endif %}>Admin</option>
+                                        </select>
+                                        {% if target_user.id == user.id %}<small>You cannot change your own type</small>{% endif %}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><i class="fas fa-circle"></i> Status</label>
+                                        <select class="form-select" name="is_active">
+                                            <option value="1" {% if target_user.is_active %}selected{% endif %}>Active</option>
+                                            <option value="0" {% if not target_user.is_active %}selected{% endif %}>Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Profile Image -->
+                            <div class="form-section">
+                                <h4 class="section-title"><i class="fas fa-camera"></i> Profile Image</h4>
+
+                                {% if target_user.profile_image %}
+                                <div class="current-image">
+                                    <img src="{{ url_for('static', filename='uploads/' + target_user.profile_image) }}" alt="{{ target_user.fullname }}">
+                                    <div class="info">
+                                        <h5>Current Image</h5>
+                                        <p>Upload new to replace</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <div class="image-upload-area" onclick="document.getElementById('profileImage').click()">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Click to upload new image</p>
+                                </div>
+                                <input type="file" id="profileImage" name="profile_image" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                            </div>
+
+                            {% if target_user.user_type == 'buyer' %}
+                            <!-- Buyer Fields -->
+                            <div class="form-section" id="buyerFields">
+                                <h4 class="section-title"><i class="fas fa-shopping-bag"></i> Buyer Info</h4>
+                                <div class="form-group">
+                                    <label><i class="fas fa-map-pin"></i> Delivery Address</label>
+                                    <textarea class="form-control" name="delivery_address">{{ target_user.delivery_address or '' }}</textarea>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if target_user.user_type == 'seller' %}
+                            <!-- Seller Fields -->
+                            <div class="form-section" id="sellerFields">
+                                <h4 class="section-title"><i class="fas fa-store"></i> Seller Info</h4>
+
+                                <div class="form-group">
+                                    <label><i class="fas fa-store-alt"></i> Business Name</label>
+                                    <input type="text" class="form-control" name="business_name" value="{{ target_user.business_name or '' }}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label><i class="fas fa-map-marked-alt"></i> Business Address</label>
+                                    <input type="text" class="form-control" name="business_address" value="{{ target_user.business_address or '' }}">
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label><i class="fas fa-id-card"></i> NIN</label>
+                                        <input type="text" class="form-control" name="nin" value="{{ target_user.nin or '' }}">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><i class="fas fa-star"></i> Rating</label>
+                                        <input type="number" class="form-control" name="seller_rating" value="{{ target_user.seller_rating or 0 }}" step="0.1" min="0" max="5">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label><i class="fas fa-crown"></i> Subscription</label>
+                                    <select class="form-select" name="subscription_tier">
+                                        <option value="basic" {% if target_user.subscription_tier == 'basic' %}selected{% endif %}>Basic</option>
+                                        <option value="starter" {% if target_user.subscription_tier == 'starter' %}selected{% endif %}>Starter</option>
+                                        <option value="business" {% if target_user.subscription_tier == 'business' %}selected{% endif %}>Business</option>
+                                    </select>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <a href="{{ url_for('admin_users') }}" class="btn-secondary">Cancel</a>
+                                <button type="submit" class="btn-primary">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Danger Zone -->
+                <div class="danger-zone">
+                    <div class="danger-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h4>Danger Zone</h4>
+                    </div>
+                    <div class="danger-body">
+                        <div class="danger-action">
+                            <div class="danger-info">
+                                <h5>Reset Password</h5>
+                                <p>Generate new password for user</p>
+                            </div>
+                            <button class="btn-xs btn-warning" onclick="resetPassword({{ target_user.id }})">
+                                <i class="fas fa-key"></i> Reset
+                            </button>
+                        </div>
+
+                        <div class="danger-action">
+                            <div class="danger-info">
+                                <h5>{% if target_user.is_active %}Deactivate{% else %}Activate{% endif %} Account</h5>
+                                <p>{% if target_user.is_active %}Prevent user from logging in{% else %}Allow user to log in{% endif %}</p>
+                            </div>
+                            <button class="btn-xs btn-{% if target_user.is_active %}danger{% else %}success{% endif %}" onclick="toggleUserStatus({{ target_user.id }})">
+                                <i class="fas fa-{% if target_user.is_active %}ban{% else %}check{% endif %}"></i>
+                                {{ 'Deactivate' if target_user.is_active else 'Activate' }}
+                            </button>
+                        </div>
+
+                        {% if target_user.id != user.id %}
+                        <div class="danger-action">
+                            <div class="danger-info">
+                                <h5>Delete Account</h5>
+                                <p>Permanently delete this user</p>
+                            </div>
+                            <button class="btn-xs btn-danger" onclick="deleteUser({{ target_user.id }})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-size:0.7rem; color:var(--primary);">Processing...</p>
+</div>
+
+<script>
+// Toggle fields based on user type
+document.getElementById('userType')?.addEventListener('change', function() {
+    // In a real implementation, you'd show/hide sections
+    // For now, we'll just reload with the new type
+    if (confirm('Changing user type may affect available fields. Continue?')) {
+        document.getElementById('editUserForm').submit();
+    }
+});
+
+// Preview image
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const avatar = document.querySelector('.profile-avatar');
+            if (avatar) {
+                avatar.innerHTML = `<img src="${e.target.result}" alt="Preview" style="width:100%; height:100%; object-fit:cover;">`;
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Save user
+function saveUser() {
+    document.getElementById('editUserForm').submit();
+}
+
+// Reset password
+async function resetPassword(userId) {
+    if (!confirm('Reset password for this user?')) return;
+    
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`New password: ${data.new_password}`);
+            document.getElementById('loadingOverlay').classList.remove('show');
+        } else {
+            alert(data.message || 'Error');
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+    } catch (error) {
+        alert('Error');
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+// Toggle user status
+async function toggleUserStatus(userId) {
+    const action = {% if target_user.is_active %}false{% else %}true{% endif %};
+    const actionText = action ? 'activate' : 'deactivate';
+    
+    if (!confirm(`${actionText} this user?`)) return;
+    
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/toggle-status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action ? 'activate' : 'deactivate' })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || 'Error');
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+    } catch (error) {
+        alert('Error');
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+// Delete user
+async function deleteUser(userId) {
+    if (!confirm('Delete user? Cannot undo.')) return;
+    
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = "{{ url_for('admin_users') }}";
+        } else {
+            alert(data.message || 'Error');
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+    } catch (error) {
+        alert('Error');
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+window.saveUser = saveUser;
+window.resetPassword = resetPassword;
+window.toggleUserStatus = toggleUserStatus;
+window.deleteUser = deleteUser;
+window.previewImage = previewImage;
+</script>
+{% endblock %}

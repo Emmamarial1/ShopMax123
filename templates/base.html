@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ShopMax - UCU Marketplace{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #000080;
+            --primary-dark: #000066;
+            --primary-light: #0000CD;
+            --secondary: #ff6b00;
+            --secondary-dark: #e65100;
+            --secondary-light: #ff8533;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray: #64748b;
+            --gray-light: #f8fafc;
+            --gray-dark: #334155;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --dark: #1e293b;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--white);
+            color: var(--gray);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container-custom {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ========== TOP BAR ========== */
+        .top-bar {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 8px 0;
+            font-size: 0.7rem;
+            position: relative;
+            z-index: 1001;
+        }
+
+        .top-bar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .top-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .top-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 0.7rem;
+        }
+
+        .top-links a:hover {
+            color: var(--secondary);
+            transform: translateY(-1px);
+        }
+
+        .top-links i {
+            color: var(--secondary);
+            font-size: 0.65rem;
+        }
+
+        .top-info {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-info span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .top-info i {
+            color: var(--secondary);
+            font-size: 0.65rem;
+        }
+
+        /* ========== MAIN NAVIGATION ========== */
+        .main-nav {
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* ========== LOGO ========== */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .logo:hover {
+            transform: translateY(-1px);
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(255,107,0,0.2);
+        }
+
+        .logo-icon i {
+            font-size: 1.4rem;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: var(--secondary);
+        }
+
+        /* ========== CATEGORY BUTTON ========== */
+        .category-dropdown {
+            position: relative;
+        }
+
+        .category-btn {
+            background: var(--gray-light);
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .category-btn:hover {
+            border-color: var(--secondary);
+            background: var(--white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .category-btn i {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        /* ========== SEARCH BAR ========== */
+        .search-container {
+            flex: 1;
+            max-width: 550px;
+            min-width: 280px;
+        }
+
+        .search-form {
+            display: flex;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 60px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .search-form:focus-within {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(255,107,0,0.1);
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            padding: 12px 20px;
+            outline: none;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .search-input::placeholder {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .search-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .search-btn:hover {
+            background: var(--secondary);
+        }
+
+        /* ========== NAVIGATION LINKS ========== */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 50px;
+            transition: all 0.2s;
+            font-weight: 500;
+            font-size: 0.85rem;
+            background: var(--gray-light);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            border-color: var(--secondary);
+            background: var(--white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-link i {
+            color: var(--secondary);
+            font-size: 0.9rem;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--secondary);
+            color: white;
+            font-size: 0.55rem;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ========== USER MENU ========== */
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 12px 5px 8px;
+            background: var(--gray-light);
+            border-radius: 50px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .user-menu:hover {
+            border-color: var(--secondary);
+            background: var(--white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            display: none;
+        }
+
+        @media (min-width: 1100px) {
+            .user-info {
+                display: block;
+                line-height: 1.3;
+            }
+            .user-name {
+                font-weight: 600;
+                font-size: 0.75rem;
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: var(--dark);
+            }
+            .user-type {
+                font-size: 0.55rem;
+                color: var(--secondary);
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+        }
+
+        .user-menu i {
+            color: var(--secondary);
+            font-size: 0.7rem;
+            transition: transform 0.2s;
+        }
+
+        .user-menu:hover i {
+            transform: rotate(180deg);
+        }
+
+        /* ========== DROPDOWN MENU ========== */
+        .dropdown-menu-custom {
+            position: absolute;
+            top: 120%;
+            right: 0;
+            width: 280px;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--shadow-xl);
+            padding: 12px;
+            display: none;
+            z-index: 1000;
+            border: 1px solid var(--border);
+            animation: fadeInUp 0.2s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-menu-custom.show {
+            display: block;
+        }
+
+        .dropdown-header {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 12px;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .dropdown-header .avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .dropdown-header .avatar-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .dropdown-header h4 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .dropdown-header p {
+            font-size: 0.65rem;
+            opacity: 0.85;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .dropdown-item:hover {
+            background: var(--gray-light);
+            color: var(--secondary);
+            transform: translateX(4px);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            color: var(--secondary);
+            font-size: 0.85rem;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 0;
+        }
+
+        /* ========== GUEST NAVIGATION ========== */
+        .guest-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .guest-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            background: var(--gray-light);
+            border: 1px solid var(--border);
+        }
+
+        .guest-link:hover {
+            border-color: var(--secondary);
+            background: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .guest-link i {
+            color: var(--secondary);
+            font-size: 0.85rem;
+        }
+
+        /* ========== AUTH BUTTONS ========== */
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-login {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 8px 24px;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-login:hover {
+            border-color: var(--secondary);
+            color: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: white;
+            text-decoration: none;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(255,107,0,0.2);
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,107,0,0.3);
+        }
+
+        /* ========== CATEGORY MENU ========== */
+        .category-menu {
+            position: absolute;
+            top: 120%;
+            left: 0;
+            width: 750px;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow-xl);
+            padding: 24px;
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            z-index: 1000;
+            border: 1px solid var(--border);
+            animation: fadeInUp 0.2s ease;
+        }
+
+        .category-menu.show {
+            display: grid;
+        }
+
+        .category-group {
+            background: var(--gray-light);
+            border-radius: 16px;
+            padding: 18px;
+            transition: all 0.2s;
+        }
+
+        .category-group:hover {
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .category-group h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-group h4 i {
+            color: var(--secondary);
+            font-size: 0.8rem;
+        }
+
+        .category-group a {
+            display: block;
+            padding: 8px 12px;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.75rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .category-group a:hover {
+            background: var(--white);
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .category-group a i {
+            width: 18px;
+            color: var(--secondary);
+            font-size: 0.7rem;
+        }
+
+        /* ========== MOBILE TOGGLE ========== */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--border);
+            font-size: 1.2rem;
+            color: var(--primary);
+            cursor: pointer;
+            width: 42px;
+            height: 42px;
+            border-radius: 42px;
+            transition: all 0.2s;
+        }
+
+        .mobile-toggle:hover {
+            border-color: var(--secondary);
+            color: var(--secondary);
+            background: var(--gray-light);
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 48px 0 24px;
+            margin-top: 60px;
+            border-top: 3px solid var(--secondary);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-col h3 i {
+            color: var(--secondary);
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links li a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .footer-links li a:hover {
+            color: var(--secondary);
+            transform: translateX(5px);
+        }
+
+        .footer-description {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.75rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .footer-contact {
+            margin-bottom: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+        }
+
+        .contact-item i {
+            color: var(--secondary);
+            width: 18px;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .footer-bottom a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            margin: 0 6px;
+            transition: color 0.2s;
+        }
+
+        .footer-bottom a:hover {
+            color: var(--secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 30px;
+            }
+            
+            .nav-container {
+                flex-wrap: wrap;
+            }
+            
+            .mobile-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                order: 1;
+            }
+            
+            .logo {
+                order: 2;
+                margin-right: auto;
+            }
+            
+            .user-menu, .auth-buttons, .guest-nav {
+                order: 3;
+            }
+            
+            .category-dropdown {
+                order: 4;
+                width: 100%;
+            }
+            
+            .category-menu {
+                width: 100%;
+                left: 0;
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .search-container {
+                order: 5;
+                width: 100%;
+                max-width: none;
+            }
+            
+            .nav-links {
+                order: 6;
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .top-links, .top-info {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+            
+            .category-menu {
+                grid-template-columns: 1fr;
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            
+            .dropdown-menu-custom {
+                width: 280px;
+                right: -20px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container-custom">
+            <div class="top-bar-content">
+                <div class="top-links">
+                    <a href="{{ url_for('about_us') }}"><i class="fas fa-info-circle"></i> About</a>
+                    <a href="{{ url_for('contact_us') }}"><i class="fas fa-envelope"></i> Contact</a>
+                    <a href="{{ url_for('seller_guidelines') }}"><i class="fas fa-store"></i> Sell</a>
+                </div>
+                <div class="top-info">
+                    <span><i class="fas fa-shield-alt"></i> UCU Verified</span>
+                    <span><i class="fas fa-truck"></i> Free Campus Pickup</span>
+                    <span><i class="fas fa-clock"></i> 24/7 Support</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+        <div class="container-custom">
+            <div class="nav-container">
+                <button class="mobile-toggle" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <a href="{{ url_for('home') }}" class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="logo-text">Shop<span>Max</span></div>
+                </a>
+
+                {% if session.user_id and session.user_type == 'buyer' %}
+                <div class="category-dropdown">
+                    <button class="category-btn" onclick="toggleCategoryMenu(event)">
+                        <i class="fas fa-bars"></i> Shop by Category
+                    </button>
+                    <div class="category-menu" id="categoryMenu">
+                        <div class="category-group">
+                            <h4><i class="fas fa-laptop"></i> Electronics</h4>
+                            <a href="{{ url_for('products', category='laptops') }}"><i class="fas fa-laptop"></i> Laptops</a>
+                            <a href="{{ url_for('products', category='phones') }}"><i class="fas fa-mobile-alt"></i> Smartphones</a>
+                            <a href="{{ url_for('products', category='tablets') }}"><i class="fas fa-tablet-alt"></i> Tablets</a>
+                            <a href="{{ url_for('products', category='headphones') }}"><i class="fas fa-headphones"></i> Audio</a>
+                            <a href="{{ url_for('products', category='chargers') }}"><i class="fas fa-plug"></i> Chargers</a>
+                        </div>
+                        <div class="category-group">
+                            <h4><i class="fas fa-tshirt"></i> Fashion</h4>
+                            <a href="{{ url_for('products', category='mens_clothing') }}"><i class="fas fa-male"></i> Men's</a>
+                            <a href="{{ url_for('products', category='womens_clothing') }}"><i class="fas fa-female"></i> Women's</a>
+                            <a href="{{ url_for('products', category='shoes') }}"><i class="fas fa-shoe-prints"></i> Shoes</a>
+                            <a href="{{ url_for('products', category='bags') }}"><i class="fas fa-shopping-bag"></i> Bags</a>
+                        </div>
+                        <div class="category-group">
+                            <h4><i class="fas fa-book"></i> Academics</h4>
+                            <a href="{{ url_for('products', category='textbooks') }}"><i class="fas fa-book"></i> Textbooks</a>
+                            <a href="{{ url_for('products', category='study_guides') }}"><i class="fas fa-file-alt"></i> Study Guides</a>
+                            <a href="{{ url_for('products', category='stationery') }}"><i class="fas fa-pen"></i> Stationery</a>
+                            <a href="{{ url_for('products', category='calculators') }}"><i class="fas fa-calculator"></i> Calculators</a>
+                            <a href="{{ url_for('products', category='lab_coats') }}"><i class="fas fa-flask"></i> Lab Coats</a>
+                        </div>
+                        <div class="category-group">
+                            <h4><i class="fas fa-bed"></i> Hostel Life</h4>
+                            <a href="{{ url_for('products', category='bedding') }}"><i class="fas fa-bed"></i> Bedding</a>
+                            <a href="{{ url_for('products', category='furniture') }}"><i class="fas fa-couch"></i> Furniture</a>
+                            <a href="{{ url_for('products', category='kitchen') }}"><i class="fas fa-utensils"></i> Kitchenware</a>
+                            
+                        </div>
+                        <div class="category-group">
+                            <h4><i class="fas fa-futbol"></i> Sports</h4>
+                            <a href="{{ url_for('products', category='sports_gear') }}"><i class="fas fa-futbol"></i> Sports Gear</a>
+                            <a href="{{ url_for('products', category='gym_equipment') }}"><i class="fas fa-dumbbell"></i> Gym Equipment</a>
+                        </div>
+                        <div class="category-group">
+                            <h4><i class="fas fa-gamepad"></i> Entertainment</h4>
+                            <a href="{{ url_for('products', category='gaming') }}"><i class="fas fa-gamepad"></i> Gaming</a>
+                            <a href="{{ url_for('products', category='music') }}"><i class="fas fa-guitar"></i> Music</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="search-container">
+                    <form action="{{ url_for('products') }}" method="GET" class="search-form">
+                        <input type="text" name="search" class="search-input" 
+                               placeholder="Search for products, brands, and more..." 
+                               value="{{ request.args.get('search', '') }}">
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+
+                {% if not session.user_id %}
+                <div class="guest-nav">
+                    <a href="{{ url_for('products') }}" class="guest-link">
+                        <i class="fas fa-store"></i> Shop
+                    </a>
+                    <a href="{{ url_for('how_to_buy') }}" class="guest-link">
+                        <i class="fas fa-question-circle"></i> How to Buy
+                    </a>
+                    <a href="{{ url_for('seller_guidelines') }}" class="guest-link">
+                        <i class="fas fa-rocket"></i> Start Selling
+                    </a>
+                </div>
+                {% endif %}
+
+                <div class="nav-links">
+                    {% if session.user_id and session.user_type == 'buyer' %}
+                    <a href="{{ url_for('products') }}" class="nav-link">
+                        <i class="fas fa-store"></i> Shop
+                    </a>
+                    <a href="{{ url_for('view_cart') }}" class="nav-link" style="position: relative;">
+                        <i class="fas fa-shopping-cart"></i> Cart
+                        <span class="cart-count" id="cartCount">{{ cart_count|default(0) }}</span>
+                    </a>
+                    {% endif %}
+
+                    {% if session.user_id and session.user_type == 'seller' %}
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('manage_products') }}" class="nav-link">
+                        <i class="fas fa-boxes"></i> Products
+                    </a>
+                    <a href="{{ url_for('orders') }}" class="nav-link">
+                        <i class="fas fa-shopping-cart"></i> Orders
+                    </a>
+                    <a href="{{ url_for('seller_analytics') }}" class="nav-link">
+                        <i class="fas fa-chart-bar"></i> Analytics
+                    </a>
+                    <a href="{{ url_for('seller_subscription') }}" class="nav-link">
+                        <i class="fas fa-crown"></i> Plan
+                    </a>
+                    {% endif %}
+
+                    {% if session.user_id and session.user_type == 'admin' %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('admin_orders') }}" class="nav-link">
+                        <i class="fas fa-shopping-cart"></i> Orders
+                    </a>
+                    <a href="{{ url_for('admin_messages') }}" class="nav-link">
+                        <i class="fas fa-store"></i> Messages
+                    </a>
+                    <a href="{{ url_for('admin_issues') }}" class="nav-link">
+                        <i class="fas fa-exclamation-triangle"></i> Issues
+                    </a>
+                    {% endif %}
+                </div>
+
+                {% if session.user_id %}
+                <div class="user-menu" onclick="toggleUserMenu(event)">
+                    <div class="user-avatar">
+                        {% if current_user and current_user.profile_image %}
+                            <img src="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}" 
+                                 alt="{{ current_user.fullname }}">
+                        {% else %}
+                            {{ session.user_name[:1]|upper if session.user_name else 'U' }}
+                        {% endif %}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ session.user_name|truncate(12) }}</div>
+                        <div class="user-type">{{ session.user_type|upper }}</div>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                    
+                    <div class="dropdown-menu-custom" id="userMenu">
+                        <div class="dropdown-header">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="avatar-small">
+                                    {% if current_user and current_user.profile_image %}
+                                        <img src="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}" 
+                                             alt="{{ current_user.fullname }}">
+                                    {% else %}
+                                        {{ session.user_name[:1]|upper if session.user_name else 'U' }}
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 0.8rem;">{{ session.user_name }}</h4>
+                                    <p style="margin: 0; font-size: 0.6rem; opacity: 0.8;">{{ session.user_type|title }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <a href="{{ url_for('profile') }}" class="dropdown-item">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                        
+                        {% if session.user_type == 'buyer' %}
+                        <a href="{{ url_for('orders') }}" class="dropdown-item">
+                            <i class="fas fa-box"></i> My Orders
+                        </a>
+                        <a href="{{ url_for('wishlist') }}" class="dropdown-item">
+                            <i class="fas fa-heart"></i> Wishlist
+                        </a>
+                        <a href="{{ url_for('chat') }}" class="dropdown-item">
+                            <i class="fas fa-comment"></i> Messages
+                            {% set message_count = message_count|default(0) %}
+                            {% if message_count > 0 %}
+                            <span style="margin-left: auto; background: var(--secondary); color: white; padding: 0 8px; border-radius: 20px; font-size: 0.6rem;">{{ message_count }}</span>
+                            {% endif %}
+                        </a>
+                        {% endif %}
+                        
+                        {% if session.user_type == 'seller' %}
+                        <a href="{{ url_for('seller_messages') }}" class="dropdown-item">
+                            <i class="fas fa-comment"></i> Messages
+                            {% if message_count > 0 %}
+                            <span style="margin-left: auto; background: var(--secondary); color: white; padding: 0 8px; border-radius: 20px; font-size: 0.6rem;">{{ message_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('store_settings') }}" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Store Settings
+                        </a>
+                        {% endif %}
+                        
+                        {% if session.user_type == 'admin' %}
+                        <a href="{{ url_for('admin_settings') }}" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                        {% endif %}
+                        
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ url_for('logout') }}" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="auth-buttons">
+                    <a href="{{ url_for('login') }}" class="btn-login">Sign In</a>
+                    <a href="{{ url_for('unified_register') }}" class="btn-register">Create Account</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container-custom">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3><i class="fas fa-store"></i> ShopMax</h3>
+                    <p class="footer-description">UCU's premier campus marketplace. Buy and sell with trusted students and staff.</p>
+                    <div class="footer-contact">
+                        <div class="contact-item"><i class="fas fa-map-marker-alt"></i> UCU Main Campus, Mukono</div>
+                        <div class="contact-item"><i class="fas fa-phone"></i> +256 782 713764</div>
+                        <div class="contact-item"><i class="fas fa-envelope"></i> shopmax4321@gmail.com</div>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3><i class="fas fa-link"></i> Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('about_us') }}">About Us</a></li>
+                        <li><a href="{{ url_for('contact_us') }}">Contact Us</a></li>
+                        <li><a href="{{ url_for('faqs') }}">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3><i class="fas fa-shopping-bag"></i> For Buyers</h3>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('how_to_buy') }}">How to Buy</a></li>
+                        <li><a href="{{ url_for('delivery_info') }}">Delivery Info</a></li>
+                        
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3><i class="fas fa-rocket"></i> For Sellers</h3>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('seller_guidelines') }}">Seller Guidelines</a></li>
+                        <li><a href="{{ url_for('seller_subscription') }}">Subscription Plans</a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div>&copy; <span id="currentYear"></span> ShopMax @ Uganda Christian University</div>
+                <div>
+                    <a href="{{ url_for('terms_of_service') }}">Terms</a> | 
+                    <a href="{{ url_for('privacy_policy') }}">Privacy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        function toggleCategoryMenu(event) {
+            event.stopPropagation();
+            document.getElementById('categoryMenu').classList.toggle('show');
+        }
+
+        function toggleUserMenu(event) {
+            event.stopPropagation();
+            document.getElementById('userMenu').classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(event) {
+            const categoryMenu = document.getElementById('categoryMenu');
+            const userMenu = document.getElementById('userMenu');
+            
+            if (categoryMenu && !event.target.closest('.category-dropdown')) {
+                categoryMenu.classList.remove('show');
+            }
+            if (userMenu && !event.target.closest('.user-menu')) {
+                userMenu.classList.remove('show');
+            }
+        });
+
+        function toggleMobileMenu() {
+            const elements = ['.category-dropdown', '.search-container', '.nav-links', '.guest-nav', '.auth-buttons'];
+            elements.forEach(selector => {
+                const el = document.querySelector(selector);
+                if (el) {
+                    if (el.style.display === 'none' || getComputedStyle(el).display === 'none') {
+                        el.style.display = '';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        function updateCartCount() {
+            fetch('/api/cart/count')
+                .then(response => response.json())
+                .then(data => {
+                    const cartCount = document.getElementById('cartCount');
+                    if (cartCount) cartCount.textContent = data.count;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            setInterval(updateCartCount, 30000);
+        });
+    </script>
+
+    <!-- Chatbot Widget -->
+<style>
+.chatbot-widget {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.chatbot-toggle {
+    width: 55px;
+    height: 55px;
+    background: #ff6b00;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.chatbot-toggle:hover {
+    transform: scale(1.05);
+    background: #e65100;
+}
+
+.chatbot-container {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    z-index: 9999;
+}
+
+.chatbot-container.open {
+    display: flex;
+}
+
+.chatbot-header {
+    background: #000080;
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-header h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chatbot-header h3 i {
+    color: #ff6b00;
+}
+
+.chatbot-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.chatbot-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f8fafc;
+}
+
+.message {
+    margin-bottom: 12px;
+    display: flex;
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.message.bot {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 80%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    white-space: pre-line;
+}
+
+.message.user .message-content {
+    background: #ff6b00;
+    color: white;
+    border-radius: 12px 12px 0 12px;
+}
+
+.message.bot .message-content {
+    background: white;
+    color: #000080;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px 12px 12px 0;
+}
+
+.chatbot-input {
+    padding: 12px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 8px;
+    background: white;
+}
+
+.chatbot-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    outline: none;
+}
+
+.chatbot-input button {
+    background: #ff6b00;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 0.7rem;
+}
+
+.typing {
+    display: flex;
+    gap: 3px;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.typing span {
+    width: 6px;
+    height: 6px;
+    background: #64748b;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+}
+</style>
+
+<div class="chatbot-widget">
+    <div class="chatbot-toggle" onclick="toggleChat()">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+    <div class="chatbot-container" id="chatContainer">
+        <div class="chatbot-header">
+            <h3><i class="fas fa-robot"></i> ShopMax Assistant</h3>
+            <button class="chatbot-close" onclick="toggleChat()">✕</button>
+        </div>
+        <div class="chatbot-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-content">
+                    👋 Hi! I'm ShopMax Assistant.<br>
+                    Ask me about:<br>
+                    • Delivery fees & times<br>
+                    • Payment methods<br>
+                    • Seller subscriptions<br>
+                    • Order tracking
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatInput" placeholder="Type your question..." onkeypress="handleKeypress(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleChat() {
+    const container = document.getElementById('chatContainer');
+    container.classList.toggle('open');
+    if (container.classList.contains('open')) {
+        document.getElementById('chatInput').focus();
+    }
+}
+
+function handleKeypress(event) {
+    if (event.key === 'Enter') sendMessage();
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if (!message) return;
+    
+    addMessage(message, 'user');
+    input.value = '';
+    showTyping();
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        const data = await response.json();
+        removeTyping();
+        addMessage(data.response, 'bot');
+    } catch (error) {
+        removeTyping();
+        addMessage("Sorry, please try again.", 'bot');
+    }
+}
+
+function addMessage(text, sender) {
+    const messages = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = `message ${sender}`;
+    div.innerHTML = `<div class="message-content">${text.replace(/\n/g, '<br>')}</div>`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+function showTyping() {
+    if (window.typingActive) return;
+    window.typingActive = true;
+    const messages = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `<div class="message-content"><div class="typing"><span></span><span></span><span></span></div></div>`;
+    messages.appendChild(typingDiv);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+function removeTyping() {
+    const indicator = document.getElementById('typingIndicator');
+    if (indicator) indicator.remove();
+    window.typingActive = false;
+}
+</script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

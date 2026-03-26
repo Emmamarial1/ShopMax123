@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-dark: #e65100;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --gray-light: #e9ecef;
+        --border: #dee2e6;
+        --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+        --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+        --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+    }
+
+    .contact-page {
+        padding: 40px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 60px 40px;
+        border-radius: 24px;
+        margin-bottom: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,107,0,0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 20s infinite ease-in-out;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(30px, -30px) rotate(5deg); }
+        66% { transform: translate(-20px, 20px) rotate(-5deg); }
+    }
+
+    .hero-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+        letter-spacing: -0.02em;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .hero-section h1 span {
+        color: var(--secondary);
+    }
+
+    .hero-section p {
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0.95;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Contact Grid */
+    .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    /* Contact Info Card */
+    .info-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        padding: 30px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .info-card h2 {
+        color: var(--primary);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-card h2 i {
+        color: var(--secondary);
+    }
+
+    .contact-method {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 15px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .contact-method:last-child {
+        border-bottom: none;
+    }
+
+    .method-icon {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .method-details h3 {
+        color: var(--primary);
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .method-details p {
+        color: var(--gray);
+        font-size: 0.85rem;
+        margin-bottom: 3px;
+        line-height: 1.5;
+    }
+
+    .method-details a {
+        color: var(--secondary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .method-details a:hover {
+        text-decoration: underline;
+    }
+
+    /* Map Section - Hide if not accurate */
+    .map-section {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 0;
+    }
+
+    .map-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 15px 20px;
+    }
+
+    .map-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .map-header i {
+        color: var(--secondary);
+    }
+
+    .map-container {
+        height: 350px;
+        width: 100%;
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Info Note */
+    .info-note {
+        background: linear-gradient(135deg, #fff3e0, white);
+        border-radius: 16px;
+        padding: 30px;
+        border-left: 4px solid var(--secondary);
+        margin-top: 30px;
+    }
+
+    .info-note p {
+        color: var(--gray);
+        font-size: 0.9rem;
+        line-height: 1.7;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .info-note i {
+        color: var(--secondary);
+        font-size: 1.2rem;
+    }
+
+    .info-note strong {
+        color: var(--primary);
+    }
+
+    /* Fallback Location Card */
+    .location-fallback {
+        display: none;
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        padding: 30px;
+        text-align: center;
+    }
+
+    .location-fallback .icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: white;
+        font-size: 2rem;
+    }
+
+    .location-fallback h3 {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .location-fallback p {
+        color: var(--gray);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 5px;
+    }
+
+    .location-fallback .address {
+        background: var(--light);
+        padding: 15px;
+        border-radius: 12px;
+        margin-top: 15px;
+        border-left: 3px solid var(--secondary);
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .contact-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .hero-section h1 {
+            font-size: 2rem;
+        }
+        
+        .map-container {
+            height: 300px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 40px 20px;
+        }
+        
+        .hero-section h1 {
+            font-size: 1.6rem;
+        }
+        
+        .hero-section p {
+            font-size: 0.95rem;
+        }
+        
+        .contact-method {
+            flex-direction: row;
+        }
+        
+        .method-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+        
+        .map-container {
+            height: 250px;
+        }
+    }
+</style>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+<div class="contact-page">
+    <div class="container-custom">
+        <!-- Hero Section -->
+        <div class="hero-section fade-in-up">
+            <h1>Contact <span>Us</span></h1>
+            <p>Get in touch with the ShopMax team</p>
+        </div>
+
+        <!-- Contact Grid -->
+        <div class="contact-grid">
+            <!-- Contact Info Card -->
+            <div class="info-card fade-in-up delay-1">
+                <h2><i class="fas fa-info-circle"></i> Contact Information</h2>
+                
+                <div class="contact-method">
+                    <div class="method-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="method-details">
+                        <h3>Visit Us</h3>
+                        <p>Uganda Christian University</p>
+                        <p>Main Campus, Mukono</p>
+                    </div>
+                </div>
+
+                <div class="contact-method">
+                    <div class="method-icon"><i class="fas fa-phone"></i></div>
+                    <div class="method-details">
+                        <h3>Call Us</h3>
+                        <p>+256 782 713764</p>
+                    </div>
+                </div>
+
+                <div class="contact-method">
+                    <div class="method-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="method-details">
+                        <h3>Email Us</h3>
+                        <p><a href="mailto:shopmax4321@gmail.com">shopmax4321@gmail.com</a></p>
+                        <p>We aim to respond within 24 hours</p>
+                    </div>
+                </div>
+
+                <div class="contact-method">
+                    <div class="method-icon"><i class="fab fa-whatsapp"></i></div>
+                    <div class="method-details">
+                        <h3>WhatsApp</h3>
+                        <p><a href="https://wa.me/256782713764">+256 782 713764</a></p>
+                        <p>Quick support via WhatsApp</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Section - Using static map as fallback -->
+            <div class="map-section fade-in-up delay-2">
+                <div class="map-header">
+                    <h3><i class="fas fa-map-marker-alt"></i> Our Location: UCU Main Campus, Mukono</h3>
+                </div>
+                <div class="map-container" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                    <!-- Static map image as fallback - more accurate -->
+                    <img src="https://maps.googleapis.com/maps/api/staticmap?center=Uganda+Christian+University+Mukono&zoom=15&size=600x350&maptype=roadmap&markers=color:orange%7CUganda+Christian+University+Mukono&key=YOUR_API_KEY" 
+                         alt="UCU Mukono Map" 
+                         style="width: 100%; height: 100%; object-fit: cover; display: none;"
+                         onerror="this.style.display='none'; document.getElementById('map-fallback').style.display='block';">
+                    
+                    <!-- Fallback address card if map fails -->
+                    <div id="map-fallback" style="text-align: center; padding: 20px;">
+                        <i class="fas fa-map-marked-alt" style="font-size: 3rem; color: var(--secondary); margin-bottom: 15px;"></i>
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">UCU Main Campus</h4>
+                        <p style="color: var(--gray); margin-bottom: 5px;">Uganda Christian University</p>
+                        <p style="color: var(--gray);">Mukono, Uganda</p>
+                        <p style="color: var(--gray); font-size: 0.85rem; margin-top: 15px;">
+                            <i class="fas fa-info-circle" style="color: var(--secondary);"></i> 
+                            Located along Jinja Road, approximately 25km from Kampala
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Note -->
+        <div class="info-note fade-in-up delay-2">
+            <p>
+                <i class="fas fa-info-circle"></i>
+                <span>For technical support or inquiries, please email us at </span>
+                <strong>shopmax4321@gmail.com</strong>
+                <span>or WhatsApp </span>
+                <strong>+256 782 713764</strong>
+            </p>
+        </div>
+    </div>
+</div>
+
+<
+</script>
+{% endblock %}

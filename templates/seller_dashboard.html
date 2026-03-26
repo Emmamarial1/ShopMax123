@@ -1,0 +1,963 @@
+{% extends "base.html" %}
+
+{% block title %}Seller Dashboard - ShopMax UCU{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .dashboard-page {
+        padding: 30px 0;
+        background: var(--white);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: var(--white);
+        padding: 10px 16px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px 25px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .store-badge {
+        background: rgba(255,255,255,0.15);
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    /* Stats Cards - Compact */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+        border-color: var(--secondary);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+        color: var(--white);
+        font-size: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .stat-label {
+        color: var(--gray);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    /* Quick Actions - 5 in a row */
+    .quick-actions {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border);
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .section-title i {
+        color: var(--secondary);
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+    }
+
+    .action-item {
+        text-align: center;
+        padding: 10px 5px;
+        background: var(--gray-light);
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-decoration: none;
+        color: var(--primary);
+        border: 1px solid transparent;
+    }
+
+    .action-item:hover {
+        background: var(--white);
+        border-color: var(--secondary);
+        transform: translateY(-2px);
+    }
+
+    .action-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--primary);
+        border-radius: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 6px;
+        color: var(--white);
+        font-size: 0.8rem;
+    }
+
+    .action-item:hover .action-icon {
+        background: var(--secondary);
+    }
+
+    .action-label {
+        font-weight: 500;
+        font-size: 0.65rem;
+    }
+
+    /* Two Column Layout */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    /* Metric Cards */
+    .metric-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border);
+    }
+
+    .metric-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .metric-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--secondary);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1rem;
+    }
+
+    .metric-info h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--primary);
+        line-height: 1.2;
+    }
+
+    .metric-info p {
+        color: var(--gray);
+        font-size: 0.65rem;
+    }
+
+    .metric-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .metric-list li {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px dashed var(--border);
+        font-size: 0.7rem;
+    }
+
+    .metric-list li:last-child {
+        border-bottom: none;
+    }
+
+    .metric-list .label {
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .metric-list .label i {
+        color: var(--secondary);
+        font-size: 0.6rem;
+    }
+
+    .metric-list .value {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    /* Recent Orders */
+    .recent-orders {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border);
+        margin-bottom: 20px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .view-all-link {
+        color: var(--secondary);
+        text-decoration: none;
+        font-size: 0.65rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.7rem;
+    }
+
+    .orders-table th {
+        text-align: left;
+        padding: 8px 6px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 600;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .orders-table td {
+        padding: 8px 6px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .order-id {
+        font-weight: 600;
+        color: var(--secondary);
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .customer-avatar {
+        width: 24px;
+        height: 24px;
+        background: var(--primary);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.6rem;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: rgba(100, 116, 139, 0.1);
+        color: var(--gray);
+        border: 1px solid var(--gray);
+    }
+
+    .status-confirmed {
+        background: rgba(23, 162, 184, 0.1);
+        color: #17a2b8;
+        border: 1px solid #17a2b8;
+    }
+
+    .status-processing {
+        background: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+        border: 1px solid #0d6efd;
+    }
+
+    .status-shipped {
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary-dark);
+        border: 1px solid var(--secondary);
+    }
+
+    .status-delivered, .status-completed {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .status-cancelled {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .amount {
+        font-weight: 600;
+        color: var(--secondary);
+    }
+
+    .action-btn {
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .action-view {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .action-view:hover {
+        background: var(--primary-dark);
+    }
+
+    /* Low Stock */
+    .low-stock {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border);
+        margin-bottom: 20px;
+    }
+
+    .stock-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        background: #fef2f2;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        border: 1px solid #fee2e2;
+    }
+
+    .stock-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .stock-image {
+        width: 30px;
+        height: 30px;
+        border-radius: 4px;
+        overflow: hidden;
+        background: var(--white);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stock-image i {
+        color: var(--gray);
+        font-size: 1rem;
+    }
+
+    .stock-details {
+        flex: 1;
+    }
+
+    .stock-details h4 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .stock-details p {
+        font-size: 0.6rem;
+        color: var(--gray);
+    }
+
+    .stock-count {
+        background: var(--danger);
+        color: var(--white);
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .stock-action {
+        padding: 4px 8px;
+        background: var(--primary);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .stock-action:hover {
+        background: var(--primary-dark);
+    }
+
+    /* Reviews */
+    .reviews-section {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border);
+    }
+
+    .review-item {
+        background: var(--gray-light);
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 8px;
+        border: 1px solid var(--border);
+    }
+
+    .review-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    .review-user {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .review-avatar {
+        width: 24px;
+        height: 24px;
+        background: var(--primary);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .review-user-info h4 {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 1px;
+    }
+
+    .review-stars {
+        color: var(--secondary);
+        font-size: 0.55rem;
+    }
+
+    .review-date {
+        color: var(--gray);
+        font-size: 0.55rem;
+    }
+
+    .review-content {
+        color: var(--gray);
+        font-size: 0.65rem;
+        line-height: 1.4;
+        margin-bottom: 4px;
+    }
+
+    .review-product {
+        font-size: 0.6rem;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .review-product a {
+        color: var(--secondary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .actions-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .orders-table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .stock-item {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Dashboard</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Welcome, {{ user.fullname.split()[0] }}</h1>
+                    <p><i class="fas fa-map-pin"></i> UCU Seller Hub</p>
+                </div>
+            </div>
+            <div class="store-badge">
+                <i class="fas fa-store"></i> {{ user.business_name or 'Your Store' }}
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-box"></i></div>
+                <div class="stat-value">{{ store_stats.products|default(0) }}</div>
+                <div class="stat-label">Products</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                <div class="stat-value">UGX {{ "{:,.0f}".format(store_stats.total_sales|default(0)) }}</div>
+                <div class="stat-label">Sales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-value">{{ store_stats.customers|default(0) }}</div>
+                <div class="stat-label">Customers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-value">{{ store_stats.rating|default(0) }}</div>
+                <div class="stat-label">Rating</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3 class="section-title"><i class="fas fa-bolt"></i> Quick Actions</h3>
+            <div class="actions-grid">
+                <a href="{{ url_for('add_product') }}" class="action-item">
+                    <div class="action-icon"><i class="fas fa-plus"></i></div>
+                    <div class="action-label">Add</div>
+                </a>
+                <a href="{{ url_for('manage_products') }}" class="action-item">
+                    <div class="action-icon"><i class="fas fa-boxes"></i></div>
+                    <div class="action-label">Products</div>
+                </a>
+                <a href="{{ url_for('orders') }}" class="action-item">
+                    <div class="action-icon"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="action-label">Orders</div>
+                </a>
+                <a href="{{ url_for('store_settings') }}" class="action-item">
+                    <div class="action-icon"><i class="fas fa-cog"></i></div>
+                    <div class="action-label">Settings</div>
+                </a>
+                <a href="{{ url_for('seller_analytics') }}" class="action-item">
+                    <div class="action-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="action-label">Analytics</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Today's Stats -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon"><i class="fas fa-calendar-day"></i></div>
+                    <div class="metric-info">
+                        <h3>UGX {{ "{:,.0f}".format(quick_stats.today_revenue|default(0)) }}</h3>
+                        <p>Today's Revenue</p>
+                    </div>
+                </div>
+                <ul class="metric-list">
+                    <li>
+                        <span class="label"><i class="fas fa-clock"></i> Pending Orders</span>
+                        <span class="value">{{ quick_stats.pending_orders|default(0) }}</span>
+                    </li>
+                    <li>
+                        <span class="label"><i class="fas fa-check-circle"></i> Sold Today</span>
+                        <span class="value">{{ quick_stats.products_sold|default(0) }}</span>
+                    </li>
+                    <li>
+                        <span class="label"><i class="fas fa-star"></i> Avg Rating</span>
+                        <span class="value">{{ quick_stats.rating|default(0) }}/5</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Inventory Stats -->
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon"><i class="fas fa-boxes"></i></div>
+                    <div class="metric-info">
+                        <h3>{{ quick_stats.low_stock_count|default(0) }}</h3>
+                        <p>Low Stock Items</p>
+                    </div>
+                </div>
+                <ul class="metric-list">
+                    <li>
+                        <span class="label"><i class="fas fa-box"></i> Active Products</span>
+                        <span class="value">{{ store_stats.products|default(0) }}</span>
+                    </li>
+                    <li>
+                        <span class="label"><i class="fas fa-dollar-sign"></i> Inventory Value</span>
+                        <span class="value">UGX {{ "{:,.0f}".format(store_stats.inventory_value|default(0)) }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="recent-orders">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-clock"></i> Recent Orders</h3>
+                <a href="{{ url_for('orders') }}" class="view-all-link">View All →</a>
+            </div>
+
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td><span class="order-id">#{{ order.id }}</span></td>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-avatar">{{ order.user.fullname[:1] if order.user else '?' }}</div>
+                                <span>{{ order.user.fullname.split()[0] if order.user else 'Guest' }}</span>
+                            </div>
+                        </td>
+                        <td>{{ order.created_at.strftime('%d %b') if order.created_at else 'N/A' }}</td>
+                        <td>{{ order.order_items|length }}</td>
+                        <td class="amount">UGX {{ "{:,.0f}".format(order.total_amount) }}</td>
+                        <td>
+                            <span class="status-badge status-{{ order.status }}">
+                                {{ order.status|replace('_', ' ')|upper }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('order_details', order_id=order.id) }}" class="action-btn action-view">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 20px;">
+                            <i class="fas fa-shopping-bag" style="color: var(--border); font-size: 2rem;"></i>
+                            <p style="color: var(--gray); font-size: 0.7rem;">No orders yet</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Low Stock Alert -->
+        {% if low_stock_products %}
+        <div class="low-stock">
+            <h3 class="section-title"><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Low Stock ({{ low_stock_products|length }})</h3>
+
+            {% for product in low_stock_products %}
+            <div class="stock-item">
+                <div class="stock-image">
+                    {% if product.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}" style="width:100%; height:100%; object-fit:cover;">
+                    {% else %}
+                    <i class="fas fa-box"></i>
+                    {% endif %}
+                </div>
+                <div class="stock-details">
+                    <h4>{{ product.name }}</h4>
+                    <p>UGX {{ "{:,.0f}".format(product.price) }}</p>
+                </div>
+                <div class="stock-count">{{ product.stock }} left</div>
+                <a href="{{ url_for('edit_product', product_id=product.id) }}" class="stock-action">
+                    <i class="fas fa-edit"></i> Restock
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Recent Reviews -->
+        {% if recent_reviews %}
+        <div class="reviews-section">
+            <h3 class="section-title"><i class="fas fa-star"></i> Recent Reviews</h3>
+
+            {% for review in recent_reviews %}
+            <div class="review-item">
+                <div class="review-header">
+                    <div class="review-user">
+                        <div class="review-avatar">{{ review.user.fullname[:1] if review.user else '?' }}</div>
+                        <div class="review-user-info">
+                            <h4>{{ review.user.fullname.split()[0] if review.user else 'User' }}</h4>
+                            <div class="review-stars">
+                                {% for i in range(5) %}
+                                    {% if i < review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-date">{{ review.created_at.strftime('%d %b') if review.created_at else 'N/A' }}</div>
+                </div>
+                <div class="review-content">{{ review.comment|truncate(60) }}</div>
+                <div class="review-product">
+                    <i class="fas fa-box"></i> on 
+                    <a href="{{ url_for('product_detail', product_id=review.product.id) if review.product else '#' }}">
+                        {{ review.product.name if review.product else 'Product' }}
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-size:0.7rem; color:var(--primary);">Loading...</p>
+</div>
+
+<script>
+function showLoading(show) {
+    document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+</script>
+{% endblock %}

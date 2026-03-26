@@ -1,0 +1,423 @@
+{% extends "base.html" %}
+
+{% block title %}Help Center - ShopMax UCU{% endblock %}
+
+{% block extra_css %}
+<style>
+    .help-page {
+        padding: 30px 0;
+        background: #f8fafc;
+    }
+
+    .container-custom {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Header */
+    .help-header {
+        background: var(--primary);
+        color: white;
+        padding: 40px 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .help-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .help-header p {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-bottom: 25px;
+    }
+
+    .search-box {
+        max-width: 500px;
+        margin: 0 auto;
+        display: flex;
+        background: white;
+        border-radius: 40px;
+        overflow: hidden;
+    }
+
+    .search-box input {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        outline: none;
+        font-size: 0.9rem;
+    }
+
+    .search-box button {
+        padding: 0 25px;
+        background: var(--secondary);
+        color: white;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    /* Quick Help Cards */
+    .quick-help {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+
+    .quick-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px 15px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        transition: 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .quick-card:hover {
+        border-color: var(--secondary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255,107,0,0.1);
+    }
+
+    .quick-card i {
+        font-size: 2rem;
+        color: var(--secondary);
+        margin-bottom: 10px;
+    }
+
+    .quick-card h3 {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .quick-card p {
+        color: #64748b;
+        font-size: 0.8rem;
+        margin: 0;
+    }
+
+    /* Section Title */
+    .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .section-title h2 {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .section-title a {
+        color: var(--secondary);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    /* FAQ List */
+    .faq-list {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        margin-bottom: 40px;
+    }
+
+    .faq-item {
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .faq-item:last-child {
+        border-bottom: none;
+    }
+
+    .faq-question {
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .faq-question:hover {
+        background: #f8fafc;
+    }
+
+    .faq-question h3 {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .faq-question i {
+        color: var(--secondary);
+        font-size: 0.8rem;
+        transition: 0.2s;
+    }
+
+    .faq-item.active .faq-question i {
+        transform: rotate(180deg);
+    }
+
+    .faq-answer {
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: 0.2s;
+        background: #f8fafc;
+    }
+
+    .faq-item.active .faq-answer {
+        padding: 15px 20px 20px;
+        max-height: 200px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .faq-answer p {
+        color: #64748b;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* Contact Section */
+    .contact-section {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+    }
+
+    .contact-section h3 {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .contact-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .contact-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 25px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: 0.2s;
+    }
+
+    .contact-btn.email {
+        background: var(--primary);
+        color: white;
+    }
+
+    .contact-btn.email:hover {
+        background: var(--primary-dark);
+    }
+
+    .contact-btn.phone {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .contact-btn.phone:hover {
+        background: var(--secondary-dark);
+    }
+
+    .contact-btn.whatsapp {
+        background: #25D366;
+        color: white;
+    }
+
+    .contact-btn.whatsapp:hover {
+        background: #20bd5a;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .quick-help {
+            grid-template-columns: 1fr;
+        }
+        
+        .contact-buttons {
+            flex-direction: column;
+        }
+        
+        .contact-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="help-page">
+    <div class="container-custom">
+        <!-- Simple Header -->
+        <div class="help-header">
+            <h1>Help Center</h1>
+            <p>Get help with buying and selling on campus</p>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search for help...">
+                <button onclick="searchHelp()"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <!-- Quick Access Cards -->
+        <div class="quick-help">
+            <a href="{{ url_for('faqs') }}#buying" class="quick-card">
+                <i class="fas fa-shopping-bag"></i>
+                <h3>How to Buy</h3>
+                <p>Place orders, track items</p>
+            </a>
+            <a href="{{ url_for('faqs') }}#selling" class="quick-card">
+                <i class="fas fa-store"></i>
+                <h3>How to Sell</h3>
+                <p>List items, get paid</p>
+            </a>
+            <a href="{{ url_for('faqs') }}#delivery" class="quick-card">
+                <i class="fas fa-truck"></i>
+                <h3>Delivery</h3>
+                <p>Campus pickup & delivery</p>
+            </a>
+            <a href="{{ url_for('faqs') }}#account" class="quick-card">
+                <i class="fas fa-user"></i>
+                <h3>Account</h3>
+                <p>Login, profile, security</p>
+            </a>
+            <a href="{{ url_for('faqs') }}#payments" class="quick-card">
+                <i class="fas fa-money-bill-wave"></i>
+                <h3>Payments</h3>
+                <p>Cash on delivery only</p>
+            </a>
+            <a href="{{ url_for('faqs') }}#technical" class="quick-card">
+                <i class="fas fa-code"></i>
+                <h3>Technical</h3>
+                <p>Website issues</p>
+            </a>
+        </div>
+
+        <!-- Common Questions -->
+        <div class="section-title">
+            <h2>Common Questions</h2>
+            <a href="{{ url_for('faqs') }}">View all <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="faq-list">
+            <div class="faq-item active">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> How do I place an order?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Browse products, add to cart, checkout. You'll receive confirmation once the seller accepts your order.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> How do I become a seller?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Register with your UCU email and select "Seller". Provide your business name and NIN for verification.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> How does delivery work?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Our company boda riders facilitate delivery between buyers and sellers  or may buyer choose pickup option, so they can arrange it with seller at agreed location or seller shop address.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> What payment methods?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We currently support Cash on Delivery only. Pay when you receive your item.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> Why do I need UCU email?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>ShopMax is only for UCU Community. Your UCU email verifies you're part of the community.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="contact-section">
+            <h3>Still have questions?</h3>
+            <div class="contact-buttons">
+                <a href="mailto:shopmax4321@gmail.com" class="contact-btn email">
+                    <i class="fas fa-envelope"></i> Email Us
+                </a>
+                <a href="tel:+256782713764" class="contact-btn phone">
+                    <i class="fas fa-phone"></i> Call Us
+                </a>
+                <a href="https://wa.me/256782713764" class="contact-btn whatsapp">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleFAQ(element) {
+    const item = element.closest('.faq-item');
+    item.classList.toggle('active');
+}
+
+function searchHelp() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (query) {
+        window.location.href = "{{ url_for('faqs') }}?search=" + encodeURIComponent(query);
+    }
+}
+
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') searchHelp();
+});
+</script>
+{% endblock %}

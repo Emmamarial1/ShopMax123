@@ -1,0 +1,1257 @@
+{% extends "base.html" %}
+
+{% block title %}Issue Management - ShopMax Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .issues-page {
+        padding: 30px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: white;
+        padding: 10px 16px;
+        border-radius: 40px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--primary);
+        font-size: 0.75rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.6rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 2px 8px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 25px 30px;
+        border-radius: 20px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    /* Stats Cards */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-card.total::before { background: var(--primary); }
+    .stat-card.open::before { background: var(--warning); }
+    .stat-card.resolved::before { background: var(--success); }
+    .stat-card.urgent::before { background: var(--danger); }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .stat-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        color: var(--gray);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .stat-card.total .stat-icon { background: rgba(0,0,128,0.1); color: var(--primary); }
+    .stat-card.open .stat-icon { background: rgba(245,158,11,0.1); color: var(--warning); }
+    .stat-card.resolved .stat-icon { background: rgba(16,185,129,0.1); color: var(--success); }
+    .stat-card.urgent .stat-icon { background: rgba(239,68,68,0.1); color: var(--danger); }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .stat-card.total .stat-number { color: var(--primary); }
+    .stat-card.open .stat-number { color: var(--warning); }
+    .stat-card.resolved .stat-number { color: var(--success); }
+    .stat-card.urgent .stat-number { color: var(--danger); }
+
+    .stat-sub {
+        font-size: 0.65rem;
+        color: var(--gray);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: white;
+        border-radius: 16px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .filter-select {
+        padding: 8px 16px;
+        border: 1px solid var(--border);
+        border-radius: 30px;
+        font-size: 0.7rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .filter-select:focus {
+        border-color: var(--secondary);
+        outline: none;
+    }
+
+    .search-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--gray-light);
+        padding: 6px 15px;
+        border-radius: 30px;
+        border: 1px solid var(--border);
+    }
+
+    .search-box i {
+        color: var(--secondary);
+        font-size: 0.7rem;
+    }
+
+    .search-box input {
+        border: none;
+        background: transparent;
+        padding: 6px 0;
+        width: 220px;
+        outline: none;
+        font-size: 0.7rem;
+    }
+
+    .filter-btn {
+        padding: 6px 18px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: white;
+        transition: all 0.2s;
+    }
+
+    .filter-btn-primary {
+        background: var(--secondary);
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    .filter-btn-primary:hover {
+        background: var(--secondary-dark);
+    }
+
+    .filter-btn:hover {
+        background: var(--gray-light);
+    }
+
+    /* Issues Table */
+    .table-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    .table-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .issues-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.75rem;
+    }
+
+    .issues-table th {
+        text-align: left;
+        padding: 14px 16px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 600;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .issues-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .issues-table tr:hover td {
+        background: var(--gray-light);
+    }
+
+    .issue-id {
+        font-weight: 600;
+        color: var(--primary);
+        font-family: monospace;
+        font-size: 0.8rem;
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .customer-avatar {
+        width: 35px;
+        height: 35px;
+        background: var(--primary);
+        border-radius: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .customer-name {
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.75rem;
+    }
+
+    .customer-email {
+        font-size: 0.6rem;
+        color: var(--gray);
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 500;
+    }
+
+    .badge-damaged { background: rgba(220,53,69,0.1); color: #dc3545; border: 1px solid #dc3545; }
+    .badge-wrong_item { background: rgba(255,107,0,0.1); color: var(--secondary); border: 1px solid var(--secondary); }
+    .badge-missing { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid #f59e0b; }
+    .badge-late { background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid #3b82f6; }
+    .badge-other { background: rgba(100,116,139,0.1); color: #64748b; border: 1px solid #64748b; }
+
+    .badge-open { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid #f59e0b; }
+    .badge-resolved { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid #10b981; }
+
+    .message-preview {
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--gray);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .action-btn {
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn-view {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-view:hover {
+        background: var(--primary-dark);
+    }
+
+    .btn-respond {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .btn-respond:hover {
+        background: var(--secondary-dark);
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        max-width: 700px;
+        width: 100%;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 18px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .modal-body {
+        padding: 20px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .detail-item {
+        background: var(--gray-light);
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .detail-label {
+        color: var(--gray);
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .detail-value {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .description-box {
+        background: var(--gray-light);
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-left: 3px solid var(--secondary);
+    }
+
+    .description-box p {
+        font-size: 0.75rem;
+        line-height: 1.5;
+        margin: 8px 0 0;
+    }
+
+    .message-thread {
+        background: var(--gray-light);
+        border-radius: 10px;
+        padding: 15px;
+        max-height: 350px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+
+    .message-item {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .message-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        flex-shrink: 0;
+        font-size: 0.8rem;
+    }
+
+    .message-bubble {
+        flex: 1;
+        background: white;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+    }
+
+    .message-bubble.admin {
+        background: #fff3e0;
+        border-color: var(--secondary);
+    }
+
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .message-sender {
+        font-weight: 600;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .admin-badge {
+        background: var(--secondary);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.55rem;
+        font-weight: 500;
+    }
+
+    .message-time {
+        font-size: 0.55rem;
+        color: var(--gray);
+    }
+
+    .message-text {
+        font-size: 0.7rem;
+        line-height: 1.4;
+        color: #1e293b;
+    }
+
+    .response-form textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.7rem;
+        resize: vertical;
+        min-height: 100px;
+        margin-bottom: 15px;
+    }
+
+    .response-form textarea:focus {
+        border-color: var(--secondary);
+        outline: none;
+    }
+
+    .response-options {
+        margin-bottom: 15px;
+        padding: 10px;
+        background: #f8fafc;
+        border-radius: 10px;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 0.7rem;
+        color: var(--gray);
+    }
+
+    .checkbox-label input {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    .info-note {
+        font-size: 0.6rem;
+        color: var(--gray);
+        margin-top: 5px;
+        padding-left: 26px;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 15px;
+    }
+
+    .btn {
+        padding: 8px 24px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--secondary-dark);
+    }
+
+    .btn-secondary {
+        background: var(--gray-light);
+        color: var(--gray);
+        border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+        background: var(--gray);
+        color: white;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+        padding: 20px;
+    }
+
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 32px;
+        background: white;
+        border: 1px solid var(--border);
+        color: var(--primary);
+        font-size: 0.7rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .page-link:hover, .page-link.active {
+        background: var(--secondary);
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--gray-light);
+        border-radius: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2rem;
+        color: var(--gray);
+    }
+
+    /* Loading */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.95);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .stats-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        .issues-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .search-box input {
+            width: 100%;
+        }
+        .action-buttons {
+            flex-direction: column;
+        }
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="issues-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Issues</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon"><i class="fas fa-headset"></i></div>
+                <div class="header-text">
+                    <h1>Customer Support Center</h1>
+                    <p><i class="fas fa-ticket-alt"></i> Manage customer issues and responses</p>
+                </div>
+            </div>
+            <div class="issue-badge"><i class="fas fa-chart-line"></i> Open: {{ pending_count|default(0) }}</div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-container">
+            <div class="stat-card total">
+                <div class="stat-header">
+                    <span class="stat-title">Total Issues</span>
+                    <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+                </div>
+                <div class="stat-number">{{ total_issues|default(0) }}</div>
+                <div class="stat-sub">All reported issues</div>
+            </div>
+            
+            <div class="stat-card open">
+                <div class="stat-header">
+                    <span class="stat-title">Open Issues</span>
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="stat-number">{{ pending_count|default(0) }}</div>
+                <div class="stat-sub">Need attention</div>
+            </div>
+            
+            <div class="stat-card resolved">
+                <div class="stat-header">
+                    <span class="stat-title">Resolved</span>
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                </div>
+                <div class="stat-number">{{ resolved_count|default(0) }}</div>
+                <div class="stat-sub">Successfully resolved</div>
+            </div>
+            
+            <div class="stat-card urgent">
+                <div class="stat-header">
+                    <span class="stat-title">Urgent Priority</span>
+                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                </div>
+                <div class="stat-number">{{ urgent_count|default(0) }}</div>
+                <div class="stat-sub">Requires immediate attention</div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="pending">Open - Pending</option>
+                    <option value="in_progress">Open - In Progress</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                </select>
+                <select class="filter-select" id="priorityFilter">
+                    <option value="">All Priority</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by order ID, customer, or description...">
+            </div>
+            <div class="filter-group">
+                <button class="filter-btn filter-btn-primary" onclick="applyFilters()">Apply</button>
+                <button class="filter-btn" onclick="clearFilters()">Clear</button>
+            </div>
+        </div>
+
+        <!-- Issues Table -->
+        {% if issues %}
+        <div class="table-card">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> Customer Issues</h3>
+                <span style="font-size: 0.7rem; opacity: 0.8;">{{ issues|length }} issues shown</span>
+            </div>
+            <table class="issues-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Order</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for issue in issues %}
+                    <tr>
+                        <td class="issue-id">#{{ issue.id }}</td>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-avatar">{{ issue.user.fullname[:1] if issue.user else '?' }}</div>
+                                <div>
+                                    <div class="customer-name">{{ issue.user.fullname[:20] if issue.user else 'Unknown' }}</div>
+                                    <div class="customer-email">{{ issue.user.email[:25] if issue.user else '' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if issue.order_id %}
+                            <a href="{{ url_for('order_details', order_id=issue.order_id) }}" style="color: var(--secondary); text-decoration: none; font-weight: 500;">#{{ issue.order_id }}</a>
+                            {% else %}—{% endif %}
+                        </td>
+                        <td><span class="badge badge-{{ issue.issue_type }}">{{ issue.issue_type|replace('_', ' ')|title }}</span></td>
+                        <td>
+                            {% if issue.status == 'pending' or issue.status == 'in_progress' %}
+                            <span class="badge badge-open"><i class="fas fa-clock"></i> Open</span>
+                            {% elif issue.status == 'resolved' %}
+                            <span class="badge badge-resolved"><i class="fas fa-check-circle"></i> Resolved</span>
+                            {% else %}
+                            <span class="badge badge-{{ issue.status }}">{{ issue.status|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="message-preview" title="{{ issue.description }}">{{ issue.description[:50] }}{% if issue.description|length > 50 %}...{% endif %}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button onclick="viewIssue({{ issue.id }})" class="action-btn btn-view"><i class="fas fa-eye"></i> View</button>
+                                {% if issue.status != 'resolved' %}
+                                <button onclick="respondToIssue({{ issue.id }})" class="action-btn btn-respond"><i class="fas fa-reply"></i> Respond</button>
+                                {% else %}
+                                <button onclick="viewIssue({{ issue.id }})" class="action-btn btn-view" style="background: var(--success);"><i class="fas fa-check"></i> Resolved</button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination and pagination.pages > 1 %}
+        <div class="pagination">
+            {% if pagination.has_prev %}<a href="{{ url_for('admin_issues', page=pagination.prev_num) }}" class="page-link"><i class="fas fa-chevron-left"></i></a>{% endif %}
+            {% for p in pagination.iter_pages() %}
+                {% if p %}<a href="{{ url_for('admin_issues', page=p) }}" class="page-link {% if p == pagination.page %}active{% endif %}">{{ p }}</a>{% endif %}
+            {% endfor %}
+            {% if pagination.has_next %}<a href="{{ url_for('admin_issues', page=pagination.next_num) }}" class="page-link"><i class="fas fa-chevron-right"></i></a>{% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+            <h3>No Issues Found</h3>
+            <p>All customer issues have been resolved. Great job!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Issue Modal -->
+<div class="modal" id="issueModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-circle"></i> Issue Details</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <div style="text-align: center; padding: 40px;"><div class="spinner"></div><p style="margin-top: 15px;">Loading issue details...</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="margin-top: 15px;">Processing...</p>
+</div>
+
+<script>
+let currentIssueId = null;
+
+function applyFilters() {
+    const status = document.getElementById('statusFilter').value;
+    const priority = document.getElementById('priorityFilter').value;
+    const search = document.getElementById('searchInput').value;
+    let url = "{{ url_for('admin_issues') }}?";
+    if (status) url += `status=${status}&`;
+    if (priority) url += `priority=${priority}&`;
+    if (search) url += `search=${encodeURIComponent(search)}&`;
+    window.location.href = url;
+}
+
+function clearFilters() {
+    window.location.href = "{{ url_for('admin_issues') }}";
+}
+
+async function viewIssue(issueId) {
+    currentIssueId = issueId;
+    const modal = document.getElementById('issueModal');
+    const modalBody = document.getElementById('modalBody');
+    
+    modal.classList.add('show');
+    modalBody.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="spinner"></div><p style="margin-top: 15px;">Loading issue details...</p></div>';
+    
+    try {
+        const res = await fetch(`/api/admin/issues/${issueId}`);
+        const data = await res.json();
+        
+        if (data.success) {
+            renderModal(data);
+        } else {
+            alert(data.message || 'Failed to load issue details');
+            closeModal();
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        alert('Failed to load issue details: ' + err.message);
+        closeModal();
+    }
+}
+
+function renderModal(data) {
+    const issue = data.issue;
+    const customer = data.customer;
+    const messages = data.messages || [];
+    const isResolved = issue.status === 'resolved';
+    
+    // Build messages HTML
+    let messagesHtml = '';
+    if (messages.length > 0) {
+        messagesHtml = '<div class="message-thread">';
+        messages.forEach(msg => {
+            const isAdmin = msg.is_admin_reply;
+            const avatarBg = isAdmin ? '#ff6b00' : '#000080';
+            const senderInitial = msg.sender_name ? msg.sender_name.charAt(0).toUpperCase() : '?';
+            
+            messagesHtml += `
+                <div class="message-item">
+                    <div class="message-avatar" style="background: ${avatarBg};">
+                        ${senderInitial}
+                    </div>
+                    <div class="message-bubble ${isAdmin ? 'admin' : ''}">
+                        <div class="message-header">
+                            <span class="message-sender" style="color: ${isAdmin ? '#ff6b00' : '#000080'};">
+                                ${escapeHtml(msg.sender_name || 'User')}
+                                ${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
+                            </span>
+                            <span class="message-time">${msg.created_at || ''}</span>
+                        </div>
+                        <div class="message-text">${escapeHtml(msg.message)}</div>
+                    </div>
+                </div>
+            `;
+        });
+        messagesHtml += '</div>';
+    } else {
+        messagesHtml = '<div style="text-align: center; padding: 20px; color: #64748b;">No messages yet. Type your response below.</div>';
+    }
+    
+    document.getElementById('modalBody').innerHTML = `
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Issue ID</div>
+                <div class="detail-value">#${issue.id}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Reported</div>
+                <div class="detail-value">${issue.created_at || 'N/A'}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Type</div>
+                <div class="detail-value"><span class="badge badge-${issue.issue_type}">${(issue.issue_type || '').replace('_', ' ').toUpperCase()}</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Priority</div>
+                <div class="detail-value"><span class="badge badge-${issue.priority}">${(issue.priority || '').toUpperCase()}</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Status</div>
+                <div class="detail-value"><span class="badge ${isResolved ? 'badge-resolved' : 'badge-open'}">${isResolved ? 'RESOLVED' : (issue.status || '').replace('_', ' ').toUpperCase()}</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Order</div>
+                <div class="detail-value">${issue.order_id ? `<a href="/order/${issue.order_id}" style="color: var(--secondary);">#${issue.order_id}</a>` : 'N/A'}</div>
+            </div>
+        </div>
+        
+        <div class="description-box">
+            <strong>Issue Description:</strong>
+            <p>${escapeHtml(issue.description || 'No description provided')}</p>
+        </div>
+        
+        <div class="detail-item" style="margin-bottom: 15px;">
+            <div class="detail-label">Customer Information</div>
+            <div style="margin-top: 8px;">
+                <strong>${escapeHtml(customer.name || 'Unknown')}</strong><br>
+                ${escapeHtml(customer.email || 'N/A')}<br>
+                ${customer.phone || 'No phone provided'}
+            </div>
+        </div>
+        
+        <h4 style="color: var(--primary); margin: 20px 0 10px;"><i class="fas fa-comments"></i> Conversation Thread</h4>
+        ${messagesHtml}
+        
+        <div class="response-form">
+            <h4 style="color: var(--primary); margin-bottom: 10px;"><i class="fas fa-reply"></i> Admin Response</h4>
+            <textarea id="responseMsg" placeholder="Type your response here..." rows="4" {% if isResolved %}disabled{% endif %}>{% if isResolved %}This issue has been resolved.{% endif %}</textarea>
+            {% if not isResolved %}
+            <div class="response-options">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="markResolved" checked>
+                    <span>Mark as resolved after responding</span>
+                </label>
+                <div class="info-note">
+                    <i class="fas fa-info-circle"></i> When you respond, the issue will be automatically marked as resolved
+                </div>
+            </div>
+            {% endif %}
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                {% if not isResolved %}
+                <button class="btn btn-primary" onclick="sendResponse()">Send Response</button>
+                {% endif %}
+            </div>
+        </div>
+    `;
+}
+
+async function sendResponse() {
+    const message = document.getElementById('responseMsg').value.trim();
+    const markResolved = document.getElementById('markResolved') ? document.getElementById('markResolved').checked : true;
+    
+    if (!message) {
+        alert('Please enter a response message');
+        return;
+    }
+    
+    showLoading(true);
+    
+    try {
+        const res = await fetch(`/api/admin/issues/${currentIssueId}/respond`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                message: message,
+                mark_resolved: markResolved
+            })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            alert('Response sent successfully! Issue has been resolved.');
+            closeModal();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            alert(data.message || 'Error sending response');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        alert('Error sending response: ' + err.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+function respondToIssue(issueId) {
+    viewIssue(issueId);
+}
+
+function closeModal() {
+    document.getElementById('issueModal').classList.remove('show');
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.toggle('show', show);
+    }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// Event listeners
+document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') applyFilters();
+});
+
+// Make functions global
+window.viewIssue = viewIssue;
+window.respondToIssue = respondToIssue;
+window.closeModal = closeModal;
+window.applyFilters = applyFilters;
+window.clearFilters = clearFilters;
+window.sendResponse = sendResponse;
+</script>
+{% endblock %}

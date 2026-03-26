@@ -1,0 +1,1138 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Products - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .manage-products-page {
+        padding: 30px 0;
+        background: var(--white);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: var(--white);
+        padding: 10px 16px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .page-header h1 {
+        color: var(--primary);
+        font-size: 1.3rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .page-header h1 i {
+        color: var(--secondary);
+        font-size: 1.2rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 16px;
+        background: var(--secondary);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 16px;
+        background: var(--primary);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .stat-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--primary);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1rem;
+    }
+
+    .stat-info h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .stat-info p {
+        color: var(--gray);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: var(--white);
+        border-radius: 30px;
+        padding: 10px 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--gray);
+    }
+
+    .filter-tab:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .filter-tab.active {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .filter-search {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--gray-light);
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .filter-search i {
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    .filter-search input {
+        border: none;
+        background: transparent;
+        padding: 4px 0;
+        width: 180px;
+        outline: none;
+        font-size: 0.75rem;
+        color: var(--primary);
+    }
+
+    /* Table Card */
+    .table-card {
+        background: var(--white);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        margin-bottom: 20px;
+    }
+
+    .table-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--white);
+    }
+
+    .table-header h3 i {
+        color: var(--secondary);
+        font-size: 1rem;
+    }
+
+    /* Products Table */
+    .products-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.75rem;
+    }
+
+    .products-table th {
+        text-align: left;
+        padding: 10px 12px;
+        background: #f1f4f9;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .products-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .products-table tr:hover td {
+        background: #fff3e0;
+    }
+
+    /* Product Info */
+    .product-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .product-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #f1f4f9;
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 1rem;
+    }
+
+    .product-details h4 {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 2px;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .product-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .product-meta span {
+        font-size: 0.65rem;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .product-meta i {
+        color: var(--secondary);
+        font-size: 0.6rem;
+    }
+
+    .category-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        background: #fff3e0;
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    /* Price - UGX only */
+    .current-price {
+        font-weight: 600;
+        color: var(--secondary);
+        font-size: 0.8rem;
+    }
+
+    .old-price {
+        font-size: 0.65rem;
+        color: var(--gray);
+        text-decoration: line-through;
+        display: block;
+    }
+
+    /* Stock */
+    .stock-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+    }
+
+    .stock-badge.high {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .stock-badge.medium {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid var(--warning);
+    }
+
+    .stock-badge.low {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .stock-progress {
+        width: 80px;
+        height: 4px;
+        background: var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 3px;
+    }
+
+    .stock-progress-bar {
+        height: 100%;
+        background: var(--secondary);
+        border-radius: 4px;
+    }
+
+    /* Status */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+    }
+
+    .status-badge.active {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .status-badge.inactive {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .action-view {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .action-edit {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .action-toggle-active {
+        background: var(--warning);
+        color: var(--white);
+    }
+
+    .action-toggle-inactive {
+        background: var(--success);
+        color: var(--white);
+    }
+
+    .action-delete {
+        background: var(--danger);
+        color: var(--white);
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.1);
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        margin: 20px 0;
+    }
+
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 30px;
+        background: var(--white);
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.7rem;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+    }
+
+    .page-link:hover {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .page-item.active .page-link {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        background: var(--white);
+        border-radius: 16px;
+        border: 2px dashed var(--border);
+    }
+
+    .empty-icon {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 12px;
+    }
+
+    .empty-state h3 {
+        color: var(--primary);
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        color: var(--gray);
+        font-size: 0.8rem;
+        margin-bottom: 15px;
+    }
+
+    .empty-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 20px;
+        background: var(--secondary);
+        color: var(--white);
+        text-decoration: none;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+    }
+
+    .empty-btn:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-1px);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Toast Notification */
+    .toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 99999;
+    }
+
+    .toast {
+        background: white;
+        border-radius: 8px;
+        padding: 12px 20px;
+        margin-top: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        animation: slideIn 0.3s ease;
+        border-left: 4px solid var(--secondary);
+    }
+
+    .toast.success {
+        border-left-color: var(--success);
+    }
+
+    .toast.error {
+        border-left-color: var(--danger);
+    }
+
+    .toast i {
+        font-size: 1rem;
+    }
+
+    .toast.success i {
+        color: var(--success);
+    }
+
+    .toast.error i {
+        color: var(--danger);
+    }
+
+    .toast-message {
+        flex: 1;
+        font-size: 0.85rem;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-search input {
+            width: 100%;
+        }
+        
+        .products-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="manage-products-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Manage Products</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-boxes"></i>
+                Manage Products
+            </h1>
+            <div class="header-actions">
+                <a href="{{ url_for('add_product') }}" class="btn-primary">
+                    <i class="fas fa-plus-circle"></i> Add Product
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_products|default(0) }}</h3>
+                    <p>Total Products</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ active_products|default(0) }}</h3>
+                    <p>Active</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ low_stock_count|default(0) }}</h3>
+                    <p>Low Stock</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>UGX {{ "{:,.0f}".format(inventory_value|default(0)) }}</h3>
+                    <p>Inventory Value</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all" onclick="filterProducts('all')">All</button>
+                <button class="filter-tab" data-filter="active" onclick="filterProducts('active')">Active</button>
+                <button class="filter-tab" data-filter="inactive" onclick="filterProducts('inactive')">Inactive</button>
+                <button class="filter-tab" data-filter="low-stock" onclick="filterProducts('low-stock')">Low Stock</button>
+                <button class="filter-tab" data-filter="out-of-stock" onclick="filterProducts('out-of-stock')">Out of Stock</button>
+            </div>
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search products..." onkeyup="filterProducts()">
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        {% if products %}
+        <div class="table-card">
+            <div class="table-header">
+                <h3>
+                    <i class="fas fa-list"></i>
+                    Your Products ({{ products|length }})
+                </h3>
+            </div>
+
+            <table class="products-table" id="productsTable">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Sold</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr data-status="{% if product.is_active %}active{% else %}inactive{% endif %}" 
+                        data-stock="{{ product.stock }}"
+                        data-product-id="{{ product.id }}">
+                        <td>
+                            <div class="product-info">
+                                <div class="product-image">
+                                    {% if product.image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                    {% else %}
+                                    <div class="product-image-placeholder">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="product-details">
+                                    <h4>{{ product.name }}</h4>
+                                    <div class="product-meta">
+                                        <span><i class="fas fa-tag"></i> {{ product.brand or 'No brand' }}</span>
+                                        <span><i class="fas fa-calendar"></i> {{ product.created_at.strftime('%d %b %Y') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="category-badge">{{ product.category|replace('_', ' ')|title }}</span>
+                        </td>
+                        <td>
+                            <span class="current-price">UGX {{ "{:,.0f}".format(product.price) }}</span>
+                            {% if product.old_price and product.old_price > product.price %}
+                            <span class="old-price">UGX {{ "{:,.0f}".format(product.old_price) }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div>
+                                <span class="stock-badge 
+                                    {% if product.stock > 10 %}high
+                                    {% elif product.stock > 5 %}medium
+                                    {% elif product.stock > 0 %}low
+                                    {% else %}low{% endif %}">
+                                    {{ product.stock }} units
+                                </span>
+                                {% set max_stock = 50 %}
+                                {% set stock_percentage = (product.stock / max_stock * 100) %}
+                                {% if stock_percentage > 100 %}
+                                    {% set stock_percentage = 100 %}
+                                {% endif %}
+                                <div class="stock-progress">
+                                    <div class="stock-progress-bar" style="width: {{ stock_percentage }}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ product.sold_count or 0 }}</td>
+                        <td>
+                            <span class="status-badge {{ 'active' if product.is_active else 'inactive' }}">
+                                <i class="fas fa-{{ 'circle' if product.is_active else 'minus-circle' }}"></i>
+                                {{ 'Active' if product.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="action-btn action-view" target="_blank" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('edit_product', product_id=product.id) }}" class="action-btn action-edit" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% if product.is_active %}
+                                <button class="action-btn action-toggle-active" onclick="toggleProductStatus({{ product.id }})" title="Deactivate">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                                {% else %}
+                                <button class="action-btn action-toggle-inactive" onclick="toggleProductStatus({{ product.id }})" title="Activate">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                {% endif %}
+                                <button class="action-btn action-delete" onclick="deleteProduct({{ product.id }})" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination and pagination.pages > 1 %}
+        <nav>
+            <ul class="pagination">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('manage_products', page=pagination.prev_num, **request.args) }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                
+                {% for page_num in pagination.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('manage_products', page=page_num, **request.args) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('manage_products', page=pagination.next_num, **request.args) }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <h3>No Products Yet</h3>
+            <p>Start selling by adding your first product.</p>
+            <a href="{{ url_for('add_product') }}" class="empty-btn">
+                <i class="fas fa-plus-circle"></i> Add Your First Product
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-size: 0.8rem; color: var(--primary);">Processing...</p>
+</div>
+
+<script>
+// Toast notification
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    let icon = 'check-circle';
+    if (type === 'error') icon = 'exclamation-circle';
+    if (type === 'success') icon = 'check-circle';
+    
+    toast.innerHTML = `
+        <i class="fas fa-${icon}"></i>
+        <span class="toast-message">${message}</span>
+    `;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// Filter products
+function filterProducts(filter) {
+    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const rows = document.querySelectorAll('#productsTable tbody tr');
+    const tabs = document.querySelectorAll('.filter-tab');
+    
+    // Update active tab
+    if (filter) {
+        tabs.forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.filter === filter);
+        });
+    } else {
+        // Get active filter from tabs
+        const activeTab = document.querySelector('.filter-tab.active');
+        filter = activeTab ? activeTab.dataset.filter : 'all';
+    }
+    
+    rows.forEach(row => {
+        const status = row.dataset.status;
+        const stock = parseInt(row.dataset.stock);
+        const text = row.textContent.toLowerCase();
+        
+        // Check filter
+        let filterMatch = false;
+        if (filter === 'all') filterMatch = true;
+        else if (filter === 'active') filterMatch = status === 'active';
+        else if (filter === 'inactive') filterMatch = status === 'inactive';
+        else if (filter === 'low-stock') filterMatch = stock > 0 && stock <= 5;
+        else if (filter === 'out-of-stock') filterMatch = stock === 0;
+        
+        // Check search
+        const searchMatch = searchTerm === '' || text.includes(searchTerm);
+        
+        row.style.display = filterMatch && searchMatch ? '' : 'none';
+    });
+}
+
+// Toggle product status (activate/deactivate)
+async function toggleProductStatus(productId) {
+    if (!confirm('Are you sure you want to change this product\'s status?')) return;
+    
+    showLoading(true);
+    try {
+        const response = await fetch(`/seller/products/${productId}/toggle`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (response.redirected) {
+            window.location.href = response.url;
+            return;
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast(data.message || 'Status updated successfully');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.message || 'Error updating status', 'error');
+            showLoading(false);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        // Fallback - reload page
+        location.reload();
+    }
+}
+
+// Delete product
+async function deleteProduct(productId) {
+    if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return;
+    
+    showLoading(true);
+    try {
+        const response = await fetch(`/seller/products/${productId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ product_id: productId })
+        });
+        
+        if (response.redirected) {
+            window.location.href = response.url;
+            return;
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Product deleted successfully');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.message || 'Error deleting product', 'error');
+            showLoading(false);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        // Fallback - reload page
+        location.reload();
+    }
+}
+
+// Show/hide loading
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) overlay.classList.toggle('show', show);
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const filter = urlParams.get('filter');
+    if (filter) filterProducts(filter);
+});
+
+// Make functions global
+window.filterProducts = filterProducts;
+window.toggleProductStatus = toggleProductStatus;
+window.deleteProduct = deleteProduct;
+</script>
+{% endblock %}

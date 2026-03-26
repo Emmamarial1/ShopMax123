@@ -1,0 +1,1343 @@
+{% extends "base.html" %}
+
+{% block title %}Boda Riders - Admin - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .boda-page {
+        padding: 30px 0;
+        background: var(--white);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: var(--white);
+        padding: 10px 16px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px 25px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .total-badge {
+        background: rgba(255,255,255,0.15);
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-outline-light {
+        background: rgba(255,255,255,0.15);
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline-light:hover {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    .btn-outline-orange {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-outline-orange:hover {
+        background: var(--secondary-dark);
+    }
+
+    /* Stats Cards - 4 in a row */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stat-card:hover {
+        border-color: var(--secondary);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1.1rem;
+    }
+
+    .stat-info h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .stat-info p {
+        color: var(--gray);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: var(--white);
+        border-radius: 30px;
+        padding: 10px 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--gray);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .filter-tab:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .filter-tab.active {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .filter-search {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--gray-light);
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .filter-search i {
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    .filter-search input {
+        border: none;
+        background: transparent;
+        padding: 4px 0;
+        width: 180px;
+        outline: none;
+        font-size: 0.7rem;
+    }
+
+    /* Riders Grid */
+    .riders-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .rider-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .rider-card.online {
+        border-left: 4px solid var(--success);
+    }
+
+    .rider-card.offline {
+        border-left: 4px solid var(--gray);
+    }
+
+    .rider-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .rider-avatar {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--white);
+    }
+
+    .rider-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50px;
+        object-fit: cover;
+    }
+
+    .rider-info h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .rider-info p {
+        font-size: 0.65rem;
+        opacity: 0.8;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 600;
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .rider-body {
+        padding: 15px;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.7rem;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-icon {
+        width: 28px;
+        height: 28px;
+        background: var(--gray-light);
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--secondary);
+        font-size: 0.7rem;
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+    .info-label {
+        font-size: 0.6rem;
+        color: var(--gray);
+    }
+
+    .info-value {
+        font-weight: 500;
+        color: var(--primary);
+        font-size: 0.7rem;
+    }
+
+    .vehicle-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        background: var(--gray-light);
+        border-radius: 20px;
+        font-size: 0.6rem;
+        color: var(--primary);
+    }
+
+    .stats-mini {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        gap: 8px;
+    }
+
+    .stat-mini-item {
+        flex: 1;
+        text-align: center;
+        background: var(--gray-light);
+        border-radius: 6px;
+        padding: 6px;
+    }
+
+    .stat-mini-item .value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--secondary);
+    }
+
+    .stat-mini-item .label {
+        font-size: 0.55rem;
+        color: var(--gray);
+    }
+
+    .rider-actions {
+        display: flex;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 5px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+    }
+
+    .btn-view {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .btn-view:hover {
+        background: var(--primary-dark);
+    }
+
+    .btn-edit {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-edit:hover {
+        background: var(--secondary-dark);
+    }
+
+    .btn-toggle {
+        background: var(--warning);
+        color: var(--white);
+    }
+
+    .btn-toggle:hover {
+        background: #e65100;
+    }
+
+    .btn-delete {
+        background: var(--danger);
+        color: var(--white);
+    }
+
+    .btn-delete:hover {
+        background: #b91c1c;
+    }
+
+    /* Active Deliveries Table */
+    .deliveries-section {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .section-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-header h2 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .section-header h2 i {
+        color: var(--secondary);
+    }
+
+    .deliveries-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.7rem;
+    }
+
+    .deliveries-table th {
+        text-align: left;
+        padding: 10px 12px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 600;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .deliveries-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .order-id {
+        font-weight: 600;
+        color: var(--secondary);
+    }
+
+    .delivery-status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+    }
+
+    .status-assigned {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--info);
+        border: 1px solid var(--info);
+    }
+
+    .status-picked_up {
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    .status-in_transit {
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    .status-out_for_delivery {
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    .status-delivered {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .status-completed {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .action-btn-small {
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: var(--white);
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+        border: 1px solid var(--primary);
+    }
+
+    .modal-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .modal-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .modal-header h3 i {
+        color: var(--secondary);
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--primary);
+        font-weight: 500;
+        font-size: 0.7rem;
+    }
+
+    .form-group label i {
+        color: var(--secondary);
+        margin-right: 4px;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.7rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--secondary);
+        outline: none;
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .modal-btn {
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+    }
+
+    .modal-btn-primary {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .modal-btn-primary:hover {
+        background: var(--secondary-dark);
+    }
+
+    .modal-btn-secondary {
+        background: var(--gray-light);
+        color: var(--gray);
+        border: 1px solid var(--border);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .riders-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .riders-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-bar {
+            flex-direction: column;
+        }
+        
+        .filter-search {
+            width: 100%;
+        }
+        
+        .filter-search input {
+            width: 100%;
+        }
+        
+        .deliveries-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="boda-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Boda Riders</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-motorcycle"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Boda Riders</h1>
+                    <p><i class="fas fa-map-pin"></i> UCU Campus</p>
+                </div>
+            </div>
+            <div class="total-badge">
+                <i class="fas fa-users"></i> {{ total_riders|default(0) }} Total
+            </div>
+            <div class="header-actions">
+                <button class="btn-sm btn-outline-light" onclick="openLiveTracking()">
+                    <i class="fas fa-map-marked-alt"></i> Track
+                </button>
+                <button class="btn-sm btn-outline-orange" onclick="openAddRiderModal()">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards - Using existing variables from your route -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-motorcycle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ total_riders|default(0) }}</h3>
+                    <p>Total Riders</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ active_riders|default(0) }}</h3>
+                    <p>Active</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-truck"></i></div>
+                <div class="stat-info">
+                    <h3>{{ active_deliveries|length|default(0) }}</h3>
+                    <p>Deliveries</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-double"></i></div>
+                <div class="stat-info">
+                    <h3>{{ completed_assignments|default(0) }}</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar - Same as original -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all" onclick="filterRiders('all')">All</button>
+                <button class="filter-tab" data-filter="online" onclick="filterRiders('online')">Online</button>
+                <button class="filter-tab" data-filter="offline" onclick="filterRiders('offline')">Offline</button>
+                <button class="filter-tab" data-filter="motorcycle" onclick="filterRiders('motorcycle')">Motorcycles</button>
+                <button class="filter-tab" data-filter="bicycle" onclick="filterRiders('bicycle')">Bicycles</button>
+            </div>
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchRiders()">
+            </div>
+        </div>
+
+        <!-- Riders Grid - Using existing delivery_persons from your route -->
+        <div class="riders-grid" id="ridersGrid">
+            {% for rider in delivery_persons %}
+            <div class="rider-card {% if rider.is_active %}online{% else %}offline{% endif %}" 
+                 data-status="{% if rider.is_active %}online{% else %}offline{% endif %}" 
+                 data-vehicle="{{ rider.vehicle_type }}">
+                <div class="rider-header">
+                    <div class="rider-avatar">
+                        {% if rider.photo %}
+                        <img src="{{ url_for('static', filename='uploads/' + rider.photo) }}" alt="{{ rider.name }}">
+                        {% else %}
+                        {{ rider.name[:1] }}
+                        {% endif %}
+                    </div>
+                    <div class="rider-info">
+                        <h3>{{ rider.name }}</h3>
+                        <p><i class="fas fa-phone"></i> {{ rider.phone }}</p>
+                    </div>
+                    <span class="status-badge">{{ 'Online' if rider.is_active else 'Offline' }}</span>
+                </div>
+                <div class="rider-body">
+                    <div class="info-row">
+                        <div class="info-icon"><i class="fas fa-motorcycle"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Vehicle</div>
+                            <div class="info-value">
+                                <span class="vehicle-badge">{{ rider.vehicle_type|title }}</span>
+                                {{ ' • ' + rider.vehicle_number if rider.vehicle_number }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="info-content">
+                            <div class="info-label">Location</div>
+                            <div class="info-value">{{ rider.current_location or 'N/A' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Stats using existing relationships -->
+                    <div class="stats-mini">
+                        <div class="stat-mini-item">
+                            <div class="value">{{ rider.assignments|selectattr('status', 'in', ['assigned', 'picked_up', 'in_transit'])|list|length }}</div>
+                            <div class="label">Active</div>
+                        </div>
+                        <div class="stat-mini-item">
+                            <div class="value">{{ rider.assignments|selectattr('status', 'in', ['delivered', 'completed'])|list|length }}</div>
+                            <div class="label">Done</div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons - Using existing routes -->
+                    <div class="rider-actions">
+                        <button class="action-btn btn-view" onclick="viewRider({{ rider.id }})" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn btn-edit" onclick="editRider({{ rider.id }})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn btn-toggle" onclick="toggleRiderStatus({{ rider.id }})" title="Toggle Status">
+                            <i class="fas fa-{{ 'pause' if rider.is_active else 'play' }}"></i>
+                        </button>
+                        <button class="action-btn btn-delete" onclick="deleteRider({{ rider.id }})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                <i class="fas fa-motorcycle" style="color: var(--border); font-size: 2rem;"></i>
+                <p style="color: var(--gray);">No riders found</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Active Deliveries - Using existing active_deliveries from your route -->
+        {% if active_deliveries %}
+        <div class="deliveries-section">
+            <div class="section-header">
+                <h2><i class="fas fa-truck"></i> Active Deliveries ({{ active_deliveries|length }})</h2>
+                <button class="btn-sm btn-outline-light" onclick="refreshDeliveries()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            <table class="deliveries-table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Rider</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for delivery in active_deliveries %}
+                    <tr>
+                        <td><span class="order-id">#{{ delivery.id }}</span></td>
+                        <td>{{ delivery.delivery_person.name if delivery.delivery_person else 'Unassigned' }}</td>
+                        <td>{{ delivery.user.fullname if delivery.user else 'Unknown' }}</td>
+                        <td>
+                            <span class="delivery-status 
+                                {% if delivery.status == 'delivered' or delivery.status == 'completed' %}status-delivered
+                                {% elif delivery.status in ['out_for_delivery', 'shipped', 'in_transit'] %}status-out_for_delivery
+                                {% elif delivery.status == 'assigned' %}status-assigned
+                                {% endif %}">
+                                {% if delivery.status == 'delivered' or delivery.status == 'completed' %}
+                                    Completed
+                                {% elif delivery.status in ['out_for_delivery', 'shipped', 'in_transit'] %}
+                                    Out for Delivery
+                                {% else %}
+                                    {{ delivery.status|replace('_', ' ')|title }}
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>{{ delivery.created_at.strftime('%H:%M') if delivery.created_at else 'N/A' }}</td>
+                        <td>
+                            <button class="action-btn-small" onclick="trackDelivery({{ delivery.id }})">
+                                <i class="fas fa-map-marker-alt"></i> Track
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Rider Modal - Using existing routes -->
+<div class="modal" id="addRiderModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Add Rider</h3>
+            <button class="modal-close" onclick="closeAddRiderModal()">&times;</button>
+        </div>
+        <form id="addRiderForm" onsubmit="addRider(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Name</label>
+                    <input type="text" class="form-control" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone</label>
+                    <input type="tel" class="form-control" name="phone" placeholder="0755123456" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-motorcycle"></i> Vehicle</label>
+                    <select class="form-select" name="vehicle_type" required>
+                        <option value="motorcycle">Motorcycle</option>
+                        <option value="bicycle">Bicycle</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag"></i> Vehicle Number</label>
+                    <input type="text" class="form-control" name="vehicle_number">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeAddRiderModal()">Cancel</button>
+                <button type="submit" class="modal-btn modal-btn-primary">Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Rider Modal - Using existing routes -->
+<div class="modal" id="editRiderModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Rider</h3>
+            <button class="modal-close" onclick="closeEditRiderModal()">&times;</button>
+        </div>
+        <form id="editRiderForm" onsubmit="updateRider(event)">
+            <input type="hidden" name="rider_id" id="editRiderId">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Name</label>
+                    <input type="text" class="form-control" name="name" id="editName" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone</label>
+                    <input type="tel" class="form-control" name="phone" id="editPhone" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-motorcycle"></i> Vehicle</label>
+                    <select class="form-select" name="vehicle_type" id="editVehicleType" required>
+                        <option value="motorcycle">Motorcycle</option>
+                        <option value="bicycle">Bicycle</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag"></i> Vehicle Number</label>
+                    <input type="text" class="form-control" name="vehicle_number" id="editVehicleNumber">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeEditRiderModal()">Cancel</button>
+                <button type="submit" class="modal-btn modal-btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-size:0.7rem; color:var(--primary);">Processing...</p>
+</div>
+
+<script>
+// Filter functions - Same as original
+function filterRiders(filter) {
+    const cards = document.querySelectorAll('.rider-card');
+    const tabs = document.querySelectorAll('.filter-tab');
+    
+    tabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.filter === filter);
+    });
+    
+    cards.forEach(card => {
+        const status = card.dataset.status;
+        const vehicle = card.dataset.vehicle;
+        
+        if (filter === 'all') {
+            card.style.display = '';
+        } else if (filter === 'online') {
+            card.style.display = status === 'online' ? '' : 'none';
+        } else if (filter === 'offline') {
+            card.style.display = status === 'offline' ? '' : 'none';
+        } else {
+            card.style.display = vehicle === filter ? '' : 'none';
+        }
+    });
+}
+
+function searchRiders() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.rider-card');
+    
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+}
+
+// Add rider - Using existing route
+async function addRider(event) {
+    event.preventDefault();
+    const form = document.getElementById('addRiderForm');
+    const formData = new FormData(form);
+    
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch('/admin/delivery/person/add', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            const data = await response.json();
+            if (data.success) {
+                alert('Rider added');
+                location.reload();
+            } else {
+                alert(data.message || 'Error');
+                document.getElementById('loadingOverlay').classList.remove('show');
+            }
+        }
+    } catch (error) {
+        alert('Error');
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+// Edit rider - Using existing route
+async function editRider(riderId) {
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/api/admin/delivery/persons/${riderId}`);
+        const data = await response.json();
+        
+        document.getElementById('editRiderId').value = data.id;
+        document.getElementById('editName').value = data.name;
+        document.getElementById('editPhone').value = data.phone;
+        document.getElementById('editVehicleType').value = data.vehicle_type;
+        document.getElementById('editVehicleNumber').value = data.vehicle_number || '';
+        
+        openEditRiderModal();
+    } catch (error) {
+        alert('Error loading rider');
+    } finally {
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+async function updateRider(event) {
+    event.preventDefault();
+    const form = document.getElementById('editRiderForm');
+    const formData = new FormData(form);
+    const riderId = formData.get('rider_id');
+    
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/admin/delivery/person/${riderId}/edit`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            const data = await response.json();
+            if (data.success) {
+                alert('Rider updated');
+                location.reload();
+            } else {
+                alert(data.message || 'Error');
+                document.getElementById('loadingOverlay').classList.remove('show');
+            }
+        }
+    } catch (error) {
+        alert('Error');
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+// Toggle rider status - Using existing route
+async function toggleRiderStatus(riderId) {
+    if (!confirm('Toggle rider status?')) return;
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/admin/delivery/person/${riderId}/toggle`, {
+            method: 'POST'
+        });
+        
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            const data = await response.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Error');
+                document.getElementById('loadingOverlay').classList.remove('show');
+            }
+        }
+    } catch (error) {
+        alert('Error');
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+// Delete rider - Using existing route
+async function deleteRider(riderId) {
+    if (!confirm('Delete rider? Cannot undo.')) return;
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/admin/delivery/person/${riderId}/delete`, {
+            method: 'POST'
+        });
+        
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            const data = await response.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Error');
+                document.getElementById('loadingOverlay').classList.remove('show');
+            }
+        }
+    } catch (error) {
+        alert('Error');
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+// View rider details
+function viewRider(riderId) {
+    window.location.href = `/admin/delivery/person/${riderId}/details`;
+}
+
+// Track delivery
+function trackDelivery(orderId) {
+    window.location.href = `/admin/delivery/${orderId}/tracking-details`;
+}
+
+// Navigation
+function openLiveTracking() {
+    window.location.href = "{{ url_for('delivery_tracking') }}";
+}
+
+function refreshDeliveries() {
+    location.reload();
+}
+
+// Modal controls
+function openAddRiderModal() {
+    document.getElementById('addRiderModal').classList.add('show');
+}
+
+function closeAddRiderModal() {
+    document.getElementById('addRiderModal').classList.remove('show');
+    document.getElementById('addRiderForm').reset();
+}
+
+function openEditRiderModal() {
+    document.getElementById('editRiderModal').classList.add('show');
+}
+
+function closeEditRiderModal() {
+    document.getElementById('editRiderModal').classList.remove('show');
+}
+
+// Close modals on outside click
+window.onclick = function(event) {
+    const addModal = document.getElementById('addRiderModal');
+    const editModal = document.getElementById('editRiderModal');
+    if (event.target === addModal) closeAddRiderModal();
+    if (event.target === editModal) closeEditRiderModal();
+}
+
+// Make functions global
+window.filterRiders = filterRiders;
+window.searchRiders = searchRiders;
+window.addRider = addRider;
+window.editRider = editRider;
+window.updateRider = updateRider;
+window.toggleRiderStatus = toggleRiderStatus;
+window.deleteRider = deleteRider;
+window.viewRider = viewRider;
+window.trackDelivery = trackDelivery;
+window.openLiveTracking = openLiveTracking;
+window.refreshDeliveries = refreshDeliveries;
+window.openAddRiderModal = openAddRiderModal;
+window.closeAddRiderModal = closeAddRiderModal;
+window.openEditRiderModal = openEditRiderModal;
+window.closeEditRiderModal = closeEditRiderModal;
+</script>
+{% endblock %}

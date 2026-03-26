@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    .legal-page {
+        padding: 30px 0;
+        background: var(--white);
+    }
+
+    /* Header */
+    .legal-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 40px 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .legal-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .legal-header p {
+        font-size: 0.85rem;
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0.9;
+    }
+
+    .last-updated {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 5px 15px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 30px;
+        font-size: 0.7rem;
+    }
+
+    /* Content */
+    .legal-content {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 30px;
+    }
+
+    /* Table of Contents - Simplified */
+    .toc {
+        background: var(--gray-light);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 25px;
+        border-left: 3px solid var(--secondary);
+    }
+
+    .toc h2 {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .toc h2 i {
+        color: var(--secondary);
+    }
+
+    .toc-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .toc-item a {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.7rem;
+        display: block;
+        padding: 4px 8px;
+        background: white;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+    }
+
+    .toc-item a:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    /* Sections */
+    .legal-section {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .legal-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .legal-section h2 {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .legal-section h2 i {
+        color: var(--secondary);
+        font-size: 0.9rem;
+    }
+
+    .legal-section h3 {
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin: 12px 0 8px;
+    }
+
+    .legal-section p {
+        color: var(--gray);
+        font-size: 0.75rem;
+        line-height: 1.6;
+        margin-bottom: 10px;
+    }
+
+    .legal-section ul, .legal-section ol {
+        margin: 8px 0 8px 20px;
+        color: var(--gray);
+        font-size: 0.75rem;
+    }
+
+    .legal-section li {
+        margin-bottom: 4px;
+    }
+
+    .legal-section strong {
+        color: var(--secondary);
+        font-weight: 600;
+    }
+
+    .legal-note {
+        background: #fff3e0;
+        border-radius: 6px;
+        padding: 10px;
+        margin: 10px 0;
+        border-left: 3px solid var(--secondary);
+        font-size: 0.7rem;
+    }
+
+    .legal-note i {
+        color: var(--secondary);
+        margin-right: 5px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .legal-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .legal-content {
+            padding: 20px;
+        }
+        
+        .toc-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="legal-page">
+    <div class="container-custom">
+        <!-- Header -->
+        <div class="legal-header">
+            <h1>Terms of Service</h1>
+            <p>Please read these terms before using ShopMax</p>
+            <div class="last-updated">
+                <i class="fas fa-calendar-alt"></i> Last Updated: March 2024
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="legal-content">
+            <!-- Quick Table of Contents -->
+            <div class="toc">
+                <h2><i class="fas fa-list"></i> Quick Links</h2>
+                <div class="toc-grid">
+                    <div class="toc-item"><a href="#acceptance">Acceptance</a></div>
+                    <div class="toc-item"><a href="#eligibility">Eligibility</a></div>
+                    <div class="toc-item"><a href="#accounts">Accounts</a></div>
+                    <div class="toc-item"><a href="#listings">Listings</a></div>
+                    <div class="toc-item"><a href="#transactions">Transactions</a></div>
+                    <div class="toc-item"><a href="#payments">Payments</a></div>
+                    <div class="toc-item"><a href="#delivery">Delivery</a></div>
+                    <div class="toc-item"><a href="#returns">Returns</a></div>
+                    <div class="toc-item"><a href="#prohibited">Prohibited</a></div>
+                    <div class="toc-item"><a href="#conduct">Conduct</a></div>
+                    <div class="toc-item"><a href="#privacy">Privacy</a></div>
+                    <div class="toc-item"><a href="#contact">Contact</a></div>
+                </div>
+            </div>
+
+            <!-- Section 1: Acceptance -->
+            <div id="acceptance" class="legal-section">
+                <h2><i class="fas fa-check-circle"></i> 1. Acceptance</h2>
+                <p>By using ShopMax, you agree to these Terms. If you don't agree, please don't use the platform.</p>
+            </div>
+
+            <!-- Section 2: Eligibility -->
+            <div id="eligibility" class="legal-section">
+                <h2><i class="fas fa-user-check"></i> 2. Eligibility</h2>
+                <p>To use ShopMax, you must:</p>
+                <ul>
+                    <li>Be a UCU student or staff member</li>
+                    <li>Have a valid UCU email (@students.ucu.ac.ug or @ucu.ac.ug)</li>
+                    <li>Be at least 18 years old</li>
+                </ul>
+                <div class="legal-note">
+                    <i class="fas fa-info-circle"></i> Accounts without verified UCU status may be suspended.
+                </div>
+            </div>
+
+            <!-- Section 3: Accounts -->
+            <div id="accounts" class="legal-section">
+                <h2><i class="fas fa-id-card"></i> 3. Accounts</h2>
+                <p><strong>Security:</strong> You're responsible for keeping your login details safe. Tell us immediately if you notice unauthorized use.</p>
+                <p><strong>Account Types:</strong> Buyer accounts for purchasing, Seller accounts for selling (requires NIN verification).</p>
+            </div>
+
+            <!-- Section 4: Listings -->
+            <div id="listings" class="legal-section">
+                <h2><i class="fas fa-box"></i> 4. Listings</h2>
+                <p><strong>Sellers must:</strong> Provide accurate descriptions, clear photos, fair prices, and fulfill orders promptly.</p>
+                <p>ShopMax may remove misleading listings. Repeat violations may lead to account suspension.</p>
+            </div>
+
+            <!-- Section 5: Transactions -->
+            <div id="transactions" class="legal-section">
+                <h2><i class="fas fa-handshake"></i> 5. Transactions</h2>
+                <p>Orders must be confirmed by sellers within 24 hours. Buyers can cancel pending orders. Disputes may be mediated by ShopMax.</p>
+            </div>
+
+            <!-- Section 6: Payments -->
+            <div id="payments" class="legal-section">
+                <h2><i class="fas fa-credit-card"></i> 6. Payments</h2>
+                <p><strong>Accepted:</strong> Cash on Delivery, MTN Mobile Money, Airtel Money.</p>
+                <p><strong>Seller fees:</strong> Basic (5%), Starter (3% + UGX 50k/month), Business (2% + UGX 120k/quarter).</p>
+                <p>All prices include 18% VAT as required by Ugandan law.</p>
+            </div>
+
+            <!-- Section 7: Delivery -->
+            <div id="delivery" class="legal-section">
+                <h2><i class="fas fa-truck"></i> 7. Delivery</h2>
+                <p><strong>Inside campus:</strong> UGX 1,000 (15-30 min)</p>
+                <p><strong>Nearby (Bugujju, Wandegeya, Mukono Mall):</strong> UGX 2,000 (30-45 min)</p>
+                <p><strong>Mukono town:</strong> UGX 3,000-4,000 (45-60 min)</p>
+                <p><strong>Beyond:</strong> Negotiate directly with rider after ordering.</p>
+                <p>Perishable goods delivered within 1 hour.</p>
+            </div>
+
+            <!-- Section 8: Returns -->
+            <div id="returns" class="legal-section">
+                <h2><i class="fas fa-undo-alt"></i> 8. Returns & Refunds</h2>
+                <p>Items can be returned within 7 days if damaged, wrong item delivered, or not as described. Perishable goods and personal care items cannot be returned.</p>
+                <p>Refunds processed within 3-5 business days.</p>
+            </div>
+
+            <!-- Section 9: Prohibited Items -->
+            <div id="prohibited" class="legal-section">
+                <h2><i class="fas fa-ban"></i> 9. Prohibited Items</h2>
+                <p><strong>DO NOT LIST:</strong> Illegal drugs, weapons, stolen goods, counterfeit items, alcohol, tobacco, prescription meds, hazardous materials, live animals, adult content.</p>
+                <div class="legal-note">
+                    <i class="fas fa-exclamation-triangle"></i> Violations result in immediate account suspension.
+                </div>
+            </div>
+
+            <!-- Section 10: Conduct -->
+            <div id="conduct" class="legal-section">
+                <h2><i class="fas fa-gavel"></i> 10. User Conduct</h2>
+                <p>Don't harass others, post false info, manipulate prices, spam, or impersonate anyone. Be respectful.</p>
+            </div>
+
+            <!-- Section 11: Privacy -->
+            <div id="privacy" class="legal-section">
+                <h2><i class="fas fa-shield-alt"></i> 11. Privacy</h2>
+                <p>Your data is handled as described in our <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>. By using ShopMax, you consent to our data practices.</p>
+            </div>
+
+            <!-- Section 12: Contact -->
+            <div id="contact" class="legal-section">
+                <h2><i class="fas fa-headset"></i> 12. Contact Us</h2>
+                <p><strong>Email:</strong> shopmax4321@gmail.com</p>
+                <p><strong>Phone:</strong> +256 782 713764</p>
+                <p><strong>Visit:</strong> UCU Main Campus, Administration Block</p>
+                <p>Or use our <a href="{{ url_for('contact_us') }}">Contact Page</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found | ShopMax UCU Marketplace{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 100px 20px; min-height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div style="max-width: 600px;">
+        <i class="fas fa-map-signs" style="font-size: 6rem; color: var(--secondary); margin-bottom: 20px; animation: bounce 2s infinite;"></i>
+        <h1 style="color: var(--primary); font-size: 4rem; font-weight: 800; margin-bottom: 10px;">404</h1>
+        <h2 style="color: var(--dark); font-size: 2rem; margin-bottom: 20px;">Page Not Found</h2>
+        <p style="color: var(--gray); font-size: 1.1rem; margin-bottom: 30px;">The page you're looking for doesn't exist or has been moved.</p>
+        <p style="color: var(--gray); margin-bottom: 40px;">Sorry, we couldn't find the page you were looking for. It might have been removed, renamed, or didn't exist in the first place.</p>
+        
+        <div style="background: var(--gray-light); border-radius: 16px; padding: 25px; margin-bottom: 30px; text-align: left;">
+            <h4 style="color: var(--primary); font-weight: 700; margin-bottom: 15px;">
+                <i class="fas fa-lightbulb" style="color: var(--secondary); margin-right: 8px;"></i>
+                You might want to try:
+            </h4>
+            <ul style="list-style: none; padding: 0;">
+                <li style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--border);">
+                    <i class="fas fa-home" style="color: var(--secondary);"></i>
+                    <a href="{{ url_for('home') }}" style="color: var(--primary); text-decoration: none; font-weight: 500;">Go back to the homepage</a>
+                </li>
+            </ul>
+        </div>
+        
+        <a href="{{ url_for('home') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 14px 30px; background: linear-gradient(135deg, var(--secondary), var(--secondary-dark)); color: white; border-radius: 40px; text-decoration: none; font-weight: 600; transition: all 0.3s;">
+            <i class="fas fa-home"></i>
+            Go Home
+        </a>
+    </div>
+</div>
+
+<style>
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255,107,0,0.3);
+    }
+</style>
+{% endblock %}

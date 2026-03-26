@@ -1,0 +1,1327 @@
+{% extends "base.html" %}
+
+{% block title %}Live Tracking - Admin - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    .live-tracking-page {
+        padding: 30px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: white;
+        padding: 15px 25px;
+        border-radius: 50px;
+        margin-bottom: 30px;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        border: 1px solid var(--primary);
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+        transform: translateX(-2px);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 5px 15px;
+        border-radius: 30px;
+        font-weight: 600;
+    }
+
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .page-header h1 {
+        color: var(--primary);
+        font-size: 2rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .page-header h1 i {
+        color: var(--secondary);
+        animation: bounce 2s infinite;
+    }
+
+    .page-header h1 span {
+        background: var(--secondary);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 30px;
+        font-size: 1rem;
+        margin-left: 10px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 25px;
+        background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+        color: white;
+        border: none;
+        border-radius: 40px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255,107,0,0.3);
+    }
+
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 25px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 40px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: var(--shadow-xl);
+        border: 1px solid var(--primary);
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--secondary);
+        box-shadow: var(--shadow-2xl);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.8rem;
+    }
+
+    .stat-content h3 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 5px;
+    }
+
+    .stat-content p {
+        color: var(--gray);
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+
+    .stat-change {
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .stat-change.positive {
+        color: var(--success);
+    }
+
+    .stat-change.warning {
+        color: var(--warning);
+    }
+
+    .stat-change.danger {
+        color: var(--danger);
+    }
+
+    /* Map Container */
+    .map-container {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+        border: 1px solid var(--primary);
+        margin-bottom: 30px;
+        height: 600px;
+        position: relative;
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    .map-controls {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .map-control-btn {
+        width: 45px;
+        height: 45px;
+        background: white;
+        border: 2px solid var(--primary);
+        border-radius: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .map-control-btn:hover {
+        background: var(--secondary);
+        color: white;
+        border-color: var(--secondary);
+        transform: scale(1.1);
+    }
+
+    .rider-sidebar {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        background: white;
+        border-radius: 16px;
+        width: 300px;
+        max-height: calc(100% - 40px);
+        overflow-y: auto;
+        box-shadow: var(--shadow-xl);
+        border: 1px solid var(--primary);
+    }
+
+    .sidebar-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 15px 20px;
+        border-radius: 16px 16px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    .sidebar-header h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sidebar-header h3 i {
+        color: var(--secondary);
+    }
+
+    .sidebar-header .count {
+        background: rgba(255,255,255,0.2);
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+    }
+
+    .sidebar-search {
+        padding: 10px;
+        background: var(--gray-light);
+    }
+
+    .sidebar-search input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 30px;
+        outline: none;
+    }
+
+    .sidebar-search input:focus {
+        border-color: var(--secondary);
+    }
+
+    .rider-list {
+        padding: 10px;
+    }
+
+    .rider-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: 8px;
+    }
+
+    .rider-item:hover {
+        background: var(--gray-light);
+    }
+
+    .rider-item.active {
+        background: #fff3e0;
+        border-left: 3px solid var(--secondary);
+    }
+
+    .rider-avatar {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+        border-radius: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        position: relative;
+    }
+
+    .online-indicator {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 10px;
+        height: 10px;
+        background: var(--success);
+        border-radius: 10px;
+        border: 2px solid white;
+    }
+
+    .rider-info {
+        flex: 1;
+    }
+
+    .rider-name {
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 3px;
+    }
+
+    .rider-status {
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 30px;
+        font-size: 0.6rem;
+        font-weight: 600;
+    }
+
+    .status-online {
+        background: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+    }
+
+    .status-busy {
+        background: rgba(255, 193, 7, 0.15);
+        color: #856404;
+    }
+
+    .status-offline {
+        background: rgba(108, 117, 125, 0.15);
+        color: #6c757d;
+    }
+
+    .rider-vehicle {
+        font-size: 0.65rem;
+        color: var(--gray);
+    }
+
+    .rider-location {
+        font-size: 0.7rem;
+        color: var(--secondary);
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Info Panel */
+    .info-panel {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        z-index: 1000;
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--shadow-2xl);
+        border: 2px solid var(--secondary);
+        display: none;
+        animation: slideUp 0.3s ease;
+    }
+
+    .info-panel.show {
+        display: block;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .panel-header h3 {
+        color: var(--primary);
+        font-size: 1.1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .panel-close {
+        width: 30px;
+        height: 30px;
+        background: var(--gray-light);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .panel-close:hover {
+        background: var(--danger);
+        color: white;
+    }
+
+    .panel-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    .panel-item {
+        background: var(--gray-light);
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .panel-label {
+        font-size: 0.7rem;
+        color: var(--gray);
+        margin-bottom: 3px;
+    }
+
+    .panel-value {
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    /* Delivery List */
+    .deliveries-section {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+        border: 1px solid var(--primary);
+        margin-bottom: 30px;
+    }
+
+    .section-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-header h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-header h2 i {
+        color: var(--secondary);
+    }
+
+    .deliveries-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .deliveries-table th {
+        text-align: left;
+        padding: 18px 20px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 0.85rem;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .deliveries-table td {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .deliveries-table tr:hover td {
+        background: var(--gray-light);
+    }
+
+    .live-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 8px;
+        margin-right: 5px;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    .action-btn {
+        padding: 6px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin: 0 3px;
+    }
+
+    .action-track {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .action-track:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-2px);
+    }
+
+    .action-view {
+        background: var(--primary);
+        color: white;
+    }
+
+    .action-view:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .action-alert {
+        background: var(--warning);
+        color: var(--dark);
+    }
+
+    .action-alert:hover {
+        background: #e0a800;
+        transform: translateY(-2px);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .panel-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .map-container {
+            height: 500px;
+        }
+        
+        .rider-sidebar {
+            position: static;
+            width: 100%;
+            margin-bottom: 20px;
+            max-height: 300px;
+        }
+        
+        .map-controls {
+            top: auto;
+            bottom: 20px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .deliveries-table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .panel-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .info-panel {
+            left: 10px;
+            right: 10px;
+        }
+    }
+</style>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Leaflet Routing Machine -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+{% endblock %}
+
+{% block content %}
+<div class="live-tracking-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('delivery_tracking') }}">Delivery Tracking</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Live Tracking</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-satellite-dish"></i>
+                Live Delivery Tracking
+                <span>{{ active_count }} Active</span>
+            </h1>
+            <div class="header-actions">
+                <button class="btn-secondary" onclick="toggleAutoRefresh()" id="autoRefreshBtn">
+                    <i class="fas fa-pause"></i>
+                    Pause Auto-refresh
+                </button>
+                <button class="btn-primary" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh Now
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-motorcycle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ online_riders_count }}</h3>
+                    <p>Online Riders</p>
+                    <div class="stat-change positive">
+                        <i class="fas fa-circle"></i>
+                        Ready for delivery
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ active_count }}</h3>
+                    <p>Active Deliveries</p>
+                    <div class="stat-change">
+                        <i class="fas fa-arrow-right"></i>
+                        In progress
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ pending_deliveries_count }}</h3>
+                    <p>Pending</p>
+                    <div class="stat-change warning">
+                        <i class="fas fa-hourglass-half"></i>
+                        Awaiting pickup
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ completed_today_count }}</h3>
+                    <p>Completed Today</p>
+                    <div class="stat-change positive">
+                        <i class="fas fa-check"></i>
+                        Delivered
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button class="map-control-btn" onclick="centerMap()" title="Center Map">
+                    <i class="fas fa-crosshairs"></i>
+                </button>
+                <button class="map-control-btn" onclick="zoomIn()" title="Zoom In">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="map-control-btn" onclick="zoomOut()" title="Zoom Out">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="map-control-btn" onclick="toggleSatellite()" title="Satellite View">
+                    <i class="fas fa-satellite"></i>
+                </button>
+                <button class="map-control-btn" onclick="showRoute()" title="Show Route">
+                    <i class="fas fa-route"></i>
+                </button>
+            </div>
+
+            <!-- Rider Sidebar -->
+            <div class="rider-sidebar">
+                <div class="sidebar-header">
+                    <h3>
+                        <i class="fas fa-motorcycle"></i>
+                        Active Riders
+                    </h3>
+                    <span class="count">{{ delivery_persons|length }}</span>
+                </div>
+                <div class="sidebar-search">
+                    <input type="text" id="riderSearch" placeholder="Search riders..." onkeyup="searchRiders()">
+                </div>
+                <div class="rider-list" id="riderList">
+                    {% for rider in delivery_persons %}
+                    <div class="rider-item" onclick="focusRider({{ rider.id }})" data-rider-id="{{ rider.id }}" data-status="{% if rider.is_active %}online{% else %}offline{% endif %}">
+                        <div class="rider-avatar">
+                            {{ rider.name[:1] }}
+                            {% if rider.is_active %}
+                            <span class="online-indicator"></span>
+                            {% endif %}
+                        </div>
+                        <div class="rider-info">
+                            <div class="rider-name">{{ rider.name }}</div>
+                            <div class="rider-status">
+                                <span class="status-badge status-{% if rider.is_active %}online{% else %}offline{% endif %}">
+                                    {{ 'Online' if rider.is_active else 'Offline' }}
+                                </span>
+                                <span class="rider-vehicle">{{ rider.vehicle_type }}</span>
+                            </div>
+                            <div class="rider-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                {{ rider.current_location or 'Location unavailable' }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="info-panel" id="infoPanel">
+                <div class="panel-header">
+                    <h3>
+                        <i class="fas fa-info-circle"></i>
+                        Delivery Details
+                    </h3>
+                    <div class="panel-close" onclick="closeInfoPanel()">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+                <div class="panel-grid" id="panelContent">
+                    <!-- Content loaded dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Deliveries Table -->
+        <div class="deliveries-section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-list"></i>
+                    Active Deliveries ({{ active_deliveries|length }})
+                </h2>
+                <button class="btn-secondary" onclick="exportDeliveryList()">
+                    <i class="fas fa-download"></i>
+                    Export List
+                </button>
+            </div>
+
+            <table class="deliveries-table" id="deliveriesTable">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Order ID</th>
+                        <th>Rider</th>
+                        <th>Customer</th>
+                        <th>Destination</th>
+                        <th>ETA</th>
+                        <th>Last Update</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for delivery in active_deliveries %}
+                    <tr data-delivery-id="{{ delivery.id }}" data-rider-id="{{ delivery.delivery_person.id if delivery.delivery_person else '' }}">
+                        <td>
+                            <span class="live-indicator"></span>
+                            <span class="status-badge status-{{ delivery.status }}">
+                                {{ delivery.status|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                        <td><strong>#{{ delivery.id }}</strong></td>
+                        <td>
+                            {% if delivery.delivery_person %}
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 30px; height: 30px; background: var(--secondary); border-radius: 30px; display: flex; align-items: center; justify-content: center; color: white;">
+                                    {{ delivery.delivery_person.name[:1] }}
+                                </div>
+                                <span>{{ delivery.delivery_person.name }}</span>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ delivery.user.fullname if delivery.user else 'Unknown' }}</td>
+                        <td>{{ delivery.delivery_address|truncate(30) }}</td>
+                        <td>
+                            {% if delivery.estimated_delivery %}
+                            {{ delivery.estimated_delivery.strftime('%H:%M') }}
+                            {% else %}
+                            --
+                            {% endif %}
+                        </td>
+                        <td>{{ delivery.last_updated.strftime('%H:%M, %d %b') if delivery.last_updated else 'N/A' }}</td>
+                        <td>
+                            <button class="action-btn action-track" onclick="focusDelivery({{ delivery.id }})">
+                                <i class="fas fa-map-marker-alt"></i> Track
+                            </button>
+                            <button class="action-btn action-view" onclick="viewDelivery({{ delivery.id }})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            {% if delivery.status != 'delivered' %}
+                            <button class="action-btn action-alert" onclick="sendAlert({{ delivery.id }})">
+                                <i class="fas fa-bell"></i> Alert
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="color: var(--primary); font-weight: 600;">Loading live data...</p>
+</div>
+
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+<script>
+let map;
+let markers = {};
+let routes = {};
+let autoRefresh = true;
+let refreshInterval;
+let currentLayer = 'streets';
+let routingControl = null;
+
+// Initialize map
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+    loadRiderPositions();
+    startAutoRefresh();
+});
+
+function initMap() {
+    // Center on UCU campus
+    map = L.map('map').setView([0.3136, 32.5811], 15);
+    
+    // Add tile layer (streets)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    
+    // Add UCU campus boundary
+    L.rectangle([[0.3100, 32.5750], [0.3170, 32.5870]], {
+        color: "#1a237e",
+        weight: 2,
+        fillOpacity: 0.1
+    }).addTo(map).bindPopup("UCU Main Campus");
+    
+    // Add click handler
+    map.on('click', function(e) {
+        closeInfoPanel();
+    });
+}
+
+// Load rider positions
+function loadRiderPositions() {
+    fetch('/api/admin/delivery/live-positions')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateMapMarkers(data.positions);
+                updateStats(data.stats);
+            }
+        })
+        .catch(error => console.error('Error loading rider positions:', error));
+}
+
+// Update map markers
+function updateMapMarkers(positions) {
+    // Clear existing markers
+    for (let id in markers) {
+        map.removeLayer(markers[id]);
+    }
+    markers = {};
+    
+    // Clear existing routes
+    for (let id in routes) {
+        map.removeControl(routes[id]);
+    }
+    routes = {};
+    
+    // Add new markers
+    positions.forEach(pos => {
+        if (pos.lat && pos.lng) {
+            // Create custom marker with pulsing effect
+            const marker = L.marker([pos.lat, pos.lng], {
+                icon: L.divIcon({
+                    className: 'custom-marker',
+                    html: `
+                        <div style="position: relative;">
+                            <div style="background: var(--secondary); width: 20px; height: 20px; border-radius: 20px; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); animation: pulse 1.5s infinite;"></div>
+                            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: white; padding: 2px 6px; border-radius: 20px; font-size: 0.6rem; font-weight: bold; border: 1px solid var(--secondary); white-space: nowrap;">
+                                ${pos.rider_name}
+                            </div>
+                        </div>
+                    `,
+                    iconSize: [20, 20]
+                })
+            }).addTo(map);
+            
+            marker.bindPopup(`
+                <div style="min-width: 200px;">
+                    <h4 style="color: var(--primary); margin-bottom: 10px;">${pos.rider_name}</h4>
+                    <p><i class="fas fa-phone"></i> ${pos.rider_phone}</p>
+                    <p><i class="fas fa-shopping-cart"></i> Order #${pos.order_id}</p>
+                    <p><i class="fas fa-user"></i> ${pos.customer}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> ${pos.delivery_address}</p>
+                    <p><i class="fas fa-bolt"></i> Speed: ${pos.speed || 0} km/h</p>
+                    <p><i class="fas fa-battery-${pos.battery ? (pos.battery > 75 ? 'full' : pos.battery > 50 ? 'three-quarters' : pos.battery > 25 ? 'half' : 'quarter') : 'unknown'}"></i> Battery: ${pos.battery || 'N/A'}%</p>
+                    <p><i class="fas fa-clock"></i> Last update: ${pos.last_update}</p>
+                    <button onclick="showDeliveryDetails(${pos.order_id})" style="background: var(--secondary); color: white; border: none; padding: 5px 10px; border-radius: 5px; margin-top: 10px; cursor: pointer;">
+                        View Details
+                    </button>
+                </div>
+            `);
+            
+            markers[pos.order_id] = marker;
+        }
+    });
+}
+
+// Update stats
+function updateStats(stats) {
+    // Could update stats via AJAX
+    console.log('Stats updated:', stats);
+}
+
+// Focus on specific rider
+function focusRider(riderId) {
+    // Find rider's current delivery
+    fetch(`/api/admin/delivery/persons/${riderId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.current_location) {
+                // Parse coordinates if available
+                const coords = data.current_location.split(',').map(Number);
+                if (coords.length === 2) {
+                    map.setView(coords, 18);
+                    
+                    // Highlight rider in list
+                    document.querySelectorAll('.rider-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    document.querySelector(`[data-rider-id="${riderId}"]`).classList.add('active');
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Focus on delivery
+function focusDelivery(deliveryId) {
+    if (markers[deliveryId]) {
+        map.setView(markers[deliveryId].getLatLng(), 18);
+        markers[deliveryId].openPopup();
+    }
+}
+
+// Show delivery details
+function showDeliveryDetails(deliveryId) {
+    fetch(`/api/admin/orders/${deliveryId}/summary`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const panel = document.getElementById('infoPanel');
+                const content = document.getElementById('panelContent');
+                
+                content.innerHTML = `
+                    <div class="panel-item">
+                        <div class="panel-label">Order ID</div>
+                        <div class="panel-value">#${data.order_id}</div>
+                    </div>
+                    <div class="panel-item">
+                        <div class="panel-label">Customer</div>
+                        <div class="panel-value">${data.customer_name}</div>
+                    </div>
+                    <div class="panel-item">
+                        <div class="panel-label">Phone</div>
+                        <div class="panel-value">${data.customer_phone}</div>
+                    </div>
+                    <div class="panel-item">
+                        <div class="panel-label">Amount</div>
+                        <div class="panel-value">UGX ${data.amount}</div>
+                    </div>
+                    <div class="panel-item">
+                        <div class="panel-label">Items</div>
+                        <div class="panel-value">${data.items_count}</div>
+                    </div>
+                    <div class="panel-item">
+                        <div class="panel-label">Payment</div>
+                        <div class="panel-value">${data.payment_method}</div>
+                    </div>
+                `;
+                
+                panel.classList.add('show');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Show route
+function showRoute() {
+    if (routingControl) {
+        map.removeControl(routingControl);
+        routingControl = null;
+    } else {
+        // Get first active delivery
+        const firstMarker = Object.values(markers)[0];
+        if (firstMarker) {
+            const start = firstMarker.getLatLng();
+            const end = [0.3136, 32.5811]; // UCU campus center
+            
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(start.lat, start.lng),
+                    L.latLng(end[0], end[1])
+                ],
+                routeWhileDragging: false,
+                showAlternatives: true,
+                fitSelectedRoutes: true,
+                lineOptions: {
+                    styles: [{ color: 'var(--secondary)', weight: 4 }]
+                }
+            }).addTo(map);
+        }
+    }
+}
+
+// Toggle satellite view
+function toggleSatellite() {
+    map.eachLayer(layer => {
+        if (layer instanceof L.TileLayer) {
+            map.removeLayer(layer);
+        }
+    });
+    
+    if (currentLayer === 'streets') {
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; Esri'
+        }).addTo(map);
+        currentLayer = 'satellite';
+    } else {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+        currentLayer = 'streets';
+    }
+}
+
+// Center map on all markers
+function centerMap() {
+    if (Object.keys(markers).length > 0) {
+        const group = L.featureGroup(Object.values(markers));
+        map.fitBounds(group.getBounds().pad(0.1));
+    } else {
+        map.setView([0.3136, 32.5811], 15);
+    }
+}
+
+// Zoom controls
+function zoomIn() {
+    map.zoomIn();
+}
+
+function zoomOut() {
+    map.zoomOut();
+}
+
+// View delivery
+function viewDelivery(deliveryId) {
+    window.location.href = `/order/${deliveryId}`;
+}
+
+// Send alert
+function sendAlert(deliveryId) {
+    if (confirm('Send alert to rider for this delivery?')) {
+        showNotification('Alert sent to rider', 'success');
+    }
+}
+
+// Export delivery list
+function exportDeliveryList() {
+    showNotification('Exporting delivery list...', 'info');
+    setTimeout(() => {
+        showNotification('Export complete', 'success');
+    }, 2000);
+}
+
+// Search riders
+function searchRiders() {
+    const searchTerm = document.getElementById('riderSearch').value.toLowerCase();
+    const items = document.querySelectorAll('.rider-item');
+    
+    items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+}
+
+// Auto-refresh controls
+function startAutoRefresh() {
+    refreshInterval = setInterval(() => {
+        if (autoRefresh) {
+            refreshData();
+        }
+    }, 10000);
+}
+
+function toggleAutoRefresh() {
+    autoRefresh = !autoRefresh;
+    const btn = document.getElementById('autoRefreshBtn');
+    
+    if (autoRefresh) {
+        btn.innerHTML = '<i class="fas fa-pause"></i> Pause Auto-refresh';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-secondary');
+    } else {
+        btn.innerHTML = '<i class="fas fa-play"></i> Resume Auto-refresh';
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-primary');
+    }
+}
+
+function refreshData() {
+    showLoading(true);
+    loadRiderPositions();
+    setTimeout(() => {
+        showLoading(false);
+        showNotification('Data refreshed', 'success');
+    }, 1000);
+}
+
+// Info panel
+function closeInfoPanel() {
+    document.getElementById('infoPanel').classList.remove('show');
+}
+
+// Show/hide loading
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.toggle('show', show);
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    if (window.showNotification) {
+        window.showNotification(message, type);
+    } else {
+        alert(message);
+    }
+}
+
+// Make functions global
+window.focusRider = focusRider;
+window.focusDelivery = focusDelivery;
+window.showDeliveryDetails = showDeliveryDetails;
+window.showRoute = showRoute;
+window.toggleSatellite = toggleSatellite;
+window.centerMap = centerMap;
+window.zoomIn = zoomIn;
+window.zoomOut = zoomOut;
+window.viewDelivery = viewDelivery;
+window.sendAlert = sendAlert;
+window.exportDeliveryList = exportDeliveryList;
+window.searchRiders = searchRiders;
+window.toggleAutoRefresh = toggleAutoRefresh;
+window.refreshData = refreshData;
+window.closeInfoPanel = closeInfoPanel;
+</script>
+{% endblock %}

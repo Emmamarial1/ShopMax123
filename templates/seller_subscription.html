@@ -1,0 +1,817 @@
+{% extends "base.html" %}
+
+{% block title %}Seller Plans - ShopMax UCU{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .subscription-page {
+        padding: 40px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: white;
+        padding: 12px 24px;
+        border-radius: 50px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        border: 1px solid var(--primary);
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 4px 14px;
+        border-radius: 30px;
+        font-weight: 600;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 35px;
+        border-radius: 24px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .page-header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+    }
+
+    .page-header h1 i {
+        color: var(--secondary);
+    }
+
+    .page-header p {
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+
+    /* Current Subscription */
+    .current-subscription {
+        background: white;
+        border-radius: 20px;
+        padding: 25px 30px;
+        margin-bottom: 35px;
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .sub-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .sub-icon {
+        width: 55px;
+        height: 55px;
+        background: var(--secondary);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .sub-details h3 {
+        color: var(--primary);
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+    }
+
+    .sub-details p {
+        color: var(--gray);
+        font-size: 0.8rem;
+    }
+
+    .sub-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .sub-badge.active {
+        background: rgba(16,185,129,0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .sub-badge.inactive {
+        background: rgba(239,68,68,0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .sub-action {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-manage, .btn-upgrade {
+        padding: 10px 28px;
+        border-radius: 40px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.85rem;
+    }
+
+    .btn-manage {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-manage:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn-upgrade {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .btn-upgrade:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Plans Grid */
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .plan-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        transition: all 0.3s;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+
+    .plan-card.popular {
+        border: 2px solid var(--secondary);
+        transform: scale(1.02);
+    }
+
+    .plan-card.popular:hover {
+        transform: scale(1.02) translateY(-8px);
+    }
+
+    .popular-badge {
+        position: absolute;
+        top: 18px;
+        right: 18px;
+        background: var(--secondary);
+        color: white;
+        padding: 5px 14px;
+        border-radius: 40px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        z-index: 2;
+    }
+
+    .best-value-badge {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        background: var(--success);
+        color: white;
+        padding: 5px 14px;
+        border-radius: 40px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        z-index: 2;
+    }
+
+    .plan-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 28px 24px;
+        text-align: center;
+    }
+
+    .plan-card.popular .plan-header {
+        background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
+    }
+
+    .plan-header h3 {
+        font-size: 1.4rem;
+        margin-bottom: 12px;
+    }
+
+    .plan-price {
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .plan-price small {
+        font-size: 0.8rem;
+        font-weight: normal;
+        opacity: 0.8;
+    }
+
+    .price-note {
+        font-size: 0.7rem;
+        opacity: 0.8;
+        margin-top: 5px;
+    }
+
+    .plan-body {
+        padding: 24px;
+        flex-grow: 1;
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .plan-features li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+
+    .plan-features li:last-child {
+        border-bottom: none;
+    }
+
+    .plan-features i {
+        color: var(--secondary);
+        width: 22px;
+    }
+
+    .plan-features .highlight {
+        color: var(--primary);
+        font-weight: 700;
+    }
+
+    .plan-footer {
+        padding: 0 24px 24px;
+        text-align: center;
+    }
+
+    .btn-select {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+    .btn-free {
+        background: var(--gray-light);
+        color: var(--primary);
+        border: 1px solid var(--border);
+    }
+
+    .btn-free:hover:not(:disabled) {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-business {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .btn-business:hover:not(:disabled) {
+        background: var(--secondary-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn-semester {
+        background: var(--success);
+        color: white;
+    }
+
+    .btn-semester:hover:not(:disabled) {
+        background: #0b8a5c;
+        transform: translateY(-2px);
+    }
+
+    .btn-select:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .disabled-info {
+        font-size: 0.7rem;
+        color: var(--gray);
+        margin-top: 8px;
+        display: block;
+    }
+
+    /* Benefits Section */
+    .benefits-section {
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        border: 1px solid var(--border);
+        margin-bottom: 35px;
+    }
+
+    .section-title {
+        color: var(--primary);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+
+    .benefit-item {
+        text-align: center;
+        padding: 25px;
+        background: var(--gray-light);
+        border-radius: 20px;
+        transition: all 0.2s;
+    }
+
+    .benefit-item:hover {
+        transform: translateY(-3px);
+        background: white;
+        border: 1px solid var(--secondary);
+    }
+
+    .benefit-icon {
+        width: 60px;
+        height: 60px;
+        background: #fff3e0;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        color: var(--secondary);
+        font-size: 1.4rem;
+    }
+
+    .benefit-item h4 {
+        color: var(--primary);
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+
+    .benefit-item p {
+        color: var(--gray);
+        font-size: 0.75rem;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: #fff3e0;
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid var(--secondary);
+    }
+
+    .info-box h4 {
+        color: var(--primary);
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-box li {
+        margin-bottom: 10px;
+        font-size: 0.75rem;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-box li i {
+        color: var(--secondary);
+        font-size: 0.5rem;
+    }
+
+    /* Loading */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.95);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 45px;
+        height: 45px;
+        border: 3px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Alert Box */
+    .alert-info {
+        background: linear-gradient(135deg, #e3f2fd, #bbdef5);
+        border-left: 4px solid var(--primary);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .alert-info i {
+        font-size: 2rem;
+        color: var(--primary);
+    }
+
+    .alert-info-content {
+        flex: 1;
+    }
+
+    .alert-info-content h4 {
+        color: var(--primary);
+        margin-bottom: 5px;
+    }
+
+    .alert-info-content p {
+        color: var(--gray);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .plans-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .benefits-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .plan-card.popular {
+            transform: scale(1);
+        }
+        .plan-card.popular:hover {
+            transform: translateY(-5px);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .plans-grid {
+            grid-template-columns: 1fr;
+        }
+        .benefits-grid {
+            grid-template-columns: 1fr;
+        }
+        .current-subscription {
+            flex-direction: column;
+            text-align: center;
+        }
+        .sub-info {
+            flex-direction: column;
+        }
+        .sub-action {
+            width: 100%;
+        }
+        .btn-manage, .btn-upgrade {
+            flex: 1;
+        }
+        .alert-info {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="subscription-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Subscription</span>
+        </div>
+
+        <!-- Header -->
+        <div class="page-header">
+            <h1><i class="fas fa-crown"></i> Seller Subscription Plans</h1>
+            <p>Choose the perfect plan to grow your business</p>
+        </div>
+
+        <!-- Alert for New Sellers -->
+        {% if is_new_seller %}
+        <div class="alert-info">
+            <i class="fas fa-gift"></i>
+            <div class="alert-info-content">
+                <h4>🎉 Welcome to ShopMax!</h4>
+                <p>As a new seller, you qualify for a <strong>FREE Starter Plan trial</strong>. Start selling today with zero cost!</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Current Subscription -->
+        <div class="current-subscription">
+            <div class="sub-info">
+                <div class="sub-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div class="sub-details">
+                    <h3>
+                        {% if user.subscription_tier == 'starter' %}
+                            🎁 Starter Plan
+                        {% elif user.subscription_tier == 'basic' %}
+                            🚀 Business Plan
+                        {% elif user.subscription_tier == 'premium' %}
+                            🎓 Semester Plan
+                        {% else %}
+                            ⚡ No Active Plan
+                        {% endif %}
+                    </h3>
+                    <p>
+                        <span class="sub-badge {% if user.subscription_expiry and user.subscription_expiry > now() %}active{% else %}inactive{% endif %}">
+                            {% if user.subscription_expiry and user.subscription_expiry > now() %}✅ Active{% else %}❌ Inactive{% endif %}
+                        </span>
+                        {% if user.subscription_expiry %}
+                        📅 Expires: {{ user.subscription_expiry.strftime('%d %b %Y') }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="sub-action">
+                <button class="btn-manage" onclick="window.location.href='{{ url_for('store_settings') }}'">
+                    <i class="fas fa-cog"></i> Manage Store
+                </button>
+                <button class="btn-upgrade" onclick="document.getElementById('plans').scrollIntoView({ behavior: 'smooth' })">
+                    <i class="fas fa-arrow-up"></i> Change Plan
+                </button>
+            </div>
+        </div>
+
+        <!-- Plans Grid -->
+        <div class="plans-grid" id="plans">
+            <!-- Starter Plan - Free for new sellers ONLY -->
+            <div class="plan-card">
+                <div class="plan-header">
+                    <h3>🎁 Starter Plan</h3>
+                    <div class="plan-price">FREE <small>/month</small></div>
+                    <div class="price-note">✨ New seller exclusive offer</div>
+                </div>
+                <div class="plan-body">
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check-circle"></i> List up to <span class="highlight">4 products</span></li>
+                        <li><i class="fas fa-check-circle"></i> Basic storefront</li>
+                        <li><i class="fas fa-check-circle"></i> Cash on delivery payments</li>
+                        <li><i class="fas fa-check-circle"></i> Email support</li>
+                        <li><i class="fas fa-gift"></i> <span class="highlight">🎁 One-time free trial</span></li>
+                        <li><i class="fas fa-rocket"></i> <span class="highlight">Perfect for testing the platform</span></li>
+                    </ul>
+                </div>
+                <div class="plan-footer">
+                    {% if is_new_seller %}
+                        <a href="{{ url_for('seller_payment', plan_id=1) }}" class="btn-select btn-free" onclick="showLoading()">
+                            <i class="fas fa-gift"></i> Start Free Trial
+                        </a>
+                        <span class="disabled-info" style="color: #10b981;">✨ Get started for free!</span>
+                    {% else %}
+                        <button class="btn-select btn-free" disabled>
+                            <i class="fas fa-lock"></i> Not Available
+                        </button>
+                        <span class="disabled-info">Free trial is a one-time offer for new sellers</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Business Plan - ALWAYS AVAILABLE -->
+            <div class="plan-card popular">
+                <div class="popular-badge">🔥 Most Popular</div>
+                <div class="plan-header">
+                    <h3>🚀 Business Plan</h3>
+                    <div class="plan-price">UGX 30,000 <small>/month</small></div>
+                    <div class="price-note">Best for growing businesses</div>
+                </div>
+                <div class="plan-body">
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check-circle"></i> List up to <span class="highlight">25 products</span></li>
+                        <li><i class="fas fa-check-circle"></i> Business analytics dashboard</li>
+                        <li><i class="fas fa-check-circle"></i> Priority email support</li>
+                        <li><i class="fas fa-check-circle"></i> Cash on delivery payments</li>
+                        <li><i class="fas fa-chart-line"></i> <span class="highlight">6.25x more products</span></li>
+                    </ul>
+                </div>
+                <div class="plan-footer">
+                    <a href="{{ url_for('seller_payment', plan_id=2) }}" class="btn-select btn-business" onclick="showLoading()">
+                        <i class="fas fa-rocket"></i> Choose Business Plan
+                    </a>
+                </div>
+            </div>
+
+            <!-- Semester Plan - ALWAYS AVAILABLE -->
+            <div class="plan-card">
+                <div class="best-value-badge">🏆 Best Value</div>
+                <div class="plan-header">
+                    <h3>🎓 Semester Plan</h3>
+                    <div class="plan-price">UGX 100,000 <small>/4 months</small></div>
+                </div>
+                <div class="plan-body">
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check-circle"></i> List up to <span class="highlight">100 products</span></li>
+                        <li><i class="fas fa-check-circle"></i> Analytics dashboard</li>
+                        <li><i class="fas fa-check-circle"></i> Priority 24/7 support</li>
+                        <li><i class="fas fa-chart-line"></i> <span class="highlight">4x more products</span></li>
+                        <li><i class="fas fa-graduation-cap"></i> <span class="highlight">Full semester coverage</span></li>
+                    </ul>
+                </div>
+                <div class="plan-footer">
+                    <a href="{{ url_for('seller_payment', plan_id=3) }}" class="btn-select btn-semester" onclick="showLoading()">
+                        <i class="fas fa-graduation-cap"></i> Choose Semester Plan
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="benefits-section">
+            <h3 class="section-title"><i class="fas fa-check-circle"></i> Why Sell on ShopMax?</h3>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon"><i class="fas fa-store"></i></div>
+                    <h4>Your Own Store</h4>
+                    <p>Personal store page with your products, logo, and branding</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon"><i class="fas fa-chart-line"></i></div>
+                    <h4>Sales Dashboard</h4>
+                    <p>Track your orders, earnings, and customer analytics</p>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon"><i class="fas fa-users"></i></div>
+                    <h4>UCU Community</h4>
+                    <p>Sell directly to thousands of fellow students and staff members</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <h4><i class="fas fa-info-circle"></i> Important Information</h4>
+            <ul>
+                <li><i class="fas fa-circle"></i> <strong>Payments:</strong> Cash on delivery to rider (safe & secure)</li>
+                <li><i class="fas fa-circle"></i> <strong>Notifications:</strong> Get alerts on dashboard</li>
+                <li><i class="fas fa-circle"></i> <strong>Delivery:</strong> Arrange delivery between you and buyer</li>
+                <li><i class="fas fa-circle"></i> <strong>Flexibility:</strong> Upgrade, downgrade, or cancel anytime</li>
+                <li><i class="fas fa-circle"></i> <strong>Support:</strong> shopmax4321@gmail.com (24-48 hour response)</li>
+                <li><i class="fas fa-circle"></i> <strong>Refunds:</strong> Pro-rated refunds for unused time if you downgrade</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="margin-top: 15px;">Processing your request...</p>
+</div>
+
+<script>
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.add('show');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+// Add click handlers to all plan buttons
+document.querySelectorAll('.btn-select').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        if (!this.disabled && this.href) {
+            showLoading();
+        }
+    });
+});
+
+// Prevent multiple clicks
+let isProcessing = false;
+document.querySelectorAll('.btn-select').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        if (isProcessing) {
+            e.preventDefault();
+            return;
+        }
+        if (!this.disabled) {
+            isProcessing = true;
+            showLoading();
+            setTimeout(() => {
+                isProcessing = false;
+            }, 5000);
+        }
+    });
+});
+
+window.showLoading = showLoading;
+window.hideLoading = hideLoading;
+</script>
+{% endblock %}

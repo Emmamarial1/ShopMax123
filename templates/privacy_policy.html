@@ -1,0 +1,497 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    .legal-page {
+        padding: 30px 0;
+        background: var(--white);
+    }
+
+    /* Header */
+    .legal-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 40px 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .legal-header h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .legal-header p {
+        font-size: 0.85rem;
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0.9;
+    }
+
+    .last-updated {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 5px 15px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 30px;
+        font-size: 0.7rem;
+    }
+
+    /* Legal Notice */
+    .legal-notice {
+        background: #fff3e0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 25px;
+        border-left: 4px solid var(--secondary);
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .legal-notice i {
+        color: var(--secondary);
+        font-size: 1.2rem;
+    }
+
+    .legal-notice p {
+        color: var(--primary);
+        margin: 0;
+    }
+
+    /* Content */
+    .legal-content {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 30px;
+    }
+
+    /* Quick Table of Contents */
+    .toc {
+        background: var(--gray-light);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 25px;
+        border-left: 3px solid var(--secondary);
+    }
+
+    .toc h2 {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .toc h2 i {
+        color: var(--secondary);
+    }
+
+    .toc-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .toc-item a {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 0.7rem;
+        display: block;
+        padding: 4px 8px;
+        background: white;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+    }
+
+    .toc-item a:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    /* Sections */
+    .legal-section {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .legal-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .legal-section h2 {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .legal-section h2 i {
+        color: var(--secondary);
+        font-size: 0.9rem;
+    }
+
+    .legal-section h3 {
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin: 12px 0 8px;
+    }
+
+    .legal-section p {
+        color: var(--gray);
+        font-size: 0.75rem;
+        line-height: 1.6;
+        margin-bottom: 10px;
+    }
+
+    .legal-section ul, .legal-section ol {
+        margin: 8px 0 8px 20px;
+        color: var(--gray);
+        font-size: 0.75rem;
+    }
+
+    .legal-section li {
+        margin-bottom: 4px;
+    }
+
+    .legal-section strong {
+        color: var(--secondary);
+        font-weight: 600;
+    }
+
+    /* Legal References */
+    .legal-ref {
+        background: var(--gray-light);
+        border-radius: 6px;
+        padding: 10px;
+        margin: 10px 0;
+        font-size: 0.7rem;
+        border-left: 3px solid var(--primary);
+    }
+
+    .legal-ref i {
+        color: var(--secondary);
+        margin-right: 5px;
+    }
+
+    .legal-ref a {
+        color: var(--secondary);
+        text-decoration: none;
+    }
+
+    .legal-ref a:hover {
+        text-decoration: underline;
+    }
+
+    /* Data Table */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-size: 0.7rem;
+    }
+
+    .data-table th {
+        background: var(--primary);
+        color: white;
+        padding: 8px;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .data-table td {
+        padding: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .data-table tr:hover td {
+        background: var(--gray-light);
+    }
+
+    /* Warning Box */
+    .warning-box {
+        background: rgba(239, 68, 68, 0.1);
+        border-radius: 6px;
+        padding: 10px;
+        margin: 10px 0;
+        border-left: 3px solid var(--danger);
+        font-size: 0.7rem;
+        color: var(--danger);
+    }
+
+    .warning-box i {
+        margin-right: 5px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .legal-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .legal-content {
+            padding: 20px;
+        }
+        
+        .toc-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="legal-page">
+    <div class="container-custom">
+        <!-- Header -->
+        <div class="legal-header">
+            <h1>Privacy Policy</h1>
+            <p>How we protect your personal data in compliance with Ugandan law</p>
+            <div class="last-updated">
+                <i class="fas fa-calendar-alt"></i> Last Updated: March 2024
+            </div>
+        </div>
+
+        <!-- Legal Compliance Notice -->
+        <div class="legal-notice">
+            <i class="fas fa-gavel"></i>
+            <p>This Privacy Policy complies with the <strong>Data Protection and Privacy Act 2019</strong> (DPPA), the <strong>Computer Misuse Act 2011</strong>, and the <strong>Uganda Christian University ICT Policies</strong>. Your rights are protected under Article 27 of the Constitution of Uganda.</p>
+        </div>
+
+        <!-- Content -->
+        <div class="legal-content">
+            <!-- Quick Table of Contents -->
+            <div class="toc">
+                <h2><i class="fas fa-list"></i> Quick Links</h2>
+                <div class="toc-grid">
+                    <div class="toc-item"><a href="#legal">Legal Framework</a></div>
+                    <div class="toc-item"><a href="#collect">What We Collect</a></div>
+                    <div class="toc-item"><a href="#nin">NIN Protection</a></div>
+                    <div class="toc-item"><a href="#use">How We Use Data</a></div>
+                    <div class="toc-item"><a href="#share">Data Sharing</a></div>
+                    <div class="toc-item"><a href="#rights">Your Rights</a></div>
+                    <div class="toc-item"><a href="#security">Security</a></div>
+                    <div class="toc-item"><a href="#retention">Retention</a></div>
+                    <div class="toc-item"><a href="#contact">Contact</a></div>
+                </div>
+            </div>
+
+            <!-- Section 1: Legal Framework -->
+            <div id="legal" class="legal-section">
+                <h2><i class="fas fa-scale-balanced"></i> 1. Legal Framework</h2>
+                <p>ShopMax operates under the following Ugandan laws and regulations:</p>
+                <ul>
+                    <li><strong>Data Protection and Privacy Act 2019:</strong> Governs collection, processing, and storage of personal data [citation:1].</li>
+                    <li><strong>Computer Misuse Act 2011:</strong> Prohibits unauthorised access, disclosure, and electronic fraud [citation:2].</li>
+                    <li><strong>Constitution of Uganda 1995 (Article 27):</strong> Protects the right to privacy of communication and correspondence.</li>
+                    <li><strong>UCU ICT Policies:</strong> University guidelines for digital services used by students and staff [citation:4].</li>
+                </ul>
+                <div class="legal-ref">
+                    <i class="fas fa-book"></i> <strong>Data Protection and Privacy Act 2019, Section 3:</strong> Establishes seven principles of data protection including accountability, lawfulness, and security safeguards [citation:5].
+                </div>
+            </div>
+
+            <!-- Section 2: Information We Collect -->
+            <div id="collect" class="legal-section">
+                <h2><i class="fas fa-database"></i> 2. Information We Collect</h2>
+                <p>We collect only what is necessary for our services, as permitted under DPPA 2019 Section 3 (adequacy and relevance principle).</p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data Type</th>
+                            <th>Purpose</th>
+                            <th>Legal Basis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>UCU Email</td>
+                            <td>Identity verification</td>
+                            <td>Prior consent [DPPA s.7]</td>
+                        </tr>
+                        <tr>
+                            <td>Full Name</td>
+                            <td>Account identification</td>
+                            <td>Prior consent</td>
+                        </tr>
+                        <tr>
+                            <td>Phone Number</td>
+                            <td>Delivery & contact</td>
+                            <td>Prior consent</td>
+                        </tr>
+                        <tr>
+                            <td>NIN (sellers only)</td>
+                            <td>Identity verification</td>
+                            <td>Prior consent + legal requirement</td>
+                        </tr>
+                        <tr>
+                            <td>Delivery Address</td>
+                            <td>Order fulfillment</td>
+                            <td>Contract performance</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="legal-ref"><i class="fas fa-info-circle"></i> Under DPPA Section 3, we only collect data that is adequate, relevant, and not excessive for the stated purposes [citation:5].</p>
+            </div>
+
+            <!-- Section 3: NIN Protection (Special Focus) -->
+            <div id="nin" class="legal-section">
+                <h2><i class="fas fa-id-card"></i> 3. National Identification Number (NIN) Protection</h2>
+                <p>Your NIN is classified as <strong>special personal data</strong> under Ugandan law and requires enhanced protection [citation:1].</p>
+                
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>NEVER share your NIN with anyone via chat or messages.</strong> Report any requests for NIN outside the verification process to ShopMax immediately.
+                </div>
+
+                <p><strong>How we protect your NIN:</strong></p>
+                <ul>
+                    <li>Only collected from sellers during registration (not from buyers).</li>
+                    <li>Stored encrypted and accessible only to authorized personnel.</li>
+                    <li>Never shared with other users or third parties.</li>
+                    <li>Used solely for identity verification as required by law.</li>
+                </ul>
+
+                <div class="legal-ref">
+                    <i class="fas fa-shield"></i> <strong>DPPA Section 19:</strong> Special personal data (including NIN) requires additional safeguards and explicit consent [citation:1][citation:5].
+                </div>
+            </div>
+
+            <!-- Section 4: How We Use Your Information -->
+            <div id="use" class="legal-section">
+                <h2><i class="fas fa-cogs"></i> 4. How We Use Your Information</h2>
+                <p>We use your personal data only for the purposes for which it was collected, as required by DPPA Section 7 [citation:5].</p>
+                <ul>
+                    <li><strong>Account creation:</strong> To verify your UCU status and create your account.</li>
+                    <li><strong>Order processing:</strong> To facilitate transactions and delivery.</li>
+                    <li><strong>Communication:</strong> To send order updates and respond to inquiries.</li>
+                    <li><strong>Legal compliance:</strong> To maintain records as required by Ugandan law.</li>
+                    <li><strong>Fraud prevention:</strong> To detect and prevent unauthorized activity (Computer Misuse Act, Section 19) [citation:2].</li>
+                </ul>
+            </div>
+
+            <!-- Section 5: Data Sharing -->
+            <div id="share" class="legal-section">
+                <h2><i class="fas fa-share-alt"></i> 5. Sharing Your Information</h2>
+                <p>We share your information only in these limited circumstances:</p>
+                <ul>
+                    <li><strong>Between buyers and sellers:</strong> Name, phone, and delivery address shared only for order fulfillment.</li>
+                    <li><strong>With delivery riders:</strong> Name, phone, and location for delivery purposes.</li>
+                    <li><strong>When required by law:</strong> To comply with court orders or legal obligations (DPPA Section 7(2)) [citation:5].</li>
+                </ul>
+                <p><strong>We never sell your personal data to third parties.</strong> Unauthorised sale of personal data is a criminal offence under DPPA Section 37, punishable by up to 10 years imprisonment [citation:5].</p>
+            </div>
+
+            <!-- Section 6: Your Rights -->
+            <div id="rights" class="legal-section">
+                <h2><i class="fas fa-user-check"></i> 6. Your Privacy Rights</h2>
+                <p>Under the Data Protection and Privacy Act 2019, you have the following rights:</p>
+                <ul>
+                    <li><strong>Right to access:</strong> Request a copy of your personal data held by us (DPPA Section 24) [citation:5].</li>
+                    <li><strong>Right to correction:</strong> Request correction of inaccurate information.</li>
+                    <li><strong>Right to deletion:</strong> Request deletion of your account and data.</li>
+                    <li><strong>Right to object:</strong> Stop processing for direct marketing (DPPA Section 26).</li>
+                    <li><strong>Right to compensation:</strong> Seek compensation for damages caused by privacy violations (DPPA Section 33) [citation:5].</li>
+                </ul>
+                <p>To exercise these rights, visit your <a href="{{ url_for('profile') }}">Profile Settings</a> or contact our Data Protection Officer.</p>
+            </div>
+
+            <!-- Section 7: Data Security -->
+            <div id="security" class="legal-section">
+                <h2><i class="fas fa-lock"></i> 7. Data Security</h2>
+                <p>We implement security measures required by DPPA Section 19 [citation:1][citation:5]:</p>
+                <ul>
+                    <li>Encryption of all personal data during transmission (SSL/TLS).</li>
+                    <li>Access controls limiting who can view personal information.</li>
+                    <li>Regular security audits to prevent unauthorised access.</li>
+                    <li>Breach notification procedures in case of data compromise.</li>
+                </ul>
+                <div class="legal-ref">
+                    <i class="fas fa-shield"></i> <strong>Computer Misuse Act Section 17:</strong> Unauthorised disclosure of information is a criminal offence [citation:2].
+                </div>
+            </div>
+
+            <!-- Section 8: Data Retention -->
+            <div id="retention" class="legal-section">
+                <h2><i class="fas fa-clock"></i> 8. Data Retention</h2>
+                <p>We retain your information in accordance with DPPA Section 3 (timely retention principle):</p>
+                <ul>
+                    <li><strong>Account information:</strong> Until you delete your account.</li>
+                    <li><strong>Transaction records:</strong> Retained for 5 years for tax and legal compliance.</li>
+                    <li><strong>NIN data (sellers):</strong> Retained for verification purposes as required by law.</li>
+                </ul>
+                <p>When you delete your account, we anonymize or delete your personal data, except where retention is required by Ugandan law.</p>
+            </div>
+
+            <!-- Section 9: Complaints -->
+            <div id="complaints" class="legal-section">
+                <h2><i class="fas fa-gavel"></i> 9. Complaints & Enforcement</h2>
+                <p>If you believe your privacy rights have been violated:</p>
+                <ol>
+                    <li><strong>First:</strong> Contact ShopMax Data Protection Officer at privacy@shopmax.com.</li>
+                    <li><strong>Second:</strong> File a complaint with the <strong>Personal Data Protection Office (PDPO)</strong> under NITA-U [citation:1][citation:10].</li>
+                    <li><strong>Third:</strong> Seek redress through the courts of law (DPPA Section 33) [citation:5].</li>
+                </ol>
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-circle"></i> <strong>Offences under the Computer Misuse Act:</strong> Unauthorised access (Section 11), unauthorised disclosure (Section 17), and electronic fraud (Section 19) carry penalties of up to 15 years imprisonment [citation:2][citation:6].
+                </div>
+            </div>
+
+            <!-- Section 10: UCU Compliance -->
+            <div id="ucu" class="legal-section">
+                <h2><i class="fas fa-university"></i> 10. UCU Compliance</h2>
+                <p>ShopMax aligns with Uganda Christian University's policies:</p>
+                <ul>
+                    <li><strong>UCU ICT Acceptable Use Policy:</strong> All users must adhere to university ICT guidelines [citation:4].</li>
+                    <li><strong>Student Code of Conduct:</strong> Marketplace activities must comply with university regulations.</li>
+                    <li><strong>UCU Data Protection:</strong> The university's Privacy Policy extends to affiliated platforms [citation:4].</li>
+                </ul>
+                <p>Violations of UCU policies may result in referral to university disciplinary bodies.</p>
+            </div>
+
+            <!-- Section 11: Changes -->
+            <div id="changes" class="legal-section">
+                <h2><i class="fas fa-sync-alt"></i> 11. Changes to This Policy</h2>
+                <p>We may update this policy to reflect changes in Ugandan law or our practices. We will notify you of material changes by email and by updating the "Last Updated" date.</p>
+            </div>
+
+            <!-- Section 12: Contact -->
+            <div id="contact" class="legal-section">
+                <h2><i class="fas fa-headset"></i> 12. Contact Us</h2>
+                <p><strong>Data Protection Officer:</strong></p>
+                <ul>
+                    <li><strong>Email:</strong> privacy@shopmax.com</li>
+                    <li><strong>Phone:</strong> +256 782 713764</li>
+                    <li><strong>Address:</strong> UCU Main Campus, Administration Block, Mukono, Uganda</li>
+                </ul>
+                <p><strong>Regulatory Authority:</strong></p>
+                <ul>
+                    <li><strong>Personal Data Protection Office (PDPO)</strong> - National Information Technology Authority (NITA-U)</li>
+                    <li><strong>Website:</strong> <a href="https://www.nita.go.ug" target="_blank">www.nita.go.ug</a></li>
+                </ul>
+            </div>
+
+            <!-- Legal Footer -->
+            <div class="legal-ref" style="margin-top: 20px; text-align: center;">
+                <p><i class="fas fa-check-circle"></i> This Privacy Policy is compliant with the Data Protection and Privacy Act 2019, the Computer Misuse Act 2011, and Uganda Christian University ICT Policies. By using ShopMax, you consent to the collection and processing of your personal data as described herein.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

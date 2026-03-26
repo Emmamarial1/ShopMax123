@@ -1,0 +1,798 @@
+{% extends "base.html" %}
+
+{% block title %}Payment - {{ plan.name }} - ShopMax{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .payment-page {
+        padding: 40px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: white;
+        padding: 10px 20px;
+        border-radius: 50px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        border: 1px solid var(--primary);
+        font-size: 0.75rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.6rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Payment Card */
+    .payment-card {
+        background: white;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 20px 35px rgba(0,0,0,0.1);
+        border: 1px solid var(--border);
+    }
+
+    .payment-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .payment-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+
+    .payment-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 150px;
+        height: 150px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+
+    .payment-header h1 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .payment-header p {
+        opacity: 0.9;
+        font-size: 0.9rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .payment-body {
+        padding: 35px;
+    }
+
+    /* Plan Summary */
+    .plan-summary {
+        background: var(--gray-light);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border: 1px solid var(--border);
+    }
+
+    .summary-title {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .summary-title i {
+        color: var(--secondary);
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+    }
+
+    .summary-label {
+        color: var(--gray);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .summary-label i {
+        color: var(--secondary);
+        width: 18px;
+    }
+
+    .summary-value {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 0.9rem;
+    }
+
+    .total-price {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--secondary);
+    }
+
+    /* Payment Methods */
+    .payment-methods {
+        margin-bottom: 30px;
+    }
+
+    .method-title {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .method-title i {
+        color: var(--secondary);
+    }
+
+    .method-card {
+        border: 2px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .method-card:hover {
+        border-color: var(--secondary);
+        transform: translateX(5px);
+    }
+
+    .method-card.selected {
+        border-color: var(--secondary);
+        background: #fff3e0;
+        box-shadow: 0 4px 12px rgba(255,107,0,0.1);
+    }
+
+    .method-radio {
+        margin-right: 15px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: var(--secondary);
+    }
+
+    .method-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex: 1;
+    }
+
+    .method-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--gray-light);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--secondary);
+        font-size: 1.3rem;
+    }
+
+    .method-details h4 {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .method-details p {
+        color: var(--gray);
+        font-size: 0.75rem;
+    }
+
+    /* Contact Section */
+    .contact-section {
+        background: linear-gradient(135deg, #fff3e0, #ffe8d4);
+        border-radius: 20px;
+        padding: 25px;
+        margin: 20px 0;
+        text-align: center;
+        border: 1px solid var(--secondary);
+    }
+
+    .contact-icon {
+        font-size: 2.5rem;
+        color: var(--secondary);
+        margin-bottom: 15px;
+    }
+
+    .contact-section h3 {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .contact-section p {
+        color: var(--gray);
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+    }
+
+    .contact-numbers {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin: 15px 0;
+    }
+
+    .contact-number {
+        background: white;
+        padding: 10px 20px;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--primary);
+        border: 1px solid var(--border);
+    }
+
+    .contact-number i {
+        color: var(--secondary);
+        font-size: 1.1rem;
+    }
+
+    .contact-number a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .contact-number a:hover {
+        color: var(--secondary);
+    }
+
+    /* Upload Section */
+    .upload-section {
+        background: var(--gray-light);
+        border-radius: 20px;
+        padding: 25px;
+        margin-top: 20px;
+        border: 2px dashed var(--border);
+        transition: all 0.3s;
+        text-align: center;
+    }
+
+    .upload-section:hover {
+        border-color: var(--secondary);
+        background: #fff3e0;
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        color: var(--secondary);
+        margin-bottom: 15px;
+    }
+
+    .upload-section h3 {
+        color: var(--primary);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .upload-section p {
+        color: var(--gray);
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+
+    .upload-area {
+        background: white;
+        border: 2px dashed var(--border);
+        border-radius: 16px;
+        padding: 30px;
+        margin-top: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+    }
+
+    .upload-area:hover {
+        border-color: var(--secondary);
+        background: #fff3e0;
+    }
+
+    .upload-area i {
+        font-size: 2.5rem;
+        color: var(--secondary);
+        margin-bottom: 10px;
+    }
+
+    .upload-area p {
+        color: var(--gray);
+        font-size: 0.8rem;
+        margin: 0;
+    }
+
+    .file-info {
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: var(--success);
+        color: white;
+        border-radius: 30px;
+        display: inline-block;
+        font-size: 0.7rem;
+    }
+
+    /* Payment Button */
+    .payment-btn {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .payment-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255,107,0,0.3);
+    }
+
+    .payment-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Secure Badge */
+    .secure-badge {
+        text-align: center;
+        margin-top: 20px;
+        color: var(--gray);
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .secure-badge i {
+        color: var(--success);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.95);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 45px;
+        height: 45px;
+        border: 3px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Cash Payment Section */
+    .cash-payment-section {
+        background: var(--gray-light);
+        border-radius: 20px;
+        padding: 25px;
+        margin-top: 20px;
+        border: 2px solid var(--border);
+        text-align: center;
+    }
+
+    .cash-payment-section:hover {
+        border-color: var(--secondary);
+        background: #fff3e0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .payment-body {
+            padding: 20px;
+        }
+        
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .method-info {
+            flex-wrap: wrap;
+        }
+        
+        .method-card {
+            padding: 12px;
+        }
+        
+        .payment-header h1 {
+            font-size: 1.3rem;
+        }
+        
+        .contact-numbers {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .secure-badge {
+            gap: 8px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('seller_subscription') }}">Subscription</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Payment</span>
+        </div>
+
+        <!-- Payment Card -->
+        <div class="payment-card">
+            <div class="payment-header">
+                <h1>Complete Your Payment</h1>
+                <p>Choose your preferred payment method to activate your plan</p>
+            </div>
+
+            <div class="payment-body">
+                <!-- Plan Summary -->
+                <div class="plan-summary">
+                    <div class="summary-title">
+                        <i class="fas fa-receipt"></i>
+                        Order Summary
+                    </div>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="summary-label"><i class="fas fa-tag"></i> Plan</span>
+                            <span class="summary-value">{{ plan.name }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label"><i class="fas fa-clock"></i> Duration</span>
+                            <span class="summary-value">{{ plan.duration }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label"><i class="fas fa-box"></i> Product Limit</span>
+                            <span class="summary-value">{{ plan.product_limit }} products</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label"><i class="fas fa-money-bill-wave"></i> Total Amount</span>
+                            <span class="summary-value total-price">
+                                {% if plan.price == 0 %}
+                                    FREE
+                                {% else %}
+                                    UGX {{ "{:,.0f}".format(plan.price) }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <form action="{{ url_for('process_payment', plan_id=plan.id) }}" method="POST" enctype="multipart/form-data" id="paymentForm">
+                    {% if plan.price > 0 %}
+                    <!-- Payment Methods (Only show for paid plans) -->
+                    <div class="payment-methods">
+                        <div class="method-title">
+                            <i class="fas fa-credit-card"></i>
+                            Select Payment Method
+                        </div>
+                        
+                        <div class="method-card" onclick="selectMethod('mobile')">
+                            <div style="display: flex; align-items: center;">
+                                <input type="radio" name="payment_method" value="mobile_money" class="method-radio" checked>
+                                <div class="method-info">
+                                    <div class="method-icon">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                    <div class="method-details">
+                                        <h4>Mobile Money</h4>
+                                        <p>Pay via MTN or Airtel Money</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="method-card" onclick="selectMethod('cash')">
+                            <div style="display: flex; align-items: center;">
+                                <input type="radio" name="payment_method" value="cash_payment" class="method-radio">
+                                <div class="method-info">
+                                    <div class="method-icon">
+                                        <i class="fas fa-hand-holding-usd"></i>
+                                    </div>
+                                    <div class="method-details">
+                                        <h4>Cash / Physical Payment</h4>
+                                        <p>Visit our campus office to pay in cash</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Money Instructions -->
+                    <div id="mobileInstructions" class="upload-section" style="display: block;">
+                        <div class="upload-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>Mobile Money Payment</h3>
+                        <p>Send payment to any of these numbers:</p>
+                        <div class="contact-numbers" style="justify-content: center;">
+                            <div class="contact-number">
+                                <i class="fab fa-mtn"></i>
+                                <span>0782 713 764</span>
+                            </div>
+                            <div class="contact-number">
+                                <i class="fas fa-phone-alt"></i>
+                                <span>0754 559 991</span>
+                            </div>
+                        </div>
+                        <p><strong>Reference:</strong> Your email: {{ user.email }}</p>
+                        <p>After payment, upload your transaction screenshot below:</p>
+                        
+                        <div class="upload-area" onclick="document.getElementById('payment_proof').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click to upload payment screenshot</p>
+                            <p style="font-size: 0.7rem;">PNG, JPG up to 5MB</p>
+                        </div>
+                        <input type="file" name="payment_proof" id="payment_proof" accept="image/*" style="display: none;" onchange="updateFileName(this)">
+                        <div id="file-info" class="file-info" style="display: none;"></div>
+                    </div>
+
+                    <!-- Cash Payment Instructions -->
+                    <div id="cashInstructions" class="cash-payment-section" style="display: none;">
+                        <div class="upload-icon">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <h3>Cash Payment</h3>
+                        <div class="contact-section" style="margin: 15px 0;">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <h3>Visit Our Campus Office</h3>
+                            <p><strong>Location:</strong> UCU Main Campus, Mukono - ICT Building, Room 205</p>
+                            <p><strong>Office Hours:</strong> Monday - Friday, 9:00 AM - 5:00 PM</p>
+                            <p><strong>What to bring:</strong> Your NIN and email address for verification</p>
+                            <div class="contact-numbers">
+                                <div class="contact-number">
+                                    <i class="fas fa-phone-alt"></i>
+                                    <span>0782 713 764</span>
+                                </div>
+                                <div class="contact-number">
+                                    <i class="fab fa-whatsapp"></i>
+                                    <span>0754 559 991</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p>After payment at the office, your plan will be activated within 24 hours.</p>
+                    </div>
+
+                    <button type="submit" class="payment-btn" id="submitBtn">
+                        <i class="fas fa-check-circle"></i> Complete Payment
+                    </button>
+                    
+                    {% else %}
+                    <!-- Free Plan - No Payment Needed -->
+                    <div class="upload-section" style="border-color: var(--success); background: #e8f5e9;">
+                        <div class="upload-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <h3>Free Plan Activation</h3>
+                        <p>You're about to activate the {{ plan.name }}. No payment required!</p>
+                        <button type="submit" class="payment-btn" style="margin-top: 20px;">
+                            <i class="fas fa-rocket"></i> Activate Free Plan
+                        </button>
+                    </div>
+                    {% endif %}
+
+                    <div class="secure-badge">
+                        <i class="fas fa-shield-alt"></i> Secure Payment
+                        <i class="fas fa-clock"></i> 24/7 Support
+                        <i class="fas fa-check-circle"></i> Fast Activation
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="margin-top: 15px; color: var(--primary);">Processing your payment...</p>
+</div>
+
+<script>
+function selectMethod(method) {
+    // Hide all instruction sections
+    const mobileInstructions = document.getElementById('mobileInstructions');
+    const cashInstructions = document.getElementById('cashInstructions');
+    
+    if (mobileInstructions) mobileInstructions.style.display = 'none';
+    if (cashInstructions) cashInstructions.style.display = 'none';
+    
+    // Show selected method instructions
+    if (method === 'mobile') {
+        if (mobileInstructions) mobileInstructions.style.display = 'block';
+    } else if (method === 'cash') {
+        if (cashInstructions) cashInstructions.style.display = 'block';
+    }
+}
+
+function updateFileName(input) {
+    if (input.files && input.files[0]) {
+        const fileName = input.files[0].name;
+        const fileInfo = document.getElementById('file-info');
+        
+        if (fileInfo) {
+            fileInfo.textContent = '✓ Selected: ' + fileName;
+            fileInfo.style.display = 'inline-block';
+            fileInfo.style.backgroundColor = '#10b981';
+        }
+    }
+}
+
+// Add selected class to method cards
+document.querySelectorAll('.method-card').forEach(card => {
+    card.addEventListener('click', function() {
+        document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+    });
+});
+
+// Handle form submission
+document.getElementById('paymentForm').addEventListener('submit', function(e) {
+    {% if plan.price > 0 %}
+    const method = document.querySelector('input[name="payment_method"]:checked');
+    const selectedMethod = method ? method.value : null;
+    
+    if (selectedMethod === 'mobile_money') {
+        const proofUploaded = document.getElementById('payment_proof').files.length > 0;
+        if (!proofUploaded) {
+            e.preventDefault();
+            alert('Please upload your mobile money payment screenshot');
+            return;
+        }
+    }
+    {% endif %}
+    
+    // Show loading overlay
+    document.getElementById('loadingOverlay').classList.add('show');
+});
+
+// Initialize selected method on load
+document.addEventListener('DOMContentLoaded', function() {
+    {% if plan.price > 0 %}
+    const selectedRadio = document.querySelector('input[name="payment_method"]:checked');
+    if (selectedRadio && selectedRadio.value === 'mobile_money') {
+        selectMethod('mobile');
+        const firstMethodCard = document.querySelector('.method-card');
+        if (firstMethodCard) firstMethodCard.classList.add('selected');
+    }
+    {% endif %}
+});
+
+// Make functions global
+window.selectMethod = selectMethod;
+window.updateFileName = updateFileName;
+</script>
+{% endblock %}

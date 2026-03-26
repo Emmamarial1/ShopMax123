@@ -1,0 +1,1302 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Products - Admin - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .admin-products-page {
+        padding: 30px 0;
+        background: var(--white);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: var(--white);
+        padding: 10px 16px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px 25px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .total-badge {
+        background: rgba(255,255,255,0.15);
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-outline-light {
+        background: rgba(255,255,255,0.15);
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline-light:hover {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stat-card:hover {
+        border-color: var(--secondary);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: var(--white);
+    }
+
+    .stat-icon.total { background: var(--primary); }
+    .stat-icon.active { background: var(--success); }
+    .stat-icon.inactive { background: var(--danger); }
+    .stat-icon.value { background: var(--secondary); }
+
+    .stat-info h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .stat-info p {
+        color: var(--gray);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+    }
+
+    /* Category Stats */
+    .category-stats {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border);
+        margin-bottom: 20px;
+    }
+
+    .category-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .category-header h3 {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .category-header h3 i {
+        color: var(--secondary);
+    }
+
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 10px;
+    }
+
+    .category-item {
+        background: var(--gray-light);
+        padding: 8px;
+        border-radius: 8px;
+        text-align: center;
+        border-left: 3px solid var(--secondary);
+    }
+
+    .category-count {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .category-name {
+        font-size: 0.6rem;
+        color: var(--gray);
+        text-transform: uppercase;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: var(--white);
+        border-radius: 30px;
+        padding: 10px 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--gray);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .filter-tab:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .filter-tab.active {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .filter-tab i {
+        margin-right: 3px;
+    }
+
+    .filter-search {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--gray-light);
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        flex: 1;
+        max-width: 300px;
+    }
+
+    .filter-search i {
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    .filter-search input {
+        border: none;
+        background: transparent;
+        padding: 4px 0;
+        width: 100%;
+        outline: none;
+        font-size: 0.7rem;
+    }
+
+    /* Products Table */
+    .table-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .table-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .table-header h3 i {
+        color: var(--secondary);
+    }
+
+    .products-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.7rem;
+    }
+
+    .products-table th {
+        text-align: left;
+        padding: 10px 12px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 600;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .products-table td {
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .products-table tr:hover td {
+        background: var(--gray-light);
+    }
+
+    .product-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .product-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: var(--gray-light);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-image i {
+        color: var(--gray);
+        font-size: 1rem;
+    }
+
+    .product-details h4 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .product-details p {
+        font-size: 0.6rem;
+        color: var(--gray);
+    }
+
+    .seller-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .seller-avatar {
+        width: 24px;
+        height: 24px;
+        background: var(--primary);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.6rem;
+        font-weight: 600;
+    }
+
+    .seller-name {
+        font-size: 0.65rem;
+        font-weight: 500;
+        color: var(--primary);
+    }
+
+    .category-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+        font-size: 0.6rem;
+        font-weight: 500;
+    }
+
+    .price {
+        font-weight: 600;
+        color: var(--secondary);
+        font-size: 0.75rem;
+    }
+
+    .stock {
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    .stock.high {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .stock.medium {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid var(--warning);
+    }
+
+    .stock.low {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+    }
+
+    .badge-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .badge-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .action-view {
+        background: var(--info);
+        color: var(--white);
+    }
+
+    .action-view:hover {
+        background: #2563eb;
+    }
+
+    .action-edit {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .action-edit:hover {
+        background: var(--secondary-dark);
+    }
+
+    .action-toggle {
+        background: var(--warning);
+        color: var(--white);
+    }
+
+    .action-toggle:hover {
+        background: #e65100;
+    }
+
+    .action-delete {
+        background: var(--danger);
+        color: var(--white);
+    }
+
+    .action-delete:hover {
+        background: #b91c1c;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        margin: 20px 0;
+    }
+
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 28px;
+        background: var(--white);
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.65rem;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+    }
+
+    .page-link:hover {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .page-item.active .page-link {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 100000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: var(--white);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease;
+    }
+
+    .modal-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .modal-header i {
+        color: var(--secondary);
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 1rem;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+    .modal-close:hover {
+        opacity: 1;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .detail-item {
+        background: var(--gray-light);
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .detail-label {
+        color: var(--gray);
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+    }
+
+    .detail-value {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .description-box {
+        background: var(--gray-light);
+        padding: 12px;
+        border-radius: 8px;
+        margin: 15px 0;
+        border-left: 3px solid var(--secondary);
+        font-size: 0.7rem;
+        line-height: 1.5;
+    }
+
+    .modal-footer {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    .delete-confirm {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .delete-confirm i {
+        font-size: 3rem;
+        color: var(--danger);
+        margin-bottom: 10px;
+    }
+
+    .delete-confirm p {
+        color: var(--gray);
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+    }
+
+    .delete-confirm .product-name {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .category-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-search {
+            max-width: 100%;
+        }
+        
+        .products-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .category-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .action-btn {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-products-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Products</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Manage Products</h1>
+                    <p><i class="fas fa-map-pin"></i> UCU Campus Marketplace</p>
+                </div>
+            </div>
+            <div class="total-badge">
+                <i class="fas fa-box"></i> {{ total_products }} Total Products
+            </div>
+            <div class="header-actions">
+                <button class="btn-sm btn-outline-light" onclick="exportProducts()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon total"><i class="fas fa-box"></i></div>
+                <div class="stat-info">
+                    <h3>{{ total_products }}</h3>
+                    <p>Total Products</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon active"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ active_products }}</h3>
+                    <p>Active Products</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon inactive"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ inactive_products }}</h3>
+                    <p>Inactive Products</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon value"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-info">
+                    <h3>UGX {{ "{:,.0f}".format(inventory_value|default(0)) }}</h3>
+                    <p>Inventory Value</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Stats -->
+        {% if category_counts %}
+        <div class="category-stats">
+            <div class="category-header">
+                <h3><i class="fas fa-tags"></i> Products by Category</h3>
+            </div>
+            <div class="category-grid">
+                {% for cat, count in category_counts %}
+                <div class="category-item">
+                    <div class="category-count">{{ count }}</div>
+                    <div class="category-name">{{ cat|replace('_', ' ')|title }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <a href="{{ url_for('admin_products') }}" class="filter-tab {% if not status %}active{% endif %}">
+                    <i class="fas fa-list"></i> All
+                </a>
+                <a href="{{ url_for('admin_products', status='active') }}" class="filter-tab {% if status == 'active' %}active{% endif %}">
+                    <i class="fas fa-check-circle"></i> Active
+                </a>
+                <a href="{{ url_for('admin_products', status='inactive') }}" class="filter-tab {% if status == 'inactive' %}active{% endif %}">
+                    <i class="fas fa-times-circle"></i> Inactive
+                </a>
+            </div>
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by name, seller, category..." value="{{ search }}" onkeyup="if(event.key === 'Enter') searchProducts()">
+                {% if search %}
+                <a href="{{ url_for('admin_products', status=status) }}" style="color: var(--gray);">
+                    <i class="fas fa-times"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> Products</h3>
+                <span>{{ pagination.total if pagination else products|length }} products found</span>
+            </div>
+
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Seller</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr id="product-row-{{ product.id }}">
+                        <td>
+                            <div class="product-info">
+                                <div class="product-image">
+                                    {% if product.image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                    {% else %}
+                                    <i class="fas fa-box"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="product-details">
+                                    <h4>{{ product.name[:40] }}{% if product.name|length > 40 %}...{% endif %}</h4>
+                                    <p>ID: #{{ product.id }} | Sold: {{ product.sold_count|default(0) }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="seller-info">
+                                <div class="seller-avatar">{{ product.seller.fullname[:1] if product.seller else '?' }}</div>
+                                <span class="seller-name">{{ product.seller.business_name or product.seller.fullname if product.seller else 'N/A' }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="category-badge">{{ product.category|replace('_', ' ')|title }}</span>
+                        </td>
+                        <td class="price">UGX {{ "{:,.0f}".format(product.price) }}</td>
+                        <td>
+                            <span class="stock {% if product.stock > 10 %}high{% elif product.stock > 5 %}medium{% else %}low{% endif %}">
+                                {{ product.stock }} units
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ 'success' if product.is_active else 'danger' }}">
+                                {{ 'Active' if product.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button onclick="viewProduct({{ product.id }})" class="action-btn action-view" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <a href="{{ url_for('edit_product', product_id=product.id) }}" class="action-btn action-edit" title="Edit Product">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button onclick="toggleProduct({{ product.id }}, {{ product.is_active|lower }})" class="action-btn action-toggle" title="Toggle Status">
+                                    <i class="fas fa-{{ 'ban' if product.is_active else 'check' }}"></i>
+                                </button>
+                                <button onclick="confirmDelete({{ product.id }}, '{{ product.name|replace("'", "\\'")|replace('"', '\\"') }}')" class="action-btn action-delete" title="Delete Product">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-box-open" style="font-size: 2rem; color: var(--border); margin-bottom: 10px;"></i>
+                            <p style="color: var(--gray);">No products found</p>
+                            {% if search or status %}
+                            <p style="font-size: 0.65rem;">
+                                <a href="{{ url_for('admin_products') }}" style="color: var(--secondary);">Clear filters</a>
+                            </p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination and pagination.pages > 1 %}
+        <nav>
+            <ul class="pagination">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin_products', page=pagination.prev_num, status=status, search=search) }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin_products', page=page_num, status=status, search=search) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin_products', page=pagination.next_num, status=status, search=search) }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="modal" id="productModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-box"></i> Product Details</h3>
+            <button class="modal-close" onclick="closeModal('productModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="productModalBody">
+            <div style="text-align: center; padding: 30px;">
+                <div class="spinner"></div>
+                <p style="font-size:0.7rem; margin-top:10px;">Loading product details...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-trash"></i> Delete Product</h3>
+            <button class="modal-close" onclick="closeModal('deleteModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-confirm">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Are you sure you want to delete <strong class="product-name" id="deleteProductName"></strong>?</p>
+                <p style="font-size: 0.7rem;">This action cannot be undone. All associated data will be permanently removed.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('deleteModal')" class="action-btn action-view">Cancel</button>
+                <button onclick="deleteProduct()" class="action-btn action-delete" id="confirmDeleteBtn">Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-size:0.7rem; color:var(--primary);">Processing...</p>
+</div>
+
+<script>
+let currentDeleteProductId = null;
+
+// Search products
+function searchProducts() {
+    const searchTerm = document.getElementById('searchInput').value.trim();
+    const url = new URL(window.location.href);
+    if (searchTerm) {
+        url.searchParams.set('search', searchTerm);
+    } else {
+        url.searchParams.delete('search');
+    }
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
+
+// View product details
+async function viewProduct(productId) {
+    const modal = document.getElementById('productModal');
+    const modalBody = document.getElementById('productModalBody');
+    modal.classList.add('show');
+    modalBody.innerHTML = '<div style="text-align: center; padding: 30px;"><div class="spinner"></div><p>Loading...</p></div>';
+    
+    try {
+        const response = await fetch(`/api/admin/products/${productId}`);
+        const product = await response.json();
+        
+        modalBody.innerHTML = `
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Product ID</div>
+                    <div class="detail-value">#${product.id}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value">
+                        <span class="badge badge-${product.is_active ? 'success' : 'danger'}">
+                            ${product.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Price</div>
+                    <div class="detail-value">UGX ${product.price_formatted}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Stock</div>
+                    <div class="detail-value">${product.stock} units</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Category</div>
+                    <div class="detail-value">${product.category.replace(/_/g, ' ').toUpperCase()}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Brand</div>
+                    <div class="detail-value">${product.brand || 'N/A'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Condition</div>
+                    <div class="detail-value">${product.condition || 'New'}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Sold</div>
+                    <div class="detail-value">${product.sold_count || 0} units</div>
+                </div>
+            </div>
+            
+            <div class="description-box">
+                <strong>Description:</strong><br>
+                ${product.description || 'No description'}
+            </div>
+            
+            <div class="detail-item" style="margin-top:10px;">
+                <div class="detail-label">Seller</div>
+                <div class="detail-value">${product.seller_name}</div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Added on</div>
+                <div class="detail-value">${product.created_at}</div>
+            </div>
+            
+            <div class="modal-footer">
+                ${product.image ? `<a href="${product.image}" target="_blank" class="action-btn action-view"><i class="fas fa-image"></i> View Image</a>` : ''}
+                <button onclick="closeModal('productModal')" class="action-btn action-edit">Close</button>
+            </div>
+        `;
+    } catch (error) {
+        modalBody.innerHTML = `
+            <div style="text-align: center; padding: 30px;">
+                <i class="fas fa-exclamation-circle" style="color: var(--danger); font-size: 2rem;"></i>
+                <p style="color: var(--gray); margin-top: 10px;">Error loading product details</p>
+                <button onclick="closeModal('productModal')" class="action-btn action-edit" style="margin-top:10px;">Close</button>
+            </div>
+        `;
+    }
+}
+
+// Toggle product status
+async function toggleProduct(productId, isActive) {
+    const action = isActive ? 'deactivate' : 'activate';
+    if (!confirm(`Are you sure you want to ${action} this product?`)) return;
+    
+    showLoading(true);
+    
+    try {
+        const response = await fetch(`/api/admin/products/${productId}/toggle`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || `Error ${action}ing product`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Error ${action}ing product`);
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Confirm delete
+function confirmDelete(productId, productName) {
+    currentDeleteProductId = productId;
+    document.getElementById('deleteProductName').textContent = productName;
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+// Delete product
+async function deleteProduct() {
+    if (!currentDeleteProductId) return;
+    
+    showLoading(true);
+    closeModal('deleteModal');
+    
+    try {
+        const response = await fetch(`/api/admin/products/${currentDeleteProductId}/delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ Product deleted successfully');
+            location.reload();
+        } else {
+            alert(data.message || 'Error deleting product');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error deleting product');
+    } finally {
+        showLoading(false);
+        currentDeleteProductId = null;
+    }
+}
+
+// Export products
+function exportProducts() {
+    const search = document.getElementById('searchInput').value;
+    const status = new URLSearchParams(window.location.search).get('status') || '';
+    window.location.href = `/api/admin/products/export?search=${encodeURIComponent(search)}&status=${status}`;
+}
+
+// Close modal
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+// Show loading
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.toggle('show', show);
+    }
+}
+
+// Search on enter
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchProducts();
+    }
+});
+
+// Make functions global
+window.searchProducts = searchProducts;
+window.viewProduct = viewProduct;
+window.toggleProduct = toggleProduct;
+window.confirmDelete = confirmDelete;
+window.deleteProduct = deleteProduct;
+window.exportProducts = exportProducts;
+window.closeModal = closeModal;
+</script>
+{% endblock %}

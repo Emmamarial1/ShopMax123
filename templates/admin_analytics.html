@@ -1,0 +1,973 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .analytics-page {
+        padding: 30px 0;
+        background: var(--gray-light);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: var(--white);
+        padding: 10px 16px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px 25px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .period-badge {
+        background: rgba(255,255,255,0.15);
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    /* Period Selector */
+    .period-selector {
+        display: flex;
+        gap: 8px;
+        background: var(--white);
+        padding: 4px;
+        border-radius: 40px;
+        border: 1px solid var(--border);
+    }
+
+    .period-btn {
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--gray);
+        transition: all 0.2s;
+    }
+
+    .period-btn:hover {
+        color: var(--secondary);
+    }
+
+    .period-btn.active {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .export-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 16px;
+        background: var(--white);
+        color: var(--primary);
+        border: 1px solid var(--border);
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .export-btn:hover {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+        border-color: var(--secondary);
+        transform: translateY(-2px);
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--secondary);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        color: var(--gray);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .stat-change {
+        font-size: 0.65rem;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        margin-top: 5px;
+    }
+
+    .stat-change.positive {
+        color: var(--success);
+    }
+
+    .stat-change.negative {
+        color: var(--danger);
+    }
+
+    /* Charts Row */
+    .charts-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .chart-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .chart-title {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .chart-title i {
+        color: var(--secondary);
+    }
+
+    .chart-container {
+        height: 250px;
+        position: relative;
+    }
+
+    /* Category Stats */
+    .category-stats {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border);
+        margin-bottom: 20px;
+    }
+
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .category-item {
+        background: var(--gray-light);
+        padding: 10px;
+        border-radius: 8px;
+        border-left: 3px solid var(--secondary);
+    }
+
+    .category-name {
+        font-size: 0.65rem;
+        color: var(--gray);
+        margin-bottom: 2px;
+    }
+
+    .category-revenue {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .category-sold {
+        font-size: 0.6rem;
+        color: var(--secondary);
+    }
+
+    /* Tables */
+    .table-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .table-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .table-header h3 i {
+        color: var(--secondary);
+    }
+
+    .view-all {
+        color: var(--secondary);
+        text-decoration: none;
+        font-size: 0.7rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .analytics-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.7rem;
+    }
+
+    .analytics-table th {
+        text-align: left;
+        padding: 10px 12px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 600;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .analytics-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .analytics-table tr:hover td {
+        background: var(--gray-light);
+    }
+
+    .seller-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .seller-avatar {
+        width: 28px;
+        height: 28px;
+        background: var(--primary);
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+
+    .rating-stars {
+        color: #ffc107;
+        font-size: 0.6rem;
+    }
+
+    .trend-up {
+        color: var(--success);
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .trend-down {
+        color: var(--danger);
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+    }
+
+    .badge-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .badge-warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid var(--warning);
+    }
+
+    .badge-info {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--info);
+        border: 1px solid var(--info);
+    }
+
+    .badge-primary {
+        background: rgba(0, 0, 128, 0.1);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    .badge-secondary {
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    /* Insights Grid */
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .insight-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .insight-card:hover {
+        border-color: var(--secondary);
+    }
+
+    .insight-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--gray-light);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        color: var(--secondary);
+        font-size: 0.9rem;
+    }
+
+    .insight-label {
+        color: var(--gray);
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .insight-value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .insight-change {
+        font-size: 0.6rem;
+        color: var(--success);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 30px;
+    }
+
+    .empty-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--gray-light);
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        color: var(--gray);
+        font-size: 1.2rem;
+    }
+
+    .empty-state p {
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .insights-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .category-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .charts-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .insights-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .analytics-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Analytics</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Analytics Dashboard</h1>
+                    <p><i class="fas fa-calendar"></i> {{ start_date }} to {{ end_date }}</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="period-selector">
+                    <button class="period-btn {% if period == 'today' %}active{% endif %}" onclick="changePeriod('today')">Today</button>
+                    <button class="period-btn {% if period == 'week' %}active{% endif %}" onclick="changePeriod('week')">Week</button>
+                    <button class="period-btn {% if period == 'month' %}active{% endif %}" onclick="changePeriod('month')">Month</button>
+                    <button class="period-btn {% if period == 'quarter' %}active{% endif %}" onclick="changePeriod('quarter')">Quarter</button>
+                    <button class="period-btn {% if period == 'year' %}active{% endif %}" onclick="changePeriod('year')">Year</button>
+                </div>
+                <a href="{{ url_for('admin_reports') }}?type=analytics&period={{ period }}" class="export-btn">
+                    <i class="fas fa-download"></i> Export
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="stat-change {% if analytics_data.revenue_change > 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if analytics_data.revenue_change > 0 %}up{% else %}down{% endif %}"></i>
+                        {{ analytics_data.revenue_change|abs|round(1) }}%
+                    </div>
+                </div>
+                <div class="stat-value">UGX {{ "{:,.0f}".format(analytics_data.total_revenue) }}</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="stat-change {% if analytics_data.orders_change > 0 %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if analytics_data.orders_change > 0 %}up{% else %}down{% endif %}"></i>
+                        {{ analytics_data.orders_change|abs|round(1) }}%
+                    </div>
+                </div>
+                <div class="stat-value">{{ analytics_data.total_orders }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon"><i class="fas fa-box"></i></div>
+                </div>
+                <div class="stat-value">{{ analytics_data.products_sold }}</div>
+                <div class="stat-label">Products Sold</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-value">{{ analytics_data.unique_customers }}</div>
+                <div class="stat-label">Unique Customers</div>
+            </div>
+        </div>
+
+        <!-- Quick Insights -->
+        <div class="insights-grid">
+            <div class="insight-card">
+                <div class="insight-icon"><i class="fas fa-star"></i></div>
+                <div class="insight-label">Store Rating</div>
+                <div class="insight-value">{{ analytics_data.store_rating }}/5.0</div>
+                <div class="insight-change">{{ analytics_data.reviews_count }} reviews</div>
+            </div>
+
+            <div class="insight-card">
+                <div class="insight-icon"><i class="fas fa-eye"></i></div>
+                <div class="insight-label">Store Views</div>
+                <div class="insight-value">{{ analytics_data.store_views }}</div>
+                <div class="insight-change">This period</div>
+            </div>
+
+            <div class="insight-card">
+                <div class="insight-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="insight-label">Conversion Rate</div>
+                <div class="insight-value">{{ analytics_data.conversion_rate }}%</div>
+                <div class="insight-change">Views to orders</div>
+            </div>
+
+            <div class="insight-card">
+                <div class="insight-icon"><i class="fas fa-boxes"></i></div>
+                <div class="insight-label">Active Products</div>
+                <div class="insight-value">{{ analytics_data.active_products }}</div>
+                <div class="insight-change">In your store</div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title"><i class="fas fa-chart-line"></i> Revenue Trend</h3>
+                    <span class="period-badge">Last 30 days</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Sales by Category</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Stats -->
+        {% if analytics_data.category_sales %}
+        <div class="category-stats">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-tags"></i> Category Performance</h3>
+            </div>
+            <div class="category-grid">
+                {% for category in analytics_data.category_sales %}
+                <div class="category-item">
+                    <div class="category-name">{{ category.category }}</div>
+                    <div class="category-revenue">UGX {{ "{:,.0f}".format(category.revenue) }}</div>
+                    <div class="category-sold">{{ category.quantity }} units sold</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Top Products Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3><i class="fas fa-fire"></i> Top Selling Products</h3>
+                <a href="{{ url_for('admin_products') }}" class="view-all">View All →</a>
+            </div>
+            <table class="analytics-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Units Sold</th>
+                        <th>Revenue</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in analytics_data.top_products %}
+                    <tr>
+                        <td>
+                            <div class="seller-info">
+                                <div class="seller-avatar">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <div>
+                                    <strong>{{ product.name }}</strong>
+                                </div>
+                            </div>
+                        </td>
+                        <td>UGX {{ "{:,.0f}".format(product.price) }}</td>
+                        <td><span class="badge badge-primary">{{ product.total_sold }}</span></td>
+                        <td><strong>UGX {{ "{:,.0f}".format(product.revenue) }}</strong></td>
+                        <td>
+                            <div class="rating-stars">
+                                {% for i in range(5) %}
+                                    {% if i < product.avg_rating|default(0)|int %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <div class="empty-icon"><i class="fas fa-box-open"></i></div>
+                                <p>No products sold in this period</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3><i class="fas fa-clock"></i> Recent Orders</h3>
+                <a href="{{ url_for('admin_orders') }}" class="view-all">View All →</a>
+            </div>
+            <table class="analytics-table">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in analytics_data.recent_orders %}
+                    <tr>
+                        <td><strong>#{{ order.id }}</strong></td>
+                        <td>
+                            <div class="seller-info">
+                                <div class="seller-avatar">{{ order.user.fullname[:1] if order.user else '?' }}</div>
+                                {{ order.user.fullname if order.user else 'Guest' }}
+                            </div>
+                        </td>
+                        <td>{{ order.order_items|length }} items</td>
+                        <td><strong>UGX {{ "{:,.0f}".format(order.total_amount) }}</strong></td>
+                        <td>
+                            <span class="badge badge-{{ 'success' if order.status == 'completed' else 'warning' if order.status == 'pending' else 'info' }}">
+                                {{ order.status|upper }}
+                            </span>
+                        </td>
+                        <td>{{ order.created_at.strftime('%d %b %Y') }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-icon"><i class="fas fa-shopping-bag"></i></div>
+                                <p>No orders in this period</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Revenue Chart
+const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
+if (revenueCtx) {
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: {{ analytics_data.line_chart_labels|tojson }},
+            datasets: [{
+                data: {{ analytics_data.line_chart_data|tojson }},
+                borderColor: '#ff6b00',
+                backgroundColor: 'rgba(255,107,0,0.05)',
+                tension: 0.3,
+                pointBackgroundColor: '#000080',
+                pointBorderColor: 'white',
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { 
+                y: { 
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'UGX ' + value.toLocaleString();
+                        }
+                    }
+                } 
+            }
+        }
+    });
+}
+
+// Category Chart
+const categoryCtx = document.getElementById('categoryChart')?.getContext('2d');
+if (categoryCtx) {
+    const categoryData = {{ analytics_data.category_sales|tojson }};
+    
+    new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: categoryData.map(c => c.category),
+            datasets: [{
+                data: categoryData.map(c => c.revenue),
+                backgroundColor: ['#ff6b00', '#000080', '#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { 
+                    position: 'bottom',
+                    labels: { boxWidth: 10, font: { size: 9 } }
+                } 
+            },
+            cutout: '65%'
+        }
+    });
+}
+
+// Change period
+function changePeriod(period) {
+    window.location.href = "{{ url_for('admin_analytics') }}?period=" + period;
+}
+
+// Export function
+function exportAnalytics() {
+    window.location.href = "{{ url_for('admin_reports') }}?type=analytics&period={{ period }}";
+}
+
+// Make functions global
+window.changePeriod = changePeriod;
+window.exportAnalytics = exportAnalytics;
+</script>
+{% endblock %}

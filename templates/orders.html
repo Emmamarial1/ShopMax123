@@ -1,0 +1,1786 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if session.user_type == 'seller' %}
+        Manage Orders - ShopMax UCU Marketplace
+    {% else %}
+        My Orders - ShopMax UCU Marketplace
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .orders-page {
+        padding: 30px 0;
+        background: var(--white);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: var(--white);
+        padding: 8px 14px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        font-size: 0.75rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.6rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 2px 8px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px 25px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .order-count-badge {
+        background: rgba(255,255,255,0.15);
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stat-card:hover {
+        border-color: var(--secondary);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1.1rem;
+    }
+
+    .stat-info h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .stat-info p {
+        color: var(--gray);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: var(--white);
+        border-radius: 30px;
+        padding: 10px 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--gray);
+    }
+
+    .filter-tab:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .filter-tab.active {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .filter-search {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--gray-light);
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .filter-search i {
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    .filter-search input {
+        border: none;
+        background: transparent;
+        padding: 4px 0;
+        width: 180px;
+        outline: none;
+        font-size: 0.75rem;
+        color: var(--primary);
+    }
+
+    /* Orders List */
+    .orders-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .order-card {
+        background: var(--white);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .order-card:hover {
+        border-color: var(--secondary);
+    }
+
+    /* Order Header */
+    .order-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .order-id-section {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.75rem;
+    }
+
+    .order-number {
+        background: var(--secondary);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .order-date {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        opacity: 0.9;
+    }
+
+    .order-date i {
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: rgba(108, 117, 125, 0.15);
+        color: #6c757d;
+        border: 1px solid #6c757d;
+    }
+
+    .status-confirmed {
+        background: rgba(23, 162, 184, 0.15);
+        color: #17a2b8;
+        border: 1px solid #17a2b8;
+    }
+
+    .status-processing {
+        background: rgba(13, 110, 253, 0.15);
+        color: #0d6efd;
+        border: 1px solid #0d6efd;
+    }
+
+    .status-out_for_delivery, .status-shipped, .status-in_transit {
+        background: rgba(255, 107, 0, 0.15);
+        color: var(--secondary-dark);
+        border: 1px solid var(--secondary);
+    }
+
+    .status-completed {
+        background: rgba(40, 167, 69, 0.25);
+        color: #28a745;
+        border: 2px solid #28a745;
+        font-weight: 700;
+    }
+
+    .status-cancelled {
+        background: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+    .status-issue_reported {
+        background: rgba(220, 53, 69, 0.15);
+        color: #dc3545;
+        border: 1px solid #dc3545;
+    }
+
+    /* Order Body */
+    .order-body {
+        padding: 16px;
+    }
+
+    /* Buyer/Seller Info */
+    .party-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed var(--border);
+        font-size: 0.7rem;
+    }
+
+    .party-detail {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .party-detail i {
+        color: var(--secondary);
+        width: 14px;
+        font-size: 0.65rem;
+    }
+
+    .party-name {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    /* Order Items */
+    .order-items {
+        margin-bottom: 12px;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--gray-light);
+        border: 1px solid var(--border);
+        flex-shrink: 0;
+    }
+
+    .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .item-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray);
+        font-size: 1.2rem;
+    }
+
+    .item-details {
+        flex: 1;
+    }
+
+    .item-name {
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.8rem;
+        margin-bottom: 3px;
+    }
+
+    .item-meta {
+        display: flex;
+        gap: 12px;
+        font-size: 0.65rem;
+        color: var(--gray);
+    }
+
+    .item-meta span {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .item-meta i {
+        color: var(--secondary);
+        font-size: 0.6rem;
+    }
+
+    .item-price {
+        font-weight: 600;
+        color: var(--secondary);
+        font-size: 0.8rem;
+        min-width: 80px;
+        text-align: right;
+    }
+
+    .more-items {
+        background: var(--gray-light);
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        color: var(--gray);
+        text-align: center;
+        margin-top: 8px;
+        border: 1px dashed var(--border);
+        cursor: pointer;
+    }
+
+    .more-items:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    /* Order Footer */
+    .order-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: var(--gray-light);
+        border-top: 1px solid var(--border);
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .order-total {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .total-label {
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    .total-value {
+        font-weight: 700;
+        color: var(--secondary);
+        font-size: 1rem;
+    }
+
+    /* Action Buttons */
+    .order-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-view {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .btn-view:hover {
+        background: var(--primary-dark);
+    }
+
+    .btn-track {
+        background: var(--white);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    .btn-track:hover {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-confirm {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-confirm:hover {
+        background: var(--secondary-dark);
+    }
+
+    .btn-cancel {
+        background: var(--white);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .btn-cancel:hover {
+        background: var(--danger);
+        color: var(--white);
+    }
+
+    .btn-report {
+        background: var(--white);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .btn-report:hover {
+        background: var(--danger);
+        color: var(--white);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--white);
+        border-radius: 16px;
+        border: 2px dashed var(--border);
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        color: var(--border);
+        margin-bottom: 15px;
+    }
+
+    .empty-state h3 {
+        color: var(--primary);
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        color: var(--gray);
+        font-size: 0.8rem;
+        margin-bottom: 20px;
+    }
+
+    .empty-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .empty-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .empty-btn-primary {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .empty-btn-primary:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-2px);
+    }
+
+    .empty-btn-secondary {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .empty-btn-secondary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Delivery Confirmation Modal with Issue Reporting */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 100000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(3px);
+        z-index: 100001;
+    }
+
+    .modal-container {
+        position: relative;
+        z-index: 100002;
+        width: 100%;
+        max-width: 450px;
+        margin: 0 15px;
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modal-card {
+        background: var(--white);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        border: 1px solid var(--border);
+    }
+
+    .modal-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-header i {
+        color: var(--secondary);
+        font-size: 1rem;
+    }
+
+    .modal-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .modal-header .modal-close {
+        margin-left: auto;
+        background: transparent;
+        border: none;
+        color: var(--white);
+        font-size: 1.2rem;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+    .modal-header .modal-close:hover {
+        opacity: 1;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .delivery-icon {
+        width: 50px;
+        height: 50px;
+        background: #f0fff4;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        border: 2px solid var(--success);
+    }
+
+    .delivery-icon i {
+        font-size: 1.6rem;
+        color: var(--success);
+    }
+
+    .delivery-message {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .order-preview {
+        background: var(--gray-light);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px dashed var(--border);
+        font-size: 0.8rem;
+        text-align: left;
+    }
+
+    /* Issue Section in Modal */
+    .modal-issue-section {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border);
+        display: none;
+    }
+
+    .modal-issue-section.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .issue-title {
+        font-weight: 600;
+        color: var(--danger);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+    }
+
+    .issue-title i {
+        font-size: 0.9rem;
+    }
+
+    .issue-options {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .issue-type-btn {
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        background: var(--gray-light);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .issue-type-btn:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .issue-type-btn.active {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .issue-type-btn i {
+        font-size: 0.6rem;
+    }
+
+    .issue-textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.75rem;
+        margin-bottom: 10px;
+        min-height: 80px;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .issue-textarea:focus {
+        border-color: var(--secondary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(255,107,0,0.1);
+    }
+
+    .help-note {
+        background: #fff3e0;
+        border-radius: 8px;
+        padding: 8px;
+        font-size: 0.65rem;
+        color: var(--primary);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .help-note i {
+        color: var(--secondary);
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        padding: 15px 20px;
+        background: var(--gray-light);
+        border-top: 1px solid var(--border);
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 8px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        transition: all 0.2s;
+    }
+
+    .modal-btn-primary {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .modal-btn-primary:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-2px);
+    }
+
+    .modal-btn-danger {
+        background: var(--danger);
+        color: var(--white);
+    }
+
+    .modal-btn-danger:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+
+    .modal-btn-secondary {
+        background: var(--white);
+        color: var(--gray);
+        border: 1px solid var(--border);
+    }
+
+    .modal-btn-secondary:hover {
+        background: var(--gray-light);
+    }
+
+    .toggle-issue-link {
+        text-align: center;
+        margin-top: 10px;
+        color: var(--secondary);
+        cursor: pointer;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 5px;
+        border-top: 1px solid var(--border);
+    }
+
+    .toggle-issue-link:hover {
+        color: var(--secondary-dark);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-search input {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .order-id-section {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .order-footer {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .order-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+        
+        .order-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .item-price {
+            text-align: left;
+            width: 100%;
+        }
+        
+        .empty-actions {
+            flex-direction: column;
+        }
+        
+        .modal-container {
+            max-width: 95%;
+        }
+        
+        .issue-options {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .order-actions {
+            flex-direction: column;
+        }
+        
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Delivery Confirmation Modal with Issue Reporting -->
+<div id="deliveryConfirmModal" class="modal">
+    <div class="modal-overlay"></div>
+    <div class="modal-container">
+        <div class="modal-card">
+            <div class="modal-header">
+                <i class="fas fa-truck"></i>
+                <h3>Delivery Confirmation</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="delivery-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <p class="delivery-message">Has your order been delivered successfully?</p>
+                
+                <div class="order-preview" id="confirmOrderPreview">
+                    <!-- Will be populated dynamically -->
+                </div>
+                
+                <!-- Issue Report Section -->
+                <div class="toggle-issue-link" onclick="toggleIssueSection()">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Report a problem with this delivery</span>
+                    <i class="fas fa-chevron-down" id="toggleIssueIcon"></i>
+                </div>
+                
+                <div class="modal-issue-section" id="modalIssueSection">
+                    <div class="issue-title">
+                        <i class="fas fa-flag"></i>
+                        What's the issue?
+                    </div>
+                    
+                    <div class="issue-options">
+                        <button type="button" class="issue-type-btn" onclick="selectIssueType(this, 'Damaged Item')">
+                            <i class="fas fa-box-open"></i> Damaged
+                        </button>
+                        <button type="button" class="issue-type-btn" onclick="selectIssueType(this, 'Wrong Item')">
+                            <i class="fas fa-exchange-alt"></i> Wrong Item
+                        </button>
+                        <button type="button" class="issue-type-btn" onclick="selectIssueType(this, 'Missing Item')">
+                            <i class="fas fa-box"></i> Missing
+                        </button>
+                        <button type="button" class="issue-type-btn" onclick="selectIssueType(this, 'Late Delivery')">
+                            <i class="fas fa-clock"></i> Late
+                        </button>
+                        <button type="button" class="issue-type-btn" onclick="selectIssueType(this, 'Other')">
+                            <i class="fas fa-question-circle"></i> Other
+                        </button>
+                    </div>
+                    
+                    <textarea class="issue-textarea" id="issueDescription" placeholder="Please describe the issue in detail... (e.g., item arrived damaged, received wrong item, missing parts, etc.)"></textarea>
+                    
+                    <div class="help-note">
+                        <i class="fas fa-info-circle"></i>
+                        Our support team will review your report and contact you within 24-48 hours to resolve the issue.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Not Yet
+                </button>
+                <button class="modal-btn modal-btn-primary" onclick="confirmDelivery()" id="confirmDeliveryBtn">
+                    <i class="fas fa-check"></i> Yes, Complete Order
+                </button>
+                <button class="modal-btn modal-btn-danger" onclick="submitIssue()" id="submitIssueBtn" style="display: none;">
+                    <i class="fas fa-paper-plane"></i> Submit Issue
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="orders-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('dashboard') if session.user_type == 'seller' else url_for('products') }}">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">
+                {% if session.user_type == 'seller' %}
+                    Manage Orders
+                {% else %}
+                    My Orders
+                {% endif %}
+            </span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="header-text">
+                    <h1>
+                        {% if session.user_type == 'seller' %}
+                            Manage Orders
+                        {% else %}
+                            My Orders
+                        {% endif %}
+                    </h1>
+                    <p>
+                        <i class="fas fa-store"></i> 
+                        {% if session.user_type == 'seller' %}
+                            Track and manage customer orders
+                        {% else %}
+                            Track all your campus deliveries
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="order-count-badge">
+                <i class="fas fa-box"></i> {{ orders|length }} Total
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            {% set pending_count = orders|selectattr("status", "equalto", "pending")|list|length %}
+            {% set confirmed_count = orders|selectattr("status", "equalto", "confirmed")|list|length %}
+            {% set processing_count = orders|selectattr("status", "equalto", "processing")|list|length %}
+            {% set out_for_delivery_count = orders|selectattr("status", "in", ["out_for_delivery", "shipped", "in_transit"])|list|length %}
+            {% set completed_count = orders|selectattr("status", "equalto", "completed")|list|length %}
+            {% set cancelled_count = orders|selectattr("status", "equalto", "cancelled")|list|length %}
+            
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ pending_count }}</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ confirmed_count }}</h3>
+                    <p>Confirmed</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-motorcycle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ out_for_delivery_count }}</h3>
+                    <p>On the Way</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ completed_count }}</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all" onclick="filterOrders('all')">All</button>
+                <button class="filter-tab" data-filter="pending" onclick="filterOrders('pending')">Pending</button>
+                <button class="filter-tab" data-filter="confirmed" onclick="filterOrders('confirmed')">Confirmed</button>
+                <button class="filter-tab" data-filter="processing" onclick="filterOrders('processing')">Processing</button>
+                <button class="filter-tab" data-filter="out_for_delivery" onclick="filterOrders('out_for_delivery')">On Way</button>
+                <button class="filter-tab" data-filter="completed" onclick="filterOrders('completed')">Completed</button>
+                <button class="filter-tab" data-filter="cancelled" onclick="filterOrders('cancelled')">Cancelled</button>
+            </div>
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search orders..." onkeyup="searchOrders()">
+            </div>
+        </div>
+
+        <!-- Orders List -->
+        {% if orders and orders|length > 0 %}
+        <div class="orders-list" id="ordersList">
+            {% for order in orders %}
+            <div class="order-card" data-status="{{ order.status }}" data-order-id="{{ order.id }}">
+                <!-- Order Header -->
+                <div class="order-header">
+                    <div class="order-id-section">
+                        <span class="order-number">#{{ order.id }}</span>
+                        <span class="order-date">
+                            <i class="far fa-calendar-alt"></i>
+                            {{ order.created_at.strftime('%d %b %Y') }}
+                        </span>
+                    </div>
+                    <div class="status-badge status-{{ order.status }}">
+                        <i class="fas 
+                            {% if order.status == 'pending' %}fa-clock
+                            {% elif order.status == 'confirmed' %}fa-check-circle
+                            {% elif order.status == 'processing' %}fa-sync-alt
+                            {% elif order.status in ['out_for_delivery', 'shipped', 'in_transit'] %}fa-motorcycle
+                            {% elif order.status == 'completed' %}fa-check-double
+                            {% elif order.status == 'cancelled' %}fa-times-circle
+                            {% elif order.status == 'issue_reported' %}fa-exclamation-triangle
+                            {% else %}fa-box{% endif %}">
+                        </i>
+                        {{ order.status|replace('_', ' ')|title }}
+                    </div>
+                </div>
+
+                <!-- Order Body -->
+                <div class="order-body">
+                    <div class="party-info">
+                        {% if session.user_type == 'seller' %}
+                            <div class="party-detail">
+                                <i class="fas fa-user"></i>
+                                <span class="party-name">{{ order.user.fullname if order.user else 'Customer' }}</span>
+                                {% if order.user and order.user.phone %}
+                                <span style="margin-left: 5px; color: var(--secondary);">({{ order.user.phone }})</span>
+                                {% endif %}
+                            </div>
+                            <div class="party-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ order.delivery_address or 'UCU Campus' }}</span>
+                            </div>
+                        {% else %}
+                            <div class="party-detail">
+                                <i class="fas fa-store"></i>
+                                <span class="party-name">
+                                    {% if order.order_items and order.order_items|length > 0 %}
+                                        {{ order.order_items[0].seller.business_name or order.order_items[0].seller.fullname if order.order_items[0].seller else 'Seller' }}
+                                    {% else %}
+                                        Seller
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="party-detail">
+                                <i class="fas fa-phone"></i>
+                                <span>
+                                    {% if order.order_items and order.order_items|length > 0 and order.order_items[0].seller %}
+                                        {{ order.order_items[0].seller.phone or 'N/A' }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="order-items">
+                        {% for item in order.order_items[:2] %}
+                        <div class="order-item">
+                            <div class="item-image">
+                                {% if item.product and item.product.image %}
+                                <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                {% else %}
+                                <div class="item-image-placeholder">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="item-details">
+                                <div class="item-name">{{ item.product.name if item.product else 'Product' }}</div>
+                                <div class="item-meta">
+                                    <span><i class="fas fa-sort-amount-up"></i> Qty: {{ item.quantity }}</span>
+                                    <span><i class="fas fa-tag"></i> UGX {{ "{:,.0f}".format(item.price) }}</span>
+                                </div>
+                            </div>
+                            <div class="item-price">
+                                UGX {{ "{:,.0f}".format(item.price * item.quantity) }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if order.order_items|length > 2 %}
+                        <div class="more-items" onclick="toggleItems({{ order.id }})">
+                            <i class="fas fa-chevron-down"></i>
+                            +{{ order.order_items|length - 2 }} more items
+                        </div>
+                        <div id="hidden-items-{{ order.id }}" style="display: none;">
+                            {% for item in order.order_items[2:] %}
+                            <div class="order-item">
+                                <div class="item-image">
+                                    {% if item.product and item.product.image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                    {% else %}
+                                    <div class="item-image-placeholder">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="item-details">
+                                    <div class="item-name">{{ item.product.name if item.product else 'Product' }}</div>
+                                    <div class="item-meta">
+                                        <span><i class="fas fa-sort-amount-up"></i> Qty: {{ item.quantity }}</span>
+                                        <span><i class="fas fa-tag"></i> UGX {{ "{:,.0f}".format(item.price) }}</span>
+                                    </div>
+                                </div>
+                                <div class="item-price">
+                                    UGX {{ "{:,.0f}".format(item.price * item.quantity) }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Order Footer -->
+                <div class="order-footer">
+                    <div class="order-total">
+                        <span class="total-label">Total:</span>
+                        <span class="total-value">UGX {{ "{:,.0f}".format(order.total_amount) }}</span>
+                    </div>
+                    <div class="order-actions">
+                        <a href="{{ url_for('order_details', order_id=order.id) }}" class="action-btn btn-view">
+                            <i class="fas fa-eye"></i> Details
+                        </a>
+
+                        {% if session.user_type == 'buyer' %}
+                            {% if order.status in ['out_for_delivery', 'shipped', 'in_transit'] %}
+                                <a href="{{ url_for('track_order', order_id=order.id) }}" class="action-btn btn-track">
+                                    <i class="fas fa-map-marker-alt"></i> Track
+                                </a>
+                                <button class="action-btn btn-confirm" onclick="showDeliveryModal({{ order.id }})">
+                                    <i class="fas fa-check-circle"></i> Complete Order
+                                </button>
+                            {% endif %}
+                            
+                            {% if order.status == 'pending' %}
+                                <button class="action-btn btn-cancel" onclick="cancelOrder({{ order.id }})">
+                                    <i class="fas fa-times-circle"></i> Cancel Order
+                                </button>
+                            {% endif %}
+                            
+                        {% elif session.user_type == 'seller' %}
+                            {% if order.status == 'pending' %}
+                                <button class="action-btn btn-confirm" onclick="acceptOrder({{ order.id }})">
+                                    <i class="fas fa-check"></i> Accept
+                                </button>
+                                <button class="action-btn btn-cancel" onclick="rejectOrder({{ order.id }})">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            {% endif %}
+                            
+                            {% if order.status == 'confirmed' %}
+                                <button class="action-btn btn-view" onclick="processOrder({{ order.id }})">
+                                    <i class="fas fa-sync-alt"></i> Process
+                                </button>
+                            {% endif %}
+                            
+                            {% if order.status == 'processing' %}
+                                <button class="action-btn btn-track" onclick="shipOrder({{ order.id }})">
+                                    <i class="fas fa-truck"></i> Mark on the way
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <h3>No Orders Yet</h3>
+            <p>
+                {% if session.user_type == 'seller' %}
+                    You haven't received any orders. Products will appear here when customers place orders.
+                {% else %}
+                    You haven't placed any orders yet. Start shopping to see your orders here!
+                {% endif %}
+            </p>
+            <div class="empty-actions">
+                {% if session.user_type == 'seller' %}
+                    <a href="{{ url_for('manage_products') }}" class="empty-btn empty-btn-primary">
+                        <i class="fas fa-box"></i> Manage Products
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('products') }}" class="empty-btn empty-btn-primary">
+                        <i class="fas fa-store"></i> Start Shopping
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-size: 0.8rem; color: var(--primary);">Processing...</p>
+</div>
+
+<script>
+let currentOrderId = null;
+let issueSectionVisible = false;
+
+// Modal functions
+function openModal() {
+    document.getElementById('deliveryConfirmModal').classList.add('show');
+}
+
+function closeModal() {
+    document.getElementById('deliveryConfirmModal').classList.remove('show');
+    // Reset issue section
+    issueSectionVisible = false;
+    document.getElementById('modalIssueSection').classList.remove('show');
+    document.getElementById('toggleIssueIcon').className = 'fas fa-chevron-down';
+    document.getElementById('confirmDeliveryBtn').style.display = 'flex';
+    document.getElementById('submitIssueBtn').style.display = 'none';
+    document.getElementById('issueDescription').value = '';
+    document.querySelectorAll('.issue-type-btn').forEach(btn => btn.classList.remove('active'));
+}
+
+// Toggle issue section
+function toggleIssueSection() {
+    const issueSection = document.getElementById('modalIssueSection');
+    const icon = document.getElementById('toggleIssueIcon');
+    const confirmBtn = document.getElementById('confirmDeliveryBtn');
+    const submitIssueBtn = document.getElementById('submitIssueBtn');
+    
+    issueSectionVisible = !issueSectionVisible;
+    
+    if (issueSectionVisible) {
+        issueSection.classList.add('show');
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+        confirmBtn.style.display = 'none';
+        submitIssueBtn.style.display = 'flex';
+    } else {
+        issueSection.classList.remove('show');
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+        confirmBtn.style.display = 'flex';
+        submitIssueBtn.style.display = 'none';
+        document.getElementById('issueDescription').value = '';
+        document.querySelectorAll('.issue-type-btn').forEach(btn => btn.classList.remove('active'));
+    }
+}
+
+// Select issue type
+function selectIssueType(button, issueType) {
+    document.querySelectorAll('.issue-type-btn').forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+    
+    const textarea = document.getElementById('issueDescription');
+    const currentText = textarea.value;
+    
+    if (!currentText || currentText === '') {
+        textarea.value = `Issue: ${issueType}\n\n`;
+    } else if (!currentText.toLowerCase().includes(issueType.toLowerCase())) {
+        textarea.value = `Issue: ${issueType}\n\n${currentText}`;
+    }
+    
+    textarea.focus();
+}
+
+// Submit issue report
+async function submitIssue() {
+    const description = document.getElementById('issueDescription').value.trim();
+    
+    if (!description) {
+        alert('Please describe the issue before submitting.');
+        return;
+    }
+    
+    if (!currentOrderId) return;
+    
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/order/${currentOrderId}/delivery-confirmation`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=issue&issue_description=${encodeURIComponent(description)}`
+        });
+        
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error submitting issue report. Please try again.');
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+// Show delivery modal
+async function showDeliveryModal(orderId) {
+    currentOrderId = orderId;
+    issueSectionVisible = false;
+    document.getElementById('modalIssueSection').classList.remove('show');
+    document.getElementById('toggleIssueIcon').className = 'fas fa-chevron-down';
+    document.getElementById('confirmDeliveryBtn').style.display = 'flex';
+    document.getElementById('submitIssueBtn').style.display = 'none';
+    document.getElementById('issueDescription').value = '';
+    document.querySelectorAll('.issue-type-btn').forEach(btn => btn.classList.remove('active'));
+    
+    try {
+        const response = await fetch(`/api/orders/${orderId}/summary`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const previewDiv = document.getElementById('confirmOrderPreview');
+            
+            let itemsHtml = '';
+            if (data.items && data.items.length > 0) {
+                const item = data.items[0];
+                itemsHtml = `
+                    <div style="padding: 5px;">
+                        <strong>${escapeHtml(item.name)}</strong> x${item.quantity}<br>
+                        <span style="color: var(--secondary);">UGX ${item.price.toLocaleString()}</span>
+                    </div>
+                `;
+                
+                if (data.items.length > 1) {
+                    itemsHtml += `<p style="font-size:0.7rem; color:var(--gray);">+${data.items.length - 1} more item(s)</p>`;
+                }
+            }
+            
+            previewDiv.innerHTML = itemsHtml || '<p>Loading...</p>';
+            openModal();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error loading order details');
+    }
+}
+
+// Confirm delivery
+async function confirmDelivery() {
+    if (!currentOrderId) return;
+    
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/order/${currentOrderId}/delivery-confirmation`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'action=confirm'
+        });
+        
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error confirming delivery');
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+// Cancel order
+async function cancelOrder(orderId) {
+    if (!confirm('Are you sure you want to cancel this order?')) return;
+    
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch('/api/order/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: orderId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Order cancelled successfully');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            alert(data.message || 'Error cancelling order');
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error cancelling order');
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }
+}
+
+// Filter orders
+function filterOrders(status) {
+    const cards = document.querySelectorAll('.order-card');
+    const tabs = document.querySelectorAll('.filter-tab');
+    
+    tabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.filter === status);
+    });
+    
+    cards.forEach(card => {
+        if (status === 'all') {
+            card.style.display = '';
+        } else if (status === 'out_for_delivery') {
+            const orderStatus = card.dataset.status;
+            card.style.display = (orderStatus === 'out_for_delivery' || orderStatus === 'shipped' || orderStatus === 'in_transit') ? '' : 'none';
+        } else {
+            card.style.display = card.dataset.status === status ? '' : 'none';
+        }
+    });
+}
+
+// Search orders
+function searchOrders() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.order-card');
+    
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+}
+
+// Toggle more items
+function toggleItems(orderId) {
+    const hiddenDiv = document.getElementById(`hidden-items-${orderId}`);
+    const moreBtn = hiddenDiv.previousElementSibling;
+    
+    if (hiddenDiv.style.display === 'none') {
+        hiddenDiv.style.display = 'block';
+        moreBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Show less';
+    } else {
+        hiddenDiv.style.display = 'none';
+        moreBtn.innerHTML = '<i class="fas fa-chevron-down"></i> +' + (hiddenDiv.children.length) + ' more items';
+    }
+}
+
+// Escape HTML
+function escapeHtml(unsafe) {
+    if (!unsafe) return unsafe;
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Seller actions
+function acceptOrder(orderId) {
+    alert('Accept order feature coming soon');
+}
+
+function rejectOrder(orderId) {
+    alert('Reject order feature coming soon');
+}
+
+function processOrder(orderId) {
+    alert('Process order feature coming soon');
+}
+
+function shipOrder(orderId) {
+    alert('Ship order feature coming soon');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    if (status) filterOrders(status);
+});
+
+// Make functions global
+window.filterOrders = filterOrders;
+window.searchOrders = searchOrders;
+window.toggleItems = toggleItems;
+window.cancelOrder = cancelOrder;
+window.showDeliveryModal = showDeliveryModal;
+window.confirmDelivery = confirmDelivery;
+window.submitIssue = submitIssue;
+window.closeModal = closeModal;
+window.toggleIssueSection = toggleIssueSection;
+window.selectIssueType = selectIssueType;
+window.acceptOrder = acceptOrder;
+window.rejectOrder = rejectOrder;
+window.processOrder = processOrder;
+window.shipOrder = shipOrder;
+</script>
+{% endblock %}

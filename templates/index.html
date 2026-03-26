@@ -1,0 +1,1412 @@
+{% extends "base.html" %}
+
+{% block title %}ShopMax - UCU Campus Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section - Smaller height */
+    .hero-section {
+        height: 35vh;
+        min-height: 280px;
+        max-height: 350px;
+        position: relative;
+        overflow: hidden;
+        color: white;
+    }
+
+    .slideshow-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.8s ease-in-out;
+        background-size: cover;
+        background-position: center 30%;
+        display: flex;
+        align-items: center;
+        z-index: 1;
+    }
+
+    .slide.active {
+        opacity: 1;
+        z-index: 2;
+    }
+
+    .slide::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(26,35,126,0.85) 0%, rgba(26,35,126,0.5) 50%, rgba(0,0,0,0.2) 100%);
+        z-index: 1;
+    }
+
+    .slide-content {
+        position: relative;
+        z-index: 3;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 30px;
+        width: 100%;
+        animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .slide-content h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        line-height: 1.2;
+    }
+
+    .slide-content h1 span {
+        color: #ff6b00;
+        position: relative;
+        display: inline-block;
+    }
+
+    .slide-content h1 span::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #ff6b00;
+        border-radius: 3px;
+    }
+
+    .slide-content p {
+        font-size: 0.9rem;
+        max-width: 450px;
+        margin-bottom: 15px;
+        opacity: 0.95;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .hero-btn {
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .hero-btn-primary {
+        background: #ff6b00;
+        color: white;
+    }
+
+    .hero-btn-primary:hover {
+        background: #e65100;
+        transform: translateY(-2px);
+    }
+
+    .hero-btn-outline {
+        background: transparent;
+        color: white;
+        border: 1px solid rgba(255,255,255,0.5);
+        backdrop-filter: blur(5px);
+    }
+
+    .hero-btn-outline:hover {
+        background: white;
+        color: #1a237e;
+        border-color: white;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 20px;
+    }
+
+    .hero-stat h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #ff6b00;
+        line-height: 1;
+        margin-bottom: 2px;
+    }
+
+    .hero-stat p {
+        font-size: 0.65rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    /* Slide Navigation */
+    .slide-nav {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 6px;
+        z-index: 10;
+    }
+
+    .slide-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.5);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .slide-dot.active {
+        background: #ff6b00;
+        transform: scale(1.2);
+    }
+
+    .slide-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 30px;
+        height: 30px;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(5px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.2s;
+    }
+
+    .slide-arrow:hover {
+        background: #ff6b00;
+    }
+
+    .slide-arrow.prev {
+        left: 10px;
+    }
+
+    .slide-arrow.next {
+        right: 10px;
+    }
+
+    /* ===== MAIN LAYOUT WITH FIXED SIDEBAR ===== */
+    .main-layout {
+        padding: 25px 0 40px;
+        background: #f8fafc;
+    }
+
+    .layout-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+        align-items: start;
+    }
+
+    /* Sticky Sidebar - Categories */
+    .categories-sidebar {
+        position: sticky;
+        top: 20px;
+        background: white;
+        border-radius: 16px;
+        padding: 20px 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        border: 1px solid #e2e8f0;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+    }
+
+    .sidebar-header {
+        margin-bottom: 15px;
+    }
+
+    .sidebar-header h3 {
+        color: #1a237e;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .sidebar-header h3 i {
+        color: #ff6b00;
+        font-size: 1rem;
+    }
+
+    .ucu-badge {
+        color: #64748b;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .ucu-badge i {
+        color: #ff6b00;
+        font-size: 0.5rem;
+    }
+
+    /* Sidebar Stats - Will show real data from database */
+    .sidebar-stats {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 15px;
+        padding: 12px 0;
+        border-top: 1px dashed #e2e8f0;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .stat-block {
+        flex: 1;
+        text-align: center;
+    }
+
+    .stat-block .number {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #ff6b00;
+        line-height: 1.2;
+    }
+
+    .stat-block .label {
+        font-size: 0.6rem;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+
+    /* Sidebar Search */
+    .sidebar-search {
+        background: #f1f5f9;
+        border-radius: 30px;
+        padding: 8px 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .sidebar-search i {
+        color: #94a3b8;
+        font-size: 0.75rem;
+    }
+
+    .sidebar-search input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 0.75rem;
+        color: #1e293b;
+    }
+
+    .sidebar-search input::placeholder {
+        color: #94a3b8;
+    }
+
+    /* Category List - Matching base.html categories */
+    .category-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 15px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .category-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 10px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #475569;
+        transition: all 0.2s;
+        font-size: 0.8rem;
+    }
+
+    .category-item:hover {
+        background: #f8fafc;
+        color: #ff6b00;
+    }
+
+    .category-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .category-name i {
+        width: 16px;
+        color: #ff6b00;
+        font-size: 0.75rem;
+    }
+
+    .category-count {
+        background: #f1f5f9;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .view-all-cat {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #ff6b00;
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    .view-all-cat:hover {
+        background: #fff1e6;
+        gap: 8px;
+    }
+
+    /* Main Content Area */
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    /* Section Styles */
+    .content-section {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title h2 {
+        color: #1a237e;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .section-title i {
+        color: #ff6b00;
+        font-size: 1.2rem;
+    }
+
+    .section-badge {
+        background: #ff6b00;
+        color: white;
+        padding: 3px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+
+    .view-link {
+        color: #ff6b00;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 10px;
+        border-radius: 20px;
+        transition: all 0.2s;
+    }
+
+    .view-link:hover {
+        background: #fff1e6;
+        gap: 8px;
+    }
+
+    /* Product Grid */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        min-height: 200px;
+    }
+
+    .empty-products {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 40px;
+        color: #64748b;
+        background: #f8fafc;
+        border-radius: 12px;
+        font-size: 0.9rem;
+    }
+
+    .product-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.2s;
+        text-decoration: none;
+        position: relative;
+    }
+
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(255,107,0,0.1);
+        border-color: #ff6b00;
+    }
+
+    .product-image {
+        height: 120px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        border-bottom: 1px solid #e2e8f0;
+        position: relative;
+    }
+
+    .product-image img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .product-image i {
+        font-size: 2.2rem;
+        color: #cbd5e1;
+    }
+
+    .product-details {
+        padding: 12px 10px;
+    }
+
+    .product-name {
+        font-size: 0.8rem;
+        color: #1e293b;
+        font-weight: 600;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .product-price {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #ff6b00;
+        margin-bottom: 8px;
+    }
+
+    .product-seller {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.65rem;
+        color: #64748b;
+        margin-bottom: 10px;
+    }
+
+    .product-seller i {
+        color: #ff6b00;
+        font-size: 0.55rem;
+    }
+
+    /* Product Actions */
+    .product-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    .product-action-btn {
+        flex: 1;
+        padding: 6px 0;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .add-to-cart-btn {
+        background: #1a237e;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .add-to-cart-btn:hover {
+        background: #0f1a4a;
+        transform: translateY(-2px);
+    }
+
+    .view-btn {
+        background: #ff6b00;
+        color: white;
+    }
+
+    .view-btn:hover {
+        background: #e65100;
+        transform: translateY(-2px);
+    }
+
+    /* Join Section */
+    .join-section {
+        padding: 60px 0;
+        background: #1a237e;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .join-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(255,107,0,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .join-section::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -5%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .join-wrapper {
+        max-width: 1000px;
+        margin: 0 auto;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+    }
+
+    .join-wrapper h2 {
+        color: white;
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .join-wrapper h2 span {
+        color: #ff6b00;
+        position: relative;
+    }
+
+    .join-wrapper h2 span::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #ff6b00;
+        border-radius: 3px;
+    }
+
+    .join-wrapper p {
+        color: rgba(255,255,255,0.9);
+        font-size: 1.1rem;
+        margin-bottom: 40px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .join-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .join-card {
+        background: white;
+        border-radius: 20px;
+        padding: 35px 25px;
+        text-align: center;
+        transition: all 0.3s;
+        border: 1px solid #e2e8f0;
+    }
+
+    .join-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        border-color: #ff6b00;
+    }
+
+    .join-icon {
+        width: 80px;
+        height: 80px;
+        background: #f8fafc;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.2rem;
+        color: #ff6b00;
+        transition: all 0.3s;
+    }
+
+    .join-card:hover .join-icon {
+        background: #ff6b00;
+        color: white;
+        transform: rotate(360deg);
+    }
+
+    .join-card h3 {
+        color: #1a237e;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .join-card p {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+        line-height: 1.6;
+    }
+
+    .join-card-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 30px;
+        background: #1a237e;
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+
+    .join-card-btn:hover {
+        background: #ff6b00;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(255,107,0,0.3);
+    }
+
+    .join-card-btn i {
+        transition: transform 0.2s;
+    }
+
+    .join-card-btn:hover i {
+        transform: translateX(5px);
+    }
+
+    .join-note {
+        color: rgba(255,255,255,0.7);
+        font-size: 0.85rem;
+        margin-top: 20px;
+    }
+
+    .join-note a {
+        color: #ff6b00;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .join-note a:hover {
+        text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .product-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .layout-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .categories-sidebar {
+            position: static;
+            margin-bottom: 20px;
+        }
+        
+        .join-cards {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .join-wrapper h2 {
+            font-size: 1.8rem;
+        }
+        
+        .join-card {
+            padding: 25px 15px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .product-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .product-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section with 6 Slides -->
+<section class="hero-section">
+    <div class="slideshow-container">
+        <!-- Slide 1: Welcome to ShopMax -->
+        <div class="slide active" style="background-image: url('static/images/UCU-Libray.webp');">
+            <div class="slide-content">
+                <h1>Welcome to <span>ShopMax</span></h1>
+                <p>Uganda Christian University's campus marketplace. Buy and sell with in UCU community ecosystem.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('products') }}" class="hero-btn hero-btn-primary">Start Shopping</a>
+                    <a href="{{ url_for('unified_register') }}?type=seller" class="hero-btn hero-btn-outline">Start Selling</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <h3 id="totalUsers">{{ stats.total_users|default(0) }}+</h3>
+                        <p>Users</p>
+                    </div>
+                    <div class="hero-stat">
+                        <h3 id="totalProducts">{{ stats.total_products|default(0) }}+</h3>
+                        <p>Items</p>
+                    </div>
+                    <div class="hero-stat">
+                        <h3 id="activeSellers">{{ stats.active_sellers|default(0) }}+</h3>
+                        <p>Sellers</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Textbooks -->
+        <div class="slide" style="background-image: url('static/images/library.jpeg');">
+            <div class="slide-content">
+                <h1>Buy & Sell <span>Textbooks</span></h1>
+                <p>Find affordable textbooks for your courses. Law, Medicine, Engineering, Business and more.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('products', category='textbooks') }}" class="hero-btn hero-btn-primary">Browse Textbooks</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <h3>{{ category_counts.textbooks|default(0) }}</h3>
+                        <p>Available</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Electronics -->
+        <div class="slide" style="background-image: url('static/images/students3.jpg');">
+            <div class="slide-content">
+                <h1>Tech <span>Deals</span></h1>
+                <p>Laptops, phones, tablets and accessories from fellow students.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('products', category='laptops') }}" class="hero-btn hero-btn-primary">Shop Laptops</a>
+                    <a href="{{ url_for('products', category='phones') }}" class="hero-btn hero-btn-outline">Phones</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <h3>{{ (category_counts.laptops|default(0) + category_counts.phones|default(0)) }}</h3>
+                        <p>Items</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Dorm Essentials -->
+        <div class="slide" style="background-image: url('static/images/ucu market.jpg');">
+            <div class="slide-content">
+                <h1>Enjoy <span>Shopping</span></h1>
+                <p>With us ShopMax here at Campus for New Semester.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('products', category='hostel') }}" class="hero-btn hero-btn-primary">Hostel Items</a>
+                    <a href="{{ url_for('products', category='furniture') }}" class="hero-btn hero-btn-outline">Furniture</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <h3>{{ (category_counts.bedding|default(0) + category_counts.furniture|default(0)) }}</h3>
+                        <p>Items</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Fashion -->
+        <div class="slide" style="background-image: url('static/images/ucu fashion.jpeg');">
+            <div class="slide-content">
+                <h1>Campus <span>Fashion</span></h1>
+                <p>Clothing, shoes and accessories for students.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('products', category='mens_clothing') }}" class="hero-btn hero-btn-primary">Men's</a>
+                    <a href="{{ url_for('products', category='womens_clothing') }}" class="hero-btn hero-btn-outline">Women's</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <h3>{{ (category_counts.mens_clothing|default(0) + category_counts.womens_clothing|default(0)) }}</h3>
+                        <p>Items</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Become a Seller -->
+        <div class="slide" style="background-image: url('static/images/ucusellers.jpeg');">
+            <div class="slide-content">
+                <h1>Become a <span>Seller</span></h1>
+                <p>List your items now. Reach hundreds of UCU students.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('unified_register') }}?type=seller" class="hero-btn hero-btn-primary">Start Selling</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <h3>{{ stats.active_sellers|default(0) }}+</h3>
+                        <p>Active Sellers</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="slide-arrow prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></div>
+        <div class="slide-arrow next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></div>
+        <div class="slide-nav">
+            <span class="slide-dot active" onclick="currentSlide(1)"></span>
+            <span class="slide-dot" onclick="currentSlide(2)"></span>
+            <span class="slide-dot" onclick="currentSlide(3)"></span>
+            <span class="slide-dot" onclick="currentSlide(4)"></span>
+            <span class="slide-dot" onclick="currentSlide(5)"></span>
+            <span class="slide-dot" onclick="currentSlide(6)"></span>
+        </div>
+    </div>
+</section>
+
+<!-- ===== MAIN LAYOUT WITH SIDEBAR ===== -->
+<section class="main-layout">
+    <div class="container-custom">
+        <div class="layout-grid">
+            <!-- Sticky Sidebar - Categories matching base.html -->
+            <aside class="categories-sidebar">
+                <div class="sidebar-header">
+                    <h3><i class="fas fa-store"></i> ShopMax</h3>
+                    <div class="ucu-badge">
+                        <i class="fas fa-circle"></i> UCU Community
+                    </div>
+                </div>
+
+                
+                <!-- Search -->
+                <div class="sidebar-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="sidebarSearch" placeholder="Search products..." onkeyup="searchProducts()">
+                </div>
+
+                <!-- Category List - Synchronized with base.html -->
+                <div class="category-list">
+                    <!-- Academics Category Group -->
+                    <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">📚 ACADEMICS</h4>
+                    <a href="{{ url_for('products', category='textbooks') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-book"></i> Textbooks</span>
+                        <span class="category-count">{{ category_counts.textbooks|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='study_guides') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-file-alt"></i> Study Guides</span>
+                        <span class="category-count">{{ category_counts.study_guides|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='stationery') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-pen"></i> Stationery</span>
+                        <span class="category-count">{{ category_counts.stationery|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='calculators') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-calculator"></i> Calculators</span>
+                        <span class="category-count">{{ category_counts.calculators|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='lab_coats') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-flask"></i> Lab Coats & Gear</span>
+                        <span class="category-count">{{ category_counts.lab_coats|default(0) }}</span>
+                    </a>
+
+                    <!-- Electronics Category Group -->
+                    <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">💻 Electronics</h4>
+                    <a href="{{ url_for('products', category='laptops') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-laptop"></i> Laptops</span>
+                        <span class="category-count">{{ category_counts.laptops|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='phones') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-mobile-alt"></i> Smartphones</span>
+                        <span class="category-count">{{ category_counts.phones|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='tablets') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-tablet-alt"></i> Tablets</span>
+                        <span class="category-count">{{ category_counts.tablets|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='headphones') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-headphones"></i> Headphones</span>
+                        <span class="category-count">{{ category_counts.headphones|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='chargers') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-plug"></i> Chargers & Cables</span>
+                        <span class="category-count">{{ category_counts.chargers|default(0) }}</span>
+                    </a>
+
+                    <!-- Clothing Category Group -->
+                    <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">👕 Fashion</h4>
+                    <a href="{{ url_for('products', category='mens_clothing') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-tshirt"></i> Men's Clothing</span>
+                        <span class="category-count">{{ category_counts.mens_clothing|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='womens_clothing') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-female"></i> Women's Clothing</span>
+                        <span class="category-count">{{ category_counts.womens_clothing|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='shoes') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-shoe-prints"></i> Shoes</span>
+                        <span class="category-count">{{ category_counts.shoes|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='bags') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-shopping-bag"></i> Bags & Backpacks</span>
+                        <span class="category-count">{{ category_counts.bags|default(0) }}</span>
+                    </a>
+
+                    <!-- Dorm & Living Category Group -->
+                    <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">🏠 Hostel & LIVING</h4>
+                    <a href="{{ url_for('products', category='bedding') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-bed"></i> Room needs</span>
+                        <span class="category-count">{{ category_counts.bedding|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='furniture') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-couch"></i> Furniture</span>
+                        <span class="category-count">{{ category_counts.furniture|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='kitchen') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-utensils"></i> Kitchenware</span>
+                        <span class="category-count">{{ category_counts.kitchen|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='storage') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-boxes"></i> Others</span>
+                        <span class="category-count">{{ category_counts.storage|default(0) }}</span>
+                    </a>
+
+                    <!-- Sports Category Group -->
+                    <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">⚽ SPORTS</h4>
+                    <a href="{{ url_for('products', category='sports_gear') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-futbol"></i> Sports Gear</span>
+                        <span class="category-count">{{ category_counts.sports_gear|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='gym_equipment') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-dumbbell"></i> Gym Equipment</span>
+                        <span class="category-count">{{ category_counts.gym_equipment|default(0) }}</span>
+                    </a>
+
+                    <!-- Entertainment Category Group -->
+                    <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">🎮 ENTERTAINMENT</h4>
+                    <a href="{{ url_for('products', category='gaming') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-gamepad"></i> Gaming</span>
+                        <span class="category-count">{{ category_counts.gaming|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='music') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-guitar"></i> Music</span>
+                        <span class="category-count">{{ category_counts.music|default(0) }}</span>
+                    </a>
+
+                    <!-- Second-Hand Category Group -->
+                    <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">🔄 SECOND-HAND</h4>
+                    <a href="{{ url_for('products', category='secondhand_books') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-book-open"></i> Used Books</span>
+                        <span class="category-count">{{ category_counts.secondhand_books|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='secondhand_electronics') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-laptop"></i> Used Electronics</span>
+                        <span class="category-count">{{ category_counts.secondhand_electronics|default(0) }}</span>
+                    </a>
+                    <a href="{{ url_for('products', category='secondhand_furniture') }}" class="category-item">
+                        <span class="category-name"><i class="fas fa-couch"></i> Used Furniture</span>
+                        <span class="category-count">{{ category_counts.secondhand_furniture|default(0) }}</span>
+                    </a>
+                </div>
+
+                <a href="{{ url_for('products') }}" class="view-all-cat">
+                    All Categories <i class="fas fa-arrow-right"></i>
+                </a>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <!-- Trending Now Section -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-fire"></i>
+                            <h2>Trending Now</h2>
+                            <span class="section-badge">Hot</span>
+                        </div>
+                        <a href="{{ url_for('products') }}?sort=trending" class="view-link">
+                            View All <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="product-grid" id="trendingProducts">
+                        {% if trending_products %}
+                            {% for product in trending_products[:4] %}
+                            <div class="product-card">
+                                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-image">
+                                    {% if product.image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                    {% else %}
+                                    <i class="fas fa-box"></i>
+                                    {% endif %}
+                                </a>
+                                <div class="product-details">
+                                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-name">{{ product.name|truncate(20) }}</a>
+                                    <div class="product-price">UGX {{ "{:,.0f}".format(product.price) }}</div>
+                                    <div class="product-seller">
+                                        <i class="fas fa-store"></i> {{ product.seller.business_name or product.seller.fullname|truncate(10) }}
+                                    </div>
+                                    <div class="product-actions">
+                                        <button class="product-action-btn add-to-cart-btn" onclick="addToCart({{ product.id }})">
+                                            <i class="fas fa-cart-plus"></i> Cart
+                                        </button>
+                                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-action-btn view-btn">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-products">
+                                <i class="fas fa-box-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                                <p>No products yet. Be the first to list an item!</p>
+                                <a href="{{ url_for('unified_register') }}?type=seller" style="color: #ff6b00; text-decoration: none;">Start Selling →</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- New Arrivals Section -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-clock"></i>
+                            <h2>New Arrivals</h2>
+                            <span class="section-badge">Fresh</span>
+                        </div>
+                        <a href="{{ url_for('products') }}?sort=newest" class="view-link">
+                            View All <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="product-grid" id="newArrivals">
+                        {% if new_arrivals %}
+                            {% for product in new_arrivals[:4] %}
+                            <div class="product-card">
+                                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-image">
+                                    {% if product.image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                    {% else %}
+                                    <i class="fas fa-box"></i>
+                                    {% endif %}
+                                </a>
+                                <div class="product-details">
+                                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-name">{{ product.name|truncate(20) }}</a>
+                                    <div class="product-price">UGX {{ "{:,.0f}".format(product.price) }}</div>
+                                    <div class="product-seller">
+                                        <i class="fas fa-store"></i> {{ product.seller.business_name or product.seller.fullname|truncate(10) }}
+                                    </div>
+                                    <div class="product-actions">
+                                        <button class="product-action-btn add-to-cart-btn" onclick="addToCart({{ product.id }})">
+                                            <i class="fas fa-cart-plus"></i> Cart
+                                        </button>
+                                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-action-btn view-btn">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-products">
+                                <i class="fas fa-clock" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                                <p>No new arrivals yet. Check back soon!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Recommended For You Section -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-thumbs-up"></i>
+                            <h2>Recommended For You</h2>
+                            <span class="section-badge">Personalized</span>
+                        </div>
+                        <a href="{{ url_for('products') }}?sort=recommended" class="view-link">
+                            View All <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="product-grid" id="recommendedProducts">
+                        {% if recommended_products %}
+                            {% for product in recommended_products[:4] %}
+                            <div class="product-card">
+                                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-image">
+                                    {% if product.image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                    {% else %}
+                                    <i class="fas fa-box"></i>
+                                    {% endif %}
+                                </a>
+                                <div class="product-details">
+                                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-name">{{ product.name|truncate(20) }}</a>
+                                    <div class="product-price">UGX {{ "{:,.0f}".format(product.price) }}</div>
+                                    <div class="product-seller">
+                                        <i class="fas fa-store"></i> {{ product.seller.business_name or product.seller.fullname|truncate(10) }}
+                                    </div>
+                                    <div class="product-actions">
+                                        <button class="product-action-btn add-to-cart-btn" onclick="addToCart({{ product.id }})">
+                                            <i class="fas fa-cart-plus"></i> Cart
+                                        </button>
+                                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-action-btn view-btn">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-products">
+                                <i class="fas fa-thumbs-up" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                                <p>Log in to see personalized recommendations</p>
+                                <a href="{{ url_for('login') }}" style="color: #ff6b00; text-decoration: none;">Login →</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Join Section - Buyers and Sellers -->
+<section class="join-section">
+    <div class="container-custom">
+        <div class="join-wrapper">
+            <h2>Join the <span>ShopMax</span> Community</h2>
+            <p>Uganda Christian University's trusted marketplace</p>
+            
+            <div class="join-cards">
+                <!-- Seller Card -->
+                <div class="join-card">
+                    <div class="join-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <h3>Start Selling</h3>
+                    <p>List your items for free. Reach hundreds of UCU students.</p>
+                    <a href="{{ url_for('unified_register') }}?type=seller" class="join-card-btn">
+                        Become a Seller <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                
+                <!-- Buyer Card -->
+                <div class="join-card">
+                    <div class="join-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <h3>Start Shopping</h3>
+                    <p>Find great deals on items from fellow students.</p>
+                    <a href="{{ url_for('products') }}" class="join-card-btn">
+                        Start Shopping <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="join-note">
+                <i class="fas fa-shield-alt"></i> Trusted by UCU students • Free to join • Safe & secure
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Slideshow functionality
+let slideIndex = 1;
+let slideInterval;
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.slide-dot');
+
+function showSlide(n) {
+    if (n > slides.length) slideIndex = 1;
+    if (n < 1) slideIndex = slides.length;
+    
+    slides.forEach(slide => slide.classList.remove('active'));
+    dots.forEach(dot => dot.classList.remove('active'));
+    
+    slides[slideIndex - 1].classList.add('active');
+    dots[slideIndex - 1].classList.add('active');
+}
+
+function changeSlide(n) {
+    slideIndex += n;
+    showSlide(slideIndex);
+    resetInterval();
+}
+
+function currentSlide(n) {
+    slideIndex = n;
+    showSlide(slideIndex);
+    resetInterval();
+}
+
+function nextSlide() {
+    slideIndex++;
+    showSlide(slideIndex);
+}
+
+function resetInterval() {
+    clearInterval(slideInterval);
+    slideInterval = setInterval(nextSlide, 5000);
+}
+
+// Search products
+function searchProducts() {
+    const searchTerm = document.getElementById('sidebarSearch').value;
+    if (searchTerm.trim()) {
+        window.location.href = "{{ url_for('products') }}?search=" + encodeURIComponent(searchTerm);
+    }
+}
+
+// Add to cart function
+function addToCart(productId) {
+    {% if session.user_id %}
+        fetch('/api/cart/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product_id: productId, quantity: 1 })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('✅ Added to cart!', 'success');
+                updateCartCount();
+            } else {
+                showNotification(data.message || 'Error adding to cart', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error adding to cart', 'error');
+        });
+    {% else %}
+        window.location.href = "{{ url_for('login') }}?next={{ url_for('product_detail', product_id=0)|replace('0', '') }}" + productId;
+    {% endif %}
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification-toast notification-${type}`;
+    notification.innerHTML = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Search on enter
+document.getElementById('sidebarSearch')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchProducts();
+    }
+});
+
+// Initialize slideshow
+slideInterval = setInterval(nextSlide, 5000);
+
+document.querySelector('.slideshow-container').addEventListener('mouseenter', () => {
+    clearInterval(slideInterval);
+});
+
+document.querySelector('.slideshow-container').addEventListener('mouseleave', () => {
+    slideInterval = setInterval(nextSlide, 5000);
+});
+</script>
+{% endblock %}

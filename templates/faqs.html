@@ -1,0 +1,784 @@
+{% extends "base.html" %}
+
+{% block title %}Frequently Asked Questions - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-dark: #e65100;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --gray-light: #e9ecef;
+        --border: #dee2e6;
+        --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+        --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+        --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+    }
+
+    .faqs-page {
+        padding: 40px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 60px 40px;
+        border-radius: 24px;
+        margin-bottom: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,107,0,0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 20s infinite ease-in-out;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(30px, -30px) rotate(5deg); }
+        66% { transform: translate(-20px, 20px) rotate(-5deg); }
+    }
+
+    .hero-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+        letter-spacing: -0.02em;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .hero-section h1 span {
+        color: var(--secondary);
+    }
+
+    .hero-section p {
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0.95;
+        position: relative;
+        z-index: 2;
+    }
+
+    .search-box {
+        max-width: 400px;
+        margin: 25px auto 0;
+        position: relative;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 12px 20px 12px 45px;
+        border: none;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        outline: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--secondary);
+        font-size: 1.1rem;
+    }
+
+    /* Categories */
+    .categories-section {
+        margin-bottom: 40px;
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+
+    .category-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px 15px;
+        text-align: center;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .category-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--secondary);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .category-card.active {
+        border-color: var(--secondary);
+        background: linear-gradient(145deg, #fff3e0, white);
+    }
+
+    .category-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .category-card h3 {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .category-card p {
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    /* FAQ Sections */
+    .faq-section {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .faq-category-title {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--secondary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .faq-category-title i {
+        color: var(--secondary);
+    }
+
+    .faq-item {
+        margin-bottom: 15px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .faq-item:hover {
+        border-color: var(--secondary);
+    }
+
+    .faq-question {
+        padding: 18px 20px;
+        background: var(--light);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+
+    .faq-question:hover {
+        background: #e9ecef;
+    }
+
+    .faq-question h3 {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .faq-question h3 i {
+        color: var(--secondary);
+        font-size: 0.9rem;
+    }
+
+    .faq-question i {
+        color: var(--secondary);
+        transition: transform 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .faq-item.active .faq-question i {
+        transform: rotate(180deg);
+    }
+
+    .faq-answer {
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .faq-item.active .faq-answer {
+        padding: 20px;
+        max-height: 300px;
+        border-top: 1px solid var(--border);
+    }
+
+    .faq-answer p {
+        color: var(--gray);
+        font-size: 0.9rem;
+        line-height: 1.7;
+        margin-bottom: 10px;
+    }
+
+    .faq-answer ul, .faq-answer ol {
+        margin-left: 20px;
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+
+    .faq-answer li {
+        margin-bottom: 5px;
+    }
+
+    /* Help Section */
+    .help-section {
+        background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+        color: white;
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    .help-section h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .help-section p {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-bottom: 25px;
+    }
+
+    .help-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .help-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: var(--secondary);
+        color: white;
+        box-shadow: 0 4px 10px rgba(255,107,0,0.3);
+    }
+
+    .btn-primary:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(255,107,0,0.4);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+    }
+
+    .btn-outline:hover {
+        background: white;
+        color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .categories-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 40px 20px;
+        }
+        
+        .hero-section h1 {
+            font-size: 2rem;
+        }
+        
+        .categories-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .faq-section {
+            padding: 20px;
+        }
+        
+        .help-buttons {
+            flex-direction: column;
+        }
+        
+        .help-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .faq-question h3 {
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="faqs-page">
+    <div class="container-custom">
+        <!-- Hero Section -->
+        <div class="hero-section fade-in-up">
+            <h1>FAQs</h1>
+            <p>Common questions about using ShopMax at UCU</p>
+            
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="faqSearch" placeholder="Search questions..." onkeyup="searchFAQs()">
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="categories-section fade-in-up delay-1">
+            <div class="categories-grid" id="faqCategories">
+                <div class="category-card active" onclick="filterFAQs('all')">
+                    <div class="category-icon"><i class="fas fa-globe"></i></div>
+                    <h3>All FAQs</h3>
+                    <p>Everything you need</p>
+                </div>
+                <div class="category-card" onclick="filterFAQs('account')">
+                    <div class="category-icon"><i class="fas fa-user"></i></div>
+                    <h3>Account</h3>
+                    <p>Registration & login</p>
+                </div>
+                <div class="category-card" onclick="filterFAQs('buying')">
+                    <div class="category-icon"><i class="fas fa-shopping-bag"></i></div>
+                    <h3>Buying</h3>
+                    <p>For shoppers</p>
+                </div>
+                <div class="category-card" onclick="filterFAQs('selling')">
+                    <div class="category-icon"><i class="fas fa-store"></i></div>
+                    <h3>Selling</h3>
+                    <p>For sellers</p>
+                </div>
+                <div class="category-card" onclick="filterFAQs('delivery')">
+                    <div class="category-icon"><i class="fas fa-motorcycle"></i></div>
+                    <h3>Delivery</h3>
+                    <p>On campus pickup</p>
+                </div>
+                <div class="category-card" onclick="filterFAQs('payments')">
+                    <div class="category-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <h3>Payments</h3>
+                    <p>Cash on Delivery</p>
+                </div>
+                <div class="category-card" onclick="filterFAQs('technical')">
+                    <div class="category-icon"><i class="fas fa-code"></i></div>
+                    <h3>Technical</h3>
+                    <p>System issues</p>
+                </div>
+                <div class="category-card" onclick="filterFAQs('project')">
+                    <div class="category-icon"><i class="fas fa-graduation-cap"></i></div>
+                    <h3>Project</h3>
+                    <p>About ShopMax</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account FAQs -->
+        <div class="faq-section fade-in-up delay-1" id="account-faqs" data-category="account">
+            <h2 class="faq-category-title"><i class="fas fa-user"></i> Account & Registration</h2>
+            
+            <div class="faq-item active">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> Why do I need a UCU email to register?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>ShopMax is exclusively for the UCU community. Your @students.ucu.ac.ug or @ucu.ac.ug email verifies that you're a student or staff member, ensuring a safe and trusted environment for everyone.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> Can non-UCU members use ShopMax?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Currently, ShopMax is designed for the UCU community only. Local sellers near campus can contact us for manual verification and approval.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> How do I reset my password?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Click "Forgot Password" on the login page, enter your UCU email, and we'll send you a password reset link. The link expires in 1 hour for security.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> Can I use Google to sign in?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! Click "Continue with Google" on the login page. This works with any Gmail account, including your UCU email.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buying FAQs -->
+        <div class="faq-section fade-in-up delay-1" id="buying-faqs" data-category="buying">
+            <h2 class="faq-category-title"><i class="fas fa-shopping-bag"></i> Buying on ShopMax</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> How do I place an order?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Browse products, add items to cart, proceed to checkout, enter your delivery location (e.g., Nsibambi Hall, Faculty of Law), and confirm your order. The seller will receive your request immediately.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> Can I cancel my order?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes, if the seller hasn't confirmed yet. Go to My Orders and click "Cancel Order". Once confirmed, contact the seller directly through the platform.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> How do I know my order is confirmed?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>You'll receive an email confirmation and the order status will change from "Pending" to "Confirmed". You can track all updates in your Orders page.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selling FAQs -->
+        <div class="faq-section fade-in-up delay-2" id="selling-faqs" data-category="selling">
+            <h2 class="faq-category-title"><i class="fas fa-store"></i> Selling on ShopMax</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> How do I become a seller?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Register with your UCU email, select "Seller" during registration, provide your business name and NIN for verification. Once approved, you can start listing products.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> Are there seller fees?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Basic selling is free with a small commission on sales. Business and Premium plane, sellers pay fees according to their shop capacity and what they can afford.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> How do I manage my products?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Use your Seller Dashboard to add new products, edit listings, track orders, and communicate with buyers. It's your central hub for all selling activities.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delivery FAQs -->
+        <div class="faq-section fade-in-up delay-2" id="delivery-faqs" data-category="delivery">
+            <h2 class="faq-category-title"><i class="fas fa-motorcycle"></i> Delivery & Pickup</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> How does delivery work?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Buyers and sellers arrange pickup where the seller shop is or some buyers  offer delivery to their residence addresses.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> Can I have items delivered to my hall?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! You can specify your hall of residence or any meeting point on campus during checkout. Coordinate with the seller for exact pickup/delivery time.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> Is delivery free?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Delivery fees are negotiated between buyer and seller. Many sellers offer free pickup , while some may charge a small fee for delivery to your location.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments FAQs -->
+        <div class="faq-section fade-in-up delay-2" id="payments-faqs" data-category="payments">
+            <h2 class="faq-category-title"><i class="fas fa-money-bill-wave"></i> Payments</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> What payment methods are accepted?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We currently support Cash on Delivery only. Pay when you receive your item. Mobile Money and card payments are coming soon.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> Is Cash on Delivery safe?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! You only pay after inspecting the item. This protects both buyers and sellers and builds trust within the UCU community.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> How do refunds work?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>For Cash on Delivery, refunds are handled directly between buyer and seller. Contact the seller through the platform to arrange returns or refunds.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical FAQs -->
+        <div class="faq-section fade-in-up delay-2" id="technical-faqs" data-category="technical">
+            <h2 class="faq-category-title"><i class="fas fa-code"></i> Technical Support</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> The live tracking isn't working</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Live tracking is currently in development. For now, coordinate pickup/delivery times directly with the seller through the platform messaging.</p>
+                </div>
+            </div>
+
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> I'm having login issues</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Clear your browser cache and cookies, or try using incognito/private mode. If problems persist, contact support with screenshots of the issue.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project FAQs -->
+        <div class="faq-section fade-in-up delay-2" id="project-faqs" data-category="project">
+            <h2 class="faq-category-title"><i class="fas fa-graduation-cap"></i> About the Project</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> What is ShopMax?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>ShopMax is a final year project by IT students at Uganda Christian University. It's a marketplace designed for the UCU community to buy and sell goods easily.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> Who developed ShopMax?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>The team includes Emma Marial Domkoc, Nasasira Bruno, Mukisa Moreen, and Joseline Akurut, supervised by Madam Justine Mukerele from the Faculty of Science and Technology.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <h3><i class="fas fa-question-circle"></i> What technologies were used?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Frontend: HTML, CSS, JavaScript. Backend: Flask (Python). Database: SQLite. Features include UCU email verification and Google Authentication.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="help-section fade-in-up delay-2">
+            <h2>Still Have Questions?</h2>
+            <p>Can't find what you're looking for? Contact our support team.</p>
+            <div class="help-buttons">
+                <a href="{{ url_for('contact_us') }}" class="help-btn btn-primary">
+                    <i class="fas fa-envelope"></i> Contact Us
+                </a>
+                <a href="{{ url_for('about_us') }}" class="help-btn btn-outline">
+                    <i class="fas fa-info-circle"></i> About the Project
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Toggle FAQ answer
+function toggleFAQ(element) {
+    const faqItem = element.closest('.faq-item');
+    faqItem.classList.toggle('active');
+}
+
+// Filter FAQs by category
+function filterFAQs(category) {
+    // Update active category
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+    
+    // Filter sections
+    if (category === 'all') {
+        document.querySelectorAll('.faq-section').forEach(section => {
+            section.style.display = 'block';
+        });
+    } else {
+        document.querySelectorAll('.faq-section').forEach(section => {
+            section.style.display = section.dataset.category === category ? 'block' : 'none';
+        });
+    }
+}
+
+// Search FAQs
+function searchFAQs() {
+    const searchTerm = document.getElementById('faqSearch').value.toLowerCase();
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question h3').textContent.toLowerCase();
+        const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+        const matches = question.includes(searchTerm) || answer.includes(searchTerm);
+        item.style.display = matches ? 'block' : 'none';
+    });
+    
+    // Show/hide sections based on visible items
+    document.querySelectorAll('.faq-section').forEach(section => {
+        const visibleItems = section.querySelectorAll('.faq-item[style="display: block;"]').length;
+        section.style.display = (visibleItems > 0 || searchTerm === '') ? 'block' : 'none';
+    });
+}
+
+// Open first FAQ by default on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Open first FAQ in each section
+    document.querySelectorAll('.faq-section').forEach(section => {
+        const firstFaq = section.querySelector('.faq-item');
+        if (firstFaq) firstFaq.classList.add('active');
+    });
+});
+</script>
+{% endblock %}

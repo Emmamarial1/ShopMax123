@@ -1,0 +1,1086 @@
+{% extends "base.html" %}
+
+{% block title %}Delivery Tracking Details - Order #{{ delivery.id }} - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .tracking-details-page {
+        padding: 30px 0;
+        background: var(--white);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: var(--white);
+        padding: 10px 16px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px 25px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-outline-light {
+        background: rgba(255,255,255,0.15);
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline-light:hover {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    .btn-outline-orange {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-outline-orange:hover {
+        background: var(--secondary-dark);
+    }
+
+    /* Delivery Status Card */
+    .status-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .status-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .status-header h2 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-header h2 i {
+        color: var(--secondary);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .status-body {
+        padding: 16px;
+    }
+
+    .status-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+
+    .status-item {
+        background: var(--gray-light);
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .status-item .label {
+        font-size: 0.6rem;
+        color: var(--gray);
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    .status-item .value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    /* Progress Tracker */
+    .progress-section {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .section-title i {
+        color: var(--secondary);
+    }
+
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin: 20px 0;
+    }
+
+    .progress-steps::before {
+        content: '';
+        position: absolute;
+        top: 12px;
+        left: 30px;
+        right: 30px;
+        height: 2px;
+        background: var(--border);
+        z-index: 1;
+    }
+
+    .step {
+        position: relative;
+        z-index: 2;
+        background: var(--white);
+        text-align: center;
+        flex: 1;
+    }
+
+    .step-icon {
+        width: 24px;
+        height: 24px;
+        background: var(--gray-light);
+        border: 2px solid var(--border);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 5px;
+        font-size: 0.7rem;
+        color: var(--gray);
+    }
+
+    .step.completed .step-icon {
+        background: var(--success);
+        border-color: var(--success);
+        color: var(--white);
+    }
+
+    .step.active .step-icon {
+        background: var(--secondary);
+        border-color: var(--secondary);
+        color: var(--white);
+    }
+
+    .step-label {
+        font-size: 0.65rem;
+        color: var(--gray);
+    }
+
+    .step.completed .step-label {
+        color: var(--success);
+    }
+
+    .step.active .step-label {
+        color: var(--secondary);
+    }
+
+    .step-time {
+        font-size: 0.55rem;
+        color: var(--gray);
+        margin-top: 2px;
+    }
+
+    /* Map Container */
+    .map-container {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 20px;
+        height: 300px;
+        position: relative;
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .map-overlay {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        background: var(--white);
+        border-radius: 8px;
+        padding: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: 1px solid var(--border);
+        max-width: 200px;
+        font-size: 0.65rem;
+    }
+
+    .overlay-info p {
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .overlay-info i {
+        color: var(--secondary);
+        width: 14px;
+    }
+
+    /* Rider Card */
+    .rider-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .rider-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .rider-avatar {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1.3rem;
+        font-weight: 600;
+        overflow: hidden;
+    }
+
+    .rider-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .rider-info h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .rider-info p {
+        font-size: 0.7rem;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .rider-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 12px 0;
+    }
+
+    .rider-stat {
+        background: var(--gray-light);
+        border-radius: 6px;
+        padding: 6px;
+        text-align: center;
+    }
+
+    .rider-stat .value {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--secondary);
+    }
+
+    .rider-stat .label {
+        font-size: 0.55rem;
+        color: var(--gray);
+        text-transform: uppercase;
+    }
+
+    .contact-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .contact-btn {
+        flex: 1;
+        padding: 6px;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        text-decoration: none;
+    }
+
+    .btn-call {
+        background: var(--success);
+        color: var(--white);
+    }
+
+    .btn-message {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    /* Timeline */
+    .timeline-section {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 20px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--border);
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 12px;
+    }
+
+    .timeline-item:last-child {
+        padding-bottom: 0;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -20px;
+        top: 3px;
+        width: 10px;
+        height: 10px;
+        background: var(--white);
+        border: 2px solid var(--secondary);
+        border-radius: 10px;
+        z-index: 2;
+    }
+
+    .timeline-item.completed .timeline-dot {
+        background: var(--success);
+        border-color: var(--success);
+    }
+
+    .timeline-item.active .timeline-dot {
+        background: var(--secondary);
+        border-color: var(--secondary);
+    }
+
+    .timeline-content {
+        background: var(--gray-light);
+        border-radius: 6px;
+        padding: 8px;
+        margin-left: 8px;
+        font-size: 0.65rem;
+    }
+
+    .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2px;
+    }
+
+    .timeline-status {
+        font-weight: 600;
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    .timeline-time {
+        color: var(--gray);
+        font-size: 0.6rem;
+    }
+
+    .timeline-location {
+        color: var(--primary);
+        font-size: 0.6rem;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    /* Checkpoints Grid */
+    .checkpoints-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .checkpoint-card {
+        background: var(--gray-light);
+        border-radius: 6px;
+        padding: 8px;
+        text-align: center;
+    }
+
+    .checkpoint-card .type {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .checkpoint-card .time {
+        font-size: 0.6rem;
+        color: var(--secondary);
+    }
+
+    /* Proof Section */
+    .proof-section {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 16px;
+    }
+
+    .proof-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .proof-image {
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        height: 120px;
+    }
+
+    .proof-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .proof-details {
+        background: var(--gray-light);
+        border-radius: 6px;
+        padding: 10px;
+        font-size: 0.65rem;
+    }
+
+    .proof-details p {
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .proof-details i {
+        color: var(--secondary);
+        width: 14px;
+    }
+
+    .signature-box {
+        margin-top: 8px;
+        padding: 8px;
+        background: var(--white);
+        border-radius: 4px;
+        font-family: 'Brush Script MT', cursive;
+        font-size: 1rem;
+        text-align: center;
+        border: 1px dashed var(--secondary);
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: var(--white);
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        border: 1px solid var(--primary);
+    }
+
+    .modal-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .modal-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .modal-body {
+        padding: 16px;
+        text-align: center;
+    }
+
+    .modal-body img {
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 8px;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .status-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .checkpoints-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .proof-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .status-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .progress-steps {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .progress-steps::before {
+            display: none;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+        }
+        
+        .step-icon {
+            margin: 0;
+        }
+        
+        .checkpoints-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .rider-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+<div class="tracking-details-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('delivery_tracking') }}">Tracking</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Order #{{ delivery.id }}</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Delivery Details</h1>
+                    <p><i class="fas fa-box"></i> Order #{{ delivery.id }}</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-sm btn-outline-light" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <button class="btn-sm btn-outline-orange" onclick="shareTracking()">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
+            </div>
+        </div>
+
+        <!-- Delivery Status Card -->
+        <div class="status-card">
+            <div class="status-header">
+                <h2><i class="fas fa-truck"></i> Delivery Status</h2>
+                <span class="status-badge">{{ delivery.status|replace('_', ' ')|upper }}</span>
+            </div>
+            <div class="status-body">
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="label">Order ID</div>
+                        <div class="value">#{{ delivery.id }}</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="label">Amount</div>
+                        <div class="value">UGX {{ "{:,.0f}".format(delivery.total_amount) }}</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="label">Date</div>
+                        <div class="value">{{ delivery.created_at.strftime('%d %b %Y') if delivery.created_at else 'N/A' }}</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="label">Est. Delivery</div>
+                        <div class="value">{{ delivery.estimated_delivery.strftime('%d %b, %H:%M') if delivery.estimated_delivery else 'N/A' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div class="progress-section">
+            <h3 class="section-title"><i class="fas fa-chart-line"></i> Progress</h3>
+            <div class="progress-steps">
+                <div class="step {% if delivery.created_at %}completed{% endif %}">
+                    <div class="step-icon"><i class="fas fa-check"></i></div>
+                    <div class="step-label">Placed</div>
+                    <div class="step-time">{{ delivery.created_at.strftime('%H:%M') if delivery.created_at else '' }}</div>
+                </div>
+                <div class="step {% if delivery.status in ['picked_up', 'in_transit', 'delivered'] %}completed{% endif %} {% if delivery.status == 'assigned' %}active{% endif %}">
+                    <div class="step-icon"><i class="fas fa-box"></i></div>
+                    <div class="step-label">Picked</div>
+                </div>
+                <div class="step {% if delivery.status in ['in_transit', 'delivered'] %}completed{% endif %} {% if delivery.status == 'picked_up' %}active{% endif %}">
+                    <div class="step-icon"><i class="fas fa-truck"></i></div>
+                    <div class="step-label">In Transit</div>
+                </div>
+                <div class="step {% if delivery.status == 'delivered' %}completed{% endif %} {% if delivery.status == 'in_transit' %}active{% endif %}">
+                    <div class="step-icon"><i class="fas fa-home"></i></div>
+                    <div class="step-label">Delivered</div>
+                    <div class="step-time">{{ delivery.actual_delivery.strftime('%H:%M') if delivery.actual_delivery else '' }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="map-overlay">
+                <div class="overlay-info">
+                    <p><i class="fas fa-map-pin"></i> <strong>To:</strong> {{ delivery.delivery_address|truncate(25) }}</p>
+                    {% if delivery.delivery_person %}
+                    <p><i class="fas fa-motorcycle"></i> <strong>Rider:</strong> {{ delivery.delivery_person.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Rider Information -->
+        {% if delivery.delivery_person %}
+        <div class="rider-card">
+            <div class="rider-header">
+                <div class="rider-avatar">
+                    {% if delivery.delivery_person.photo %}
+                    <img src="{{ url_for('static', filename='uploads/' + delivery.delivery_person.photo) }}" alt="{{ delivery.delivery_person.name }}">
+                    {% else %}
+                    {{ delivery.delivery_person.name[:1] }}
+                    {% endif %}
+                </div>
+                <div class="rider-info">
+                    <h3>{{ delivery.delivery_person.name }}</h3>
+                    <p><i class="fas fa-phone"></i> {{ delivery.delivery_person.phone }}</p>
+                    <p><i class="fas fa-motorcycle"></i> {{ delivery.delivery_person.vehicle_type }}</p>
+                </div>
+            </div>
+
+            <div class="rider-stats">
+                <div class="rider-stat">
+                    <div class="value">{{ delivery.delivery_person.deliveries|length }}</div>
+                    <div class="label">Total</div>
+                </div>
+                <div class="rider-stat">
+                    <div class="value">{{ delivery.delivery_person.deliveries|selectattr('status', 'equalto', 'delivered')|list|length }}</div>
+                    <div class="label">Completed</div>
+                </div>
+                <div class="rider-stat">
+                    <div class="value">{{ total_time or '--' }}</div>
+                    <div class="label">Time</div>
+                </div>
+            </div>
+
+            <div class="contact-buttons">
+                <a href="tel:{{ delivery.delivery_person.phone }}" class="contact-btn btn-call">
+                    <i class="fas fa-phone-alt"></i> Call
+                </a>
+                <a href="https://wa.me/{{ delivery.delivery_person.phone }}" target="_blank" class="contact-btn btn-message">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tracking Timeline -->
+        <div class="timeline-section">
+            <h3 class="section-title"><i class="fas fa-history"></i> Tracking History</h3>
+            <div class="timeline">
+                {% for point in tracking_points %}
+                <div class="timeline-item {% if loop.last %}active{% endif %}">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-status">{{ point.status|replace('_', ' ')|title }}</span>
+                            <span class="timeline-time">{{ point.created_at.strftime('%H:%M') if point.created_at else '' }}</span>
+                        </div>
+                        <div class="timeline-location">
+                            <i class="fas fa-map-marker-alt"></i> {{ point.location_name or 'Location not recorded' }}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p style="color: var(--gray); text-align: center;">No tracking points</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Delivery Checkpoints -->
+        {% if checkpoints %}
+        <div class="progress-section">
+            <h3 class="section-title"><i class="fas fa-map-signs"></i> Checkpoints</h3>
+            <div class="checkpoints-grid">
+                {% for checkpoint in checkpoints %}
+                <div class="checkpoint-card">
+                    <div class="type">{{ checkpoint.checkpoint_type|replace('_', ' ')|title }}</div>
+                    <div class="time">{{ checkpoint.actual_arrival.strftime('%H:%M') if checkpoint.actual_arrival else checkpoint.estimated_arrival.strftime('%H:%M') }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Delivery Proof -->
+        {% if proof %}
+        <div class="proof-section">
+            <h3 class="section-title"><i class="fas fa-camera"></i> Delivery Proof</h3>
+            <div class="proof-grid">
+                {% if proof.photo %}
+                <div class="proof-image" onclick="openImageModal('{{ url_for('static', filename='uploads/' + proof.photo) }}')">
+                    <img src="{{ url_for('static', filename='uploads/' + proof.photo) }}" alt="Delivery Photo">
+                </div>
+                {% endif %}
+                <div class="proof-details">
+                    <p><i class="fas fa-user"></i> {{ proof.recipient_name or 'N/A' }}</p>
+                    <p><i class="fas fa-clock"></i> {{ proof.created_at.strftime('%d %b %Y, %H:%M') if proof.created_at else 'N/A' }}</p>
+                    {% if proof.signature %}
+                    <div class="signature-box">{{ proof.signature }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div class="modal" id="imageModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-image"></i> Delivery Photo</h3>
+            <button class="modal-close" onclick="closeImageModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <img src="" alt="Delivery Photo" id="modalImage">
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-size:0.7rem; color:var(--primary);">Loading...</p>
+</div>
+
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let map;
+let mapInitialized = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!mapInitialized) {
+        initMap();
+        mapInitialized = true;
+    }
+});
+
+function initMap() {
+    map = L.map('map').setView([0.3136, 32.5811], 14);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+    
+    loadTrackingPoints();
+}
+
+function loadTrackingPoints() {
+    const points = {{ tracking_points_data|tojson }};
+    
+    if (points && points.length > 0) {
+        const latLngs = points.filter(p => p.latitude && p.longitude).map(p => [p.latitude, p.longitude]);
+        
+        if (latLngs.length > 0) {
+            L.polyline(latLngs, { color: 'var(--secondary)', weight: 3 }).addTo(map);
+            
+            // Add markers
+            latLngs.forEach((latlng, index) => {
+                const point = points[index];
+                L.marker(latlng).addTo(map).bindPopup(`
+                    <b>Point ${index + 1}</b><br>
+                    ${point.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}<br>
+                    ${point.created_at ? new Date(point.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
+                `);
+            });
+                        
+            map.fitBounds(L.latLngBounds(latLngs).pad(0.1));
+        }
+    }
+}
+
+function openImageModal(url) {
+    document.getElementById('modalImage').src = url;
+    document.getElementById('imageModal').classList.add('show');
+}
+
+function closeImageModal() {
+    document.getElementById('imageModal').classList.remove('show');
+}
+
+function shareTracking() {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Link copied!');
+}
+
+window.openImageModal = openImageModal;
+window.closeImageModal = closeImageModal;
+window.shareTracking = shareTracking;
+</script>
+{% endblock %}

@@ -1,0 +1,802 @@
+{% extends "base.html" %}
+
+{% block title %}How to Buy - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    .how-to-buy-page {
+        padding: 40px 0;
+        background: #f8fafc;
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: var(--primary);
+        color: white;
+        padding: 50px 40px;
+        border-radius: 20px;
+        margin-bottom: 50px;
+        text-align: center;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .hero-section p {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    /* Section Title */
+    .section-title {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .section-title h2 {
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .section-title p {
+        color: var(--gray);
+        font-size: 0.8rem;
+    }
+
+    /* Steps Grid */
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+        margin-bottom: 50px;
+    }
+
+    .step-card {
+        background: white;
+        border-radius: 16px;
+        padding: 25px 20px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+
+    .step-card:hover {
+        border-color: var(--secondary);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: var(--secondary);
+        color: white;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .step-icon {
+        width: 60px;
+        height: 60px;
+        background: #fff3e0;
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        color: var(--secondary);
+        font-size: 1.5rem;
+    }
+
+    .step-card h3 {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .step-card p {
+        color: var(--gray);
+        font-size: 0.7rem;
+        line-height: 1.5;
+    }
+
+    /* Process Flow */
+    .process-flow {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 50px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .process-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .process-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 15px;
+        border-radius: 12px;
+        transition: all 0.2s;
+    }
+
+    .process-item:hover {
+        background: #f8fafc;
+    }
+
+    .process-number {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        color: white;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .process-content h3 {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .process-content p {
+        color: var(--gray);
+        font-size: 0.75rem;
+        line-height: 1.5;
+    }
+
+    /* Payment Methods */
+    .payment-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 50px;
+    }
+
+    .payment-card {
+        background: white;
+        border-radius: 16px;
+        padding: 25px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+
+    .payment-card:hover {
+        border-color: var(--secondary);
+        transform: translateY(-2px);
+    }
+
+    .payment-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--primary);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .payment-info h3 {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .payment-info p {
+        color: var(--gray);
+        font-size: 0.75rem;
+        line-height: 1.5;
+    }
+
+    /* Delivery Info */
+    .delivery-info {
+        background: #fff3e0;
+        border-radius: 20px;
+        padding: 35px;
+        margin-bottom: 50px;
+        text-align: center;
+        border: 1px solid var(--secondary);
+    }
+
+    .delivery-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 25px;
+    }
+
+    .delivery-item {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .delivery-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--primary);
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .delivery-item h4 {
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .delivery-item .price {
+        color: var(--secondary);
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 3px;
+    }
+
+    .delivery-item .time {
+        color: var(--gray);
+        font-size: 0.65rem;
+    }
+
+    /* Tips Grid */
+    .tips-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 50px;
+    }
+
+    .tip-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+
+    .tip-card:hover {
+        border-color: var(--secondary);
+        transform: translateY(-2px);
+    }
+
+    .tip-icon {
+        width: 45px;
+        height: 45px;
+        background: #fff3e0;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 12px;
+        color: var(--secondary);
+        font-size: 1.1rem;
+    }
+
+    .tip-card h4 {
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .tip-card p {
+        color: var(--gray);
+        font-size: 0.7rem;
+        line-height: 1.4;
+    }
+
+    /* FAQ */
+    .faq-section {
+        background: white;
+        border-radius: 20px;
+        padding: 35px;
+        margin-bottom: 50px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .faq-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    .faq-item {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .faq-item:hover {
+        background: #fff3e0;
+    }
+
+    .faq-item.active {
+        background: #fff3e0;
+        border-left: 3px solid var(--secondary);
+    }
+
+    .faq-question {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--primary);
+        font-weight: 500;
+        font-size: 0.8rem;
+    }
+
+    .faq-question i {
+        color: var(--secondary);
+        transition: transform 0.2s;
+    }
+
+    .faq-item.active .faq-question i {
+        transform: rotate(180deg);
+    }
+
+    .faq-answer {
+        display: none;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #e2e8f0;
+        color: var(--gray);
+        font-size: 0.7rem;
+        line-height: 1.5;
+    }
+
+    .faq-item.active .faq-answer {
+        display: block;
+    }
+
+    /* CTA */
+    .cta-section {
+        background: var(--primary);
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+    }
+
+    .cta-section h2 {
+        color: white;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .cta-section p {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.8rem;
+        margin-bottom: 20px;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary, .btn-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 24px;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-2px);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: white;
+        border: 1px solid white;
+    }
+
+    .btn-outline:hover {
+        background: white;
+        color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .steps-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .delivery-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .faq-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .steps-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .payment-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .delivery-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .tips-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .process-item {
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+        }
+        
+        .hero-section {
+            padding: 40px 20px;
+        }
+        
+        .hero-section h1 {
+            font-size: 1.5rem;
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-primary, .btn-outline {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="how-to-buy-page">
+    <div class="container-custom">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>How to Buy on ShopMax</h1>
+            <p>Simple steps to get your items delivered right to your doorstep</p>
+        </div>
+
+        <!-- 5 Steps -->
+        <div class="section-title">
+            <h2>5 Simple Steps</h2>
+            <p>Start shopping in minutes</p>
+        </div>
+
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+                <h3>Create Account</h3>
+                <p>Sign up with your UCU email or Google account</p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon"><i class="fas fa-search"></i></div>
+                <h3>Browse Products</h3>
+                <p>Search by category or keywords to find what you need</p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon"><i class="fas fa-shopping-cart"></i></div>
+                <h3>Add to Cart</h3>
+                <p>Select quantity and add items to your shopping cart</p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <div class="step-icon"><i class="fas fa-truck"></i></div>
+                <h3>Place Order</h3>
+                <p>Enter delivery address and confirm your order</p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">5</div>
+                <div class="step-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                <h3>Receive & Pay</h3>
+                <p>Get your items and pay the rider in cash</p>
+            </div>
+        </div>
+
+        <!-- Detailed Process -->
+        <div class="section-title">
+            <h2>Step by Step Guide</h2>
+            <p>Everything you need to know</p>
+        </div>
+
+        <div class="process-flow">
+            <div class="process-steps">
+                <div class="process-item">
+                    <div class="process-number">1</div>
+                    <div class="process-content">
+                        <h3>Create Your Account</h3>
+                        <p>Register using your UCU email (@students.ucu.ac.ug for students or @ucu.ac.ug for staff). You can also use Google sign-in for convenience.</p>
+                    </div>
+                </div>
+
+                <div class="process-item">
+                    <div class="process-number">2</div>
+                    <div class="process-content">
+                        <h3>Find What You Need</h3>
+                        <p>Browse through categories like Electronics, Fashion, Books, or Dorm Essentials. Use search to find specific items quickly.</p>
+                    </div>
+                </div>
+
+                <div class="process-item">
+                    <div class="process-number">3</div>
+                    <div class="process-content">
+                        <h3>Add to Cart & Checkout</h3>
+                        <p>Select quantity, add to cart, then proceed to checkout. Enter your delivery location and any special instructions.</p>
+                    </div>
+                </div>
+
+                <div class="process-item">
+                    <div class="process-number">4</div>
+                    <div class="process-content">
+                        <h3>Wait for Delivery</h3>
+                        <p>A ShopMax rider will be assigned to deliver your items. You can track their location in real-time on the map.</p>
+                    </div>
+                </div>
+
+                <div class="process-item">
+                    <div class="process-number">5</div>
+                    <div class="process-content">
+                        <h3>Pay & Enjoy</h3>
+                        <p>Inspect your items when they arrive, then pay the rider in cash. That's it - enjoy your purchase!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="section-title">
+            <h2>Payment Options</h2>
+            <p>Choose what works for you</p>
+        </div>
+
+        <div class="payment-grid">
+            <div class="payment-card">
+                <div class="payment-icon"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="payment-info">
+                    <h3>Cash on Delivery</h3>
+                    <p>Pay when your items arrive. Most popular and convenient option for UCU students.</p>
+                </div>
+            </div>
+
+            <div class="payment-card">
+                <div class="payment-icon"><i class="fas fa-motorcycle"></i></div>
+                <div class="payment-info">
+                    <h3>Pay the Rider</h3>
+                    <p>Give cash directly to the ShopMax rider when they deliver your items. Simple and secure.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delivery Information -->
+        <div class="section-title">
+            <h2>Delivery Zones & Fees</h2>
+            <p>Based on your location</p>
+        </div>
+
+        <div class="delivery-info">
+            <div class="delivery-grid">
+                <div class="delivery-item">
+                    <div class="delivery-icon"><i class="fas fa-university"></i></div>
+                    <h4>Inside Campus</h4>
+                    <div class="price">UGX 1,000</div>
+                    <div class="time">5-10 minutes walking</div>
+                </div>
+
+                <div class="delivery-item">
+                    <div class="delivery-icon"><i class="fas fa-map-pin"></i></div>
+                    <h4>Nearby Areas</h4>
+                    <div class="price">UGX 1,000 - 2,000</div>
+                    <div class="time">10-15 minutes</div>
+                </div>
+
+                <div class="delivery-item">
+                    <div class="delivery-icon"><i class="fas fa-city"></i></div>
+                    <h4>Mukono Town</h4>
+                    <div class="price">UGX 3,000 - 5,000</div>
+                    <div class="time">20-30 minutes</div>
+                </div>
+            </div>
+            <p style="margin-top: 20px; font-size: 0.7rem; color: var(--secondary);">
+                <i class="fas fa-info-circle"></i> Riders determine final fee based on distance. Discuss before delivery.
+            </p>
+        </div>
+
+        <!-- Shopping Tips -->
+        <div class="section-title">
+            <h2>Smart Shopping Tips</h2>
+            <p>Make the most of your experience</p>
+        </div>
+
+        <div class="tips-grid">
+            <div class="tip-card">
+                <div class="tip-icon"><i class="fas fa-star"></i></div>
+                <h4>Check Ratings</h4>
+                <p>Review seller ratings before buying</p>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-icon"><i class="fas fa-comments"></i></div>
+                <h4>Message Sellers</h4>
+                <p>Ask questions about items before ordering</p>
+            </div>
+
+            <div class="tip-card">
+                <div class="tip-icon"><i class="fas fa-clipboard-list"></i></div>
+                <h4>Inspect Items</h4>
+                <p>Check carefully before paying the rider</p>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="section-title">
+            <h2>Frequently Asked Questions</h2>
+            <p>Got questions? We've got answers</p>
+        </div>
+
+        <div class="faq-section">
+            <div class="faq-grid">
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>How do I pay for my order?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        You pay the ShopMax rider in cash when they deliver your items. No online payment needed!
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>How long does delivery take?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Inside campus: 5-10 minutes walking. Nearby areas: 10-15 minutes. Mukono town: 20-30 minutes.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>Can I cancel my order?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes, if order is still "Pending". Once confirmed, contact seller through chat to cancel.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>What if items are damaged?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Report within 24 hours through your order page with photos. We'll help resolve the issue.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>How to track my order?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Go to "My Orders" and click on your order. You'll see live rider location on the map.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>Do I pay delivery fee?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes, riders charge based on distance. Discuss the fee before delivery to avoid confusion.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2>Ready to Start Shopping?</h2>
+            <p>Join thousands of UCU students already buying on ShopMax</p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('products') }}" class="btn-primary">
+                    <i class="fas fa-store"></i> Browse Products
+                </a>
+                {% if not session.user_id %}
+                <a href="{{ url_for('unified_register') }}" class="btn-outline">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleFaq(element) {
+    element.classList.toggle('active');
+}
+
+// Open first FAQ by default
+document.addEventListener('DOMContentLoaded', function() {
+    const firstFaq = document.querySelector('.faq-item');
+    if (firstFaq) {
+        firstFaq.classList.add('active');
+    }
+});
+</script>
+{% endblock %}

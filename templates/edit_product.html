@@ -1,0 +1,674 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Product - ShopMax UCU{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-product-page {
+        padding: 30px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: white;
+        padding: 10px 16px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid #e2e8f0;
+        font-size: 0.75rem;
+    }
+
+    .breadcrumb-custom a {
+        color: #1a237e;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: #ff6b00;
+    }
+
+    .breadcrumb-custom i {
+        color: #ff6b00;
+        font-size: 0.6rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: #ff6b00;
+        background: #fff3e0;
+        padding: 2px 8px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .page-header h1 {
+        color: #1a237e;
+        font-size: 1.3rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .page-header h1 i {
+        color: #ff6b00;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        background: #1a237e;
+        color: white;
+        text-decoration: none;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.75rem;
+        transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+        background: #0d1a4a;
+        transform: translateY(-1px);
+    }
+
+    /* Form Container */
+    .form-container {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+    }
+
+    .form-header {
+        background: #1a237e;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-header i {
+        font-size: 1.2rem;
+        color: #ff6b00;
+    }
+
+    .form-header h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .form-body {
+        padding: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #1a237e;
+        font-weight: 500;
+        font-size: 0.8rem;
+    }
+
+    .form-group label i {
+        color: #ff6b00;
+        margin-right: 5px;
+        font-size: 0.75rem;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #ff6b00;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(255,107,0,0.1);
+    }
+
+    textarea.form-control {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .price-input {
+        position: relative;
+    }
+
+    .price-input .currency {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .price-input input {
+        padding-left: 45px;
+    }
+
+    .stock-input {
+        position: relative;
+    }
+
+    .stock-input .unit {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 0.7rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 18px;
+    }
+
+    .image-preview {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .current-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 0 auto 10px;
+        border: 2px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    .current-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .current-image i {
+        font-size: 2rem;
+        color: #cbd5e1;
+        margin-top: 40px;
+    }
+
+    .image-upload-btn {
+        display: inline-block;
+        padding: 6px 15px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        color: #1a237e;
+        cursor: pointer;
+        margin-top: 5px;
+    }
+
+    .image-upload-btn:hover {
+        background: #e2e8f0;
+    }
+
+    .active-toggle {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 15px 0 10px;
+        padding: 12px 0;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 22px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: 0.2s;
+        border-radius: 22px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.2s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #ff6b00;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(22px);
+    }
+
+    .toggle-label {
+        font-size: 0.8rem;
+        color: #1e293b;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .btn-primary {
+        flex: 2;
+        padding: 10px;
+        background: #ff6b00;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-primary:hover {
+        background: #e65100;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        flex: 1;
+        padding: 10px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        flex: 1;
+        padding: 10px;
+        background: #1a237e;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn-secondary:hover {
+        background: #0d1a4a;
+        transform: translateY(-1px);
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.7rem;
+        margin-top: 3px;
+    }
+
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid #e2e8f0;
+        border-top-color: #ff6b00;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-product-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('manage_products') }}">Products</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Edit</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-edit"></i>
+                Edit Product
+            </h1>
+            <a href="{{ url_for('manage_products') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container">
+            <div class="form-header">
+                <i class="fas fa-box"></i>
+                <h2>Product Details</h2>
+            </div>
+
+            <div class="form-body">
+                <form method="POST" action="{{ url_for('edit_product', product_id=product.id) }}" enctype="multipart/form-data" id="productForm">
+                    
+                    <!-- Product Name -->
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> Product Name *</label>
+                        <input type="text" name="name" class="form-control" value="{{ product.name }}" required>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left"></i> Description *</label>
+                        <textarea name="description" class="form-control" required>{{ product.description }}</textarea>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label><i class="fas fa-tags"></i> Category *</label>
+                        <select name="category" class="form-select" required>
+                            <option value="">-- Select Category --</option>
+                            <optgroup label="📚 ACADEMICS">
+                                <option value="textbooks" {% if product.category == 'textbooks' %}selected{% endif %}>Textbooks</option>
+                                <option value="study_guides" {% if product.category == 'study_guides' %}selected{% endif %}>Study Guides</option>
+                                <option value="stationery" {% if product.category == 'stationery' %}selected{% endif %}>Stationery</option>
+                                <option value="calculators" {% if product.category == 'calculators' %}selected{% endif %}>Calculators</option>
+                                <option value="lab_coats" {% if product.category == 'lab_coats' %}selected{% endif %}>Lab Coats & Gear</option>
+                            </optgroup>
+                            <optgroup label="💻 TECHNOLOGY">
+                                <option value="laptops" {% if product.category == 'laptops' %}selected{% endif %}>Laptops</option>
+                                <option value="phones" {% if product.category == 'phones' %}selected{% endif %}>Smartphones</option>
+                                <option value="tablets" {% if product.category == 'tablets' %}selected{% endif %}>Tablets</option>
+                                <option value="headphones" {% if product.category == 'headphones' %}selected{% endif %}>Headphones</option>
+                                <option value="chargers" {% if product.category == 'chargers' %}selected{% endif %}>Chargers & Cables</option>
+                            </optgroup>
+                            <optgroup label="👕 CLOTHING">
+                                <option value="mens_clothing" {% if product.category == 'mens_clothing' %}selected{% endif %}>Men's Clothing</option>
+                                <option value="womens_clothing" {% if product.category == 'womens_clothing' %}selected{% endif %}>Women's Clothing</option>
+                                <option value="shoes" {% if product.category == 'shoes' %}selected{% endif %}>Shoes</option>
+                                <option value="bags" {% if product.category == 'bags' %}selected{% endif %}>Bags & Backpacks</option>
+                            </optgroup>
+                            <optgroup label="🏠 DORM & LIVING">
+                                <option value="bedding" {% if product.category == 'bedding' %}selected{% endif %}>Bedding</option>
+                                <option value="furniture" {% if product.category == 'furniture' %}selected{% endif %}>Furniture</option>
+                                <option value="kitchen" {% if product.category == 'kitchen' %}selected{% endif %}>Kitchenware</option>
+                                <option value="storage" {% if product.category == 'storage' %}selected{% endif %}>Storage</option>
+                            </optgroup>
+                            <optgroup label="⚽ SPORTS">
+                                <option value="sports_gear" {% if product.category == 'sports_gear' %}selected{% endif %}>Sports Gear</option>
+                                <option value="gym_equipment" {% if product.category == 'gym_equipment' %}selected{% endif %}>Gym Equipment</option>
+                            </optgroup>
+                            <optgroup label="🎮 ENTERTAINMENT">
+                                <option value="gaming" {% if product.category == 'gaming' %}selected{% endif %}>Gaming</option>
+                                <option value="music" {% if product.category == 'music' %}selected{% endif %}>Music</option>
+                            </optgroup>
+                            <optgroup label="🔄 SECOND-HAND">
+                                <option value="secondhand_books" {% if product.category == 'secondhand_books' %}selected{% endif %}>Used Books</option>
+                                <option value="secondhand_electronics" {% if product.category == 'secondhand_electronics' %}selected{% endif %}>Used Electronics</option>
+                                <option value="secondhand_furniture" {% if product.category == 'secondhand_furniture' %}selected{% endif %}>Used Furniture</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Condition -->
+                    <div class="form-group">
+                        <label><i class="fas fa-clipboard-check"></i> Condition *</label>
+                        <select name="condition" class="form-select" required>
+                            <option value="new" {% if product.condition == 'new' %}selected{% endif %}>New</option>
+                            <option value="used" {% if product.condition == 'used' %}selected{% endif %}>Used - Good</option>
+                            <option value="refurbished" {% if product.condition == 'refurbished' %}selected{% endif %}>Refurbished</option>
+                        </select>
+                    </div>
+
+                    <!-- Brand -->
+                    <div class="form-group">
+                        <label><i class="fas fa-trademark"></i> Brand (Optional)</label>
+                        <input type="text" name="brand" class="form-control" value="{{ product.brand }}">
+                    </div>
+
+                    <!-- Price & Stock Row -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-tag"></i> Price (UGX) *</label>
+                            <div class="price-input">
+                                <span class="currency">UGX</span>
+                                <input type="number" name="price" class="form-control" value="{{ product.price }}" required min="100" step="100">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-cubes"></i> Stock Quantity *</label>
+                            <div class="stock-input">
+                                <input type="number" name="stock" class="form-control" value="{{ product.stock }}" required min="0">
+                                <span class="unit">units</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Image -->
+                    <div class="form-group">
+                        <label><i class="fas fa-image"></i> Current Image</label>
+                        <div class="image-preview">
+                            <div class="current-image">
+                                {% if product.image %}
+                                <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                {% else %}
+                                <i class="fas fa-box"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Image -->
+                    <div class="form-group">
+                        <label><i class="fas fa-camera"></i> Change Image (Optional)</label>
+                        <div class="image-upload-btn" onclick="document.getElementById('productImage').click()">
+                            <i class="fas fa-upload"></i> Upload New Image
+                        </div>
+                        <input type="file" id="productImage" name="image" accept="image/*" style="display: none;">
+                        <div id="newImageName" style="font-size: 0.7rem; color: #64748b; margin-top: 5px;"></div>
+                    </div>
+
+                    <!-- Active Listing Toggle -->
+                    <div class="active-toggle">
+                        <label class="switch">
+                            <input type="checkbox" name="is_active" id="isActive" {% if product.is_active %}checked{% endif %}>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">Product is {% if product.is_active %}active (visible to buyers){% else %}inactive (hidden from buyers){% endif %}</span>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <a href="{{ url_for('manage_products') }}" class="btn-secondary">
+                            Cancel
+                        </a>
+                        <a href="{{ url_for('delete_product', product_id=product.id) }}" class="btn-danger" onclick="return confirm('Are you sure you want to delete this product? This action cannot be undone.')">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                        <button type="submit" class="btn-primary" id="submitBtn">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Saving changes...</p>
+</div>
+
+<script>
+// File upload display
+document.getElementById('productImage').addEventListener('change', function(e) {
+    const fileName = e.target.files[0]?.name;
+    if (fileName) {
+        document.getElementById('newImageName').innerHTML = `<i class="fas fa-image"></i> New image: ${fileName}`;
+    } else {
+        document.getElementById('newImageName').innerHTML = '';
+    }
+});
+
+// Toggle label update
+document.getElementById('isActive').addEventListener('change', function() {
+    const label = this.parentElement.nextElementSibling;
+    if (this.checked) {
+        label.textContent = 'Product is active (visible to buyers)';
+    } else {
+        label.textContent = 'Product is inactive (hidden from buyers)';
+    }
+});
+
+// Form validation
+document.getElementById('productForm').addEventListener('submit', function(e) {
+    const name = document.querySelector('input[name="name"]').value.trim();
+    const price = document.querySelector('input[name="price"]').value;
+    const stock = document.querySelector('input[name="stock"]').value;
+    const category = document.querySelector('select[name="category"]').value;
+    let isValid = true;
+    
+    if (!name) {
+        alert('Please enter product name');
+        isValid = false;
+    }
+    
+    if (!price || price < 100) {
+        alert('Price must be at least UGX 100');
+        isValid = false;
+    }
+    
+    if (stock === '' || stock < 0) {
+        alert('Stock must be 0 or more');
+        isValid = false;
+    }
+    
+    if (!category) {
+        alert('Please select a category');
+        isValid = false;
+    }
+    
+    if (!isValid) {
+        e.preventDefault();
+        return;
+    }
+    
+    const btn = document.getElementById('submitBtn');
+    btn.innerHTML = '<div class="spinner" style="width: 16px; height: 16px;"></div> Saving...';
+    btn.disabled = true;
+    document.getElementById('loadingOverlay').classList.add('show');
+});
+</script>
+{% endblock %}

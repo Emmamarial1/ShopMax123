@@ -1,0 +1,1385 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Admin - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .admin-users-page {
+        padding: 30px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: white;
+        padding: 10px 16px;
+        border-radius: 40px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--primary);
+        font-size: 0.75rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.6rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 2px 8px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 20px 25px;
+        border-radius: 20px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .total-badge {
+        background: rgba(255,255,255,0.15);
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-outline-light {
+        background: rgba(255,255,255,0.15);
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline-light:hover {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    .btn-outline-orange {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-outline-orange:hover {
+        background: var(--secondary-dark);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        border-color: var(--secondary);
+    }
+
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .stat-card.total .stat-icon { background: rgba(0,0,128,0.1); color: var(--primary); }
+    .stat-card.active .stat-icon { background: rgba(16,185,129,0.1); color: var(--success); }
+    .stat-card.inactive .stat-icon { background: rgba(239,68,68,0.1); color: var(--danger); }
+    .stat-card.sellers .stat-icon { background: rgba(255,107,0,0.1); color: var(--secondary); }
+    .stat-card.buyers .stat-icon { background: rgba(59,130,246,0.1); color: var(--info); }
+
+    .stat-info h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .stat-card.total .stat-info h3 { color: var(--primary); }
+    .stat-card.active .stat-info h3 { color: var(--success); }
+    .stat-card.inactive .stat-info h3 { color: var(--danger); }
+    .stat-card.sellers .stat-info h3 { color: var(--secondary); }
+    .stat-card.buyers .stat-info h3 { color: var(--info); }
+
+    .stat-info p {
+        color: var(--gray);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: white;
+        border-radius: 50px;
+        padding: 8px 16px;
+        margin-bottom: 25px;
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 5px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--gray);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .filter-tab:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .filter-tab.active {
+        background: var(--secondary);
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    .filter-tab i {
+        margin-right: 4px;
+        font-size: 0.65rem;
+    }
+
+    .filter-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--gray-light);
+        padding: 5px 15px;
+        border-radius: 30px;
+        border: 1px solid var(--border);
+    }
+
+    .filter-search i {
+        color: var(--secondary);
+        font-size: 0.7rem;
+    }
+
+    .filter-search input {
+        border: none;
+        background: transparent;
+        padding: 5px 0;
+        width: 200px;
+        outline: none;
+        font-size: 0.7rem;
+    }
+
+    /* Page Size Selector */
+    .page-size-selector {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--gray-light);
+        padding: 5px 12px;
+        border-radius: 30px;
+        border: 1px solid var(--border);
+    }
+
+    .page-size-selector label {
+        font-size: 0.65rem;
+        color: var(--gray);
+    }
+
+    .page-size-selector select {
+        border: none;
+        background: transparent;
+        font-size: 0.7rem;
+        padding: 3px;
+        cursor: pointer;
+        color: var(--primary);
+        font-weight: 500;
+    }
+
+    .page-size-selector select:focus {
+        outline: none;
+    }
+
+    /* Users Table */
+    .table-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .table-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .table-header h3 i {
+        color: var(--secondary);
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .table-btn {
+        background: rgba(255,255,255,0.15);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .table-btn:hover {
+        background: var(--secondary);
+        border-color: var(--secondary);
+    }
+
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.75rem;
+    }
+
+    .users-table th {
+        text-align: left;
+        padding: 12px 16px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 600;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .users-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .users-table tr:hover td {
+        background: var(--gray-light);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 600;
+        overflow: hidden;
+    }
+
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .user-details h4 {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .user-details p {
+        font-size: 0.65rem;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 500;
+    }
+
+    .badge-admin {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .badge-seller {
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    .badge-buyer {
+        background: rgba(0, 0, 128, 0.1);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    .badge-staff {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--info);
+        border: 1px solid var(--info);
+    }
+
+    .badge-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .badge-inactive {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .action-edit {
+        background: var(--primary);
+        color: white;
+    }
+
+    .action-edit:hover {
+        background: var(--primary-dark);
+    }
+
+    .action-toggle {
+        background: var(--warning);
+        color: white;
+    }
+
+    .action-toggle:hover {
+        background: #e65100;
+    }
+
+    .action-reset {
+        background: var(--info);
+        color: white;
+    }
+
+    .action-reset:hover {
+        background: #2563eb;
+    }
+
+    .action-delete {
+        background: var(--danger);
+        color: white;
+    }
+
+    .action-delete:hover {
+        background: #b91c1c;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        border-radius: 32px;
+        background: white;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.7rem;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+    }
+
+    .page-link:hover {
+        background: var(--secondary);
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    .page-item.active .page-link {
+        background: var(--secondary);
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 100000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 450px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .modal-header i {
+        color: var(--secondary);
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.75rem;
+    }
+
+    .form-group label i {
+        color: var(--secondary);
+        margin-right: 5px;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.75rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--secondary);
+        outline: none;
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .modal-btn {
+        padding: 6px 20px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+    }
+
+    .modal-btn-primary {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .modal-btn-primary:hover {
+        background: var(--secondary-dark);
+    }
+
+    .modal-btn-secondary {
+        background: var(--gray-light);
+        color: var(--gray);
+        border: 1px solid var(--border);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.95);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 35px;
+        height: 35px;
+        border: 3px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Delete Confirm */
+    .delete-confirm {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .delete-confirm i {
+        font-size: 3rem;
+        color: var(--danger);
+        margin-bottom: 10px;
+    }
+
+    .delete-confirm p {
+        color: var(--gray);
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-search input {
+            width: 100%;
+        }
+        
+        .users-table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .page-size-selector {
+            order: -1;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-users-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Users</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Manage Users</h1>
+                    <p><i class="fas fa-university"></i> UCU Campus Community</p>
+                </div>
+            </div>
+            <div class="total-badge">
+                <i class="fas fa-users"></i> {{ total_users|default(0) }} Total Users
+            </div>
+            <div class="header-actions">
+                <button class="btn-sm btn-outline-light" onclick="openAddUserModal()">
+                    <i class="fas fa-plus"></i> Add User
+                </button>
+                <button class="btn-sm btn-outline-orange" onclick="exportUsers()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-info">
+                    <h3>{{ total_users|default(0) }}</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ active_users|default(0) }}</h3>
+                    <p>Active</p>
+                </div>
+            </div>
+            <div class="stat-card inactive">
+                <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ inactive_users|default(0) }}</h3>
+                    <p>Inactive</p>
+                </div>
+            </div>
+            <div class="stat-card sellers">
+                <div class="stat-icon"><i class="fas fa-store"></i></div>
+                <div class="stat-info">
+                    <h3>{{ seller_count|default(0) }}</h3>
+                    <p>Sellers</p>
+                </div>
+            </div>
+            <div class="stat-card buyers">
+                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-info">
+                    <h3>{{ total_users|default(0) - seller_count|default(0) }}</h3>
+                    <p>Buyers</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <a href="{{ url_for('admin_users', page=1, per_page=per_page) }}" class="filter-tab {% if not request.args.get('type') and request.args.get('status') != 'active' and request.args.get('status') != 'inactive' %}active{% endif %}">
+                    <i class="fas fa-list"></i> All
+                </a>
+                <a href="{{ url_for('admin_users', page=1, per_page=per_page, type='buyer') }}" class="filter-tab {% if request.args.get('type') == 'buyer' %}active{% endif %}">
+                    <i class="fas fa-user"></i> Buyers
+                </a>
+                <a href="{{ url_for('admin_users', page=1, per_page=per_page, type='seller') }}" class="filter-tab {% if request.args.get('type') == 'seller' %}active{% endif %}">
+                    <i class="fas fa-store"></i> Sellers
+                </a>
+                <a href="{{ url_for('admin_users', page=1, per_page=per_page, type='admin') }}" class="filter-tab {% if request.args.get('type') == 'admin' %}active{% endif %}">
+                    <i class="fas fa-crown"></i> Admins
+                </a>
+                <a href="{{ url_for('admin_users', page=1, per_page=per_page, status='active') }}" class="filter-tab {% if request.args.get('status') == 'active' %}active{% endif %}">
+                    <i class="fas fa-check-circle"></i> Active
+                </a>
+                <a href="{{ url_for('admin_users', page=1, per_page=per_page, status='inactive') }}" class="filter-tab {% if request.args.get('status') == 'inactive' %}active{% endif %}">
+                    <i class="fas fa-ban"></i> Inactive
+                </a>
+            </div>
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <form method="GET" action="{{ url_for('admin_users') }}" style="display: flex; gap: 5px; margin: 0;">
+                    <input type="hidden" name="per_page" value="{{ per_page }}">
+                    <input type="hidden" name="type" value="{{ request.args.get('type', '') }}">
+                    <input type="hidden" name="status" value="{{ request.args.get('status', '') }}">
+                    <input type="text" name="search" placeholder="Search by name, email, phone..." value="{{ request.args.get('search', '') }}" style="border: none; background: transparent; padding: 5px 0; width: 200px; outline: none; font-size: 0.7rem;">
+                    <button type="submit" style="background: none; border: none; cursor: pointer;"><i class="fas fa-search" style="color: var(--secondary);"></i></button>
+                </form>
+            </div>
+            <div class="page-size-selector">
+                <label><i class="fas fa-eye"></i> Show:</label>
+                <select id="perPage" onchange="changePerPage()">
+                    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+                    <option value="30" {% if per_page == 30 %}selected{% endif %}>30</option>
+                    <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                </select>
+                <span>per page</span>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> Users</h3>
+                <div class="table-actions">
+                    <button class="table-btn" onclick="selectAll()">
+                        <i class="fas fa-check-double"></i> Select All
+                    </button>
+                    <button class="table-btn" onclick="bulkAction()">
+                        <i class="fas fa-tasks"></i> Bulk Actions
+                    </button>
+                </div>
+            </div>
+
+            <table class="users-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th width="30"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll()"></th>
+                        <th>User</th>
+                        <th>Contact</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr data-user-id="{{ user.id }}" data-user-type="{{ user.user_type }}" data-status="{% if user.is_active %}active{% else %}inactive{% endif %}">
+                        <td><input type="checkbox" class="user-checkbox" value="{{ user.id }}" onchange="updateSelectedCount()">\</td>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">
+                                    {% if user.profile_image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}" alt="{{ user.fullname }}">
+                                    {% else %}
+                                    {{ user.fullname[:1] }}
+                                    {% endif %}
+                                </div>
+                                <div class="user-details">
+                                    <h4>{{ user.fullname }}</h4>
+                                    <p><i class="fas fa-map-marker-alt"></i> {{ user.location or 'N/A' }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="user-details">
+                                <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                                <p><i class="fas fa-phone"></i> {{ user.phone or 'N/A' }}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ user.user_type }}">
+                                {{ user.user_type|upper }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ 'active' if user.is_active else 'inactive' }}">
+                                {{ 'Active' if user.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>{{ user.created_at.strftime('%d %b %Y') if user.created_at else 'N/A' }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" class="action-btn action-edit" title="Edit User">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button onclick="toggleUserStatus({{ user.id }}, {{ user.is_active|lower }})" class="action-btn action-toggle" title="{{ 'Deactivate' if user.is_active else 'Activate' }}">
+                                    <i class="fas fa-{{ 'ban' if user.is_active else 'check' }}"></i> {{ 'Deactivate' if user.is_active else 'Activate' }}
+                                </button>
+                                <button onclick="resetPassword({{ user.id }})" class="action-btn action-reset" title="Reset Password">
+                                    <i class="fas fa-key"></i> Reset
+                                </button>
+                                <button onclick="confirmDelete({{ user.id }}, '{{ user.fullname|replace("'", "\\'") }}')" class="action-btn action-delete" title="Delete User">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 50px;">
+                            <i class="fas fa-users" style="font-size: 2rem; color: var(--border); margin-bottom: 10px; display: block;"></i>
+                            <p style="color: var(--gray);">No users found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination and pagination.pages > 1 %}
+        <div class="pagination">
+            {% if pagination.has_prev %}
+            <a href="{{ url_for('admin_users', page=1, per_page=per_page, search=request.args.get('search'), type=request.args.get('type'), status=request.args.get('status')) }}" class="page-link">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="{{ url_for('admin_users', page=pagination.prev_num, per_page=per_page, search=request.args.get('search'), type=request.args.get('type'), status=request.args.get('status')) }}" class="page-link">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            {% endif %}
+            
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                    <span class="page-link active">{{ page_num }}</span>
+                    {% else %}
+                    <a href="{{ url_for('admin_users', page=page_num, per_page=per_page, search=request.args.get('search'), type=request.args.get('type'), status=request.args.get('status')) }}" class="page-link">{{ page_num }}</a>
+                    {% endif %}
+                {% else %}
+                    <span class="page-link">...</span>
+                {% endif %}
+            {% endfor %}
+            
+            {% if pagination.has_next %}
+            <a href="{{ url_for('admin_users', page=pagination.next_num, per_page=per_page, search=request.args.get('search'), type=request.args.get('type'), status=request.args.get('status')) }}" class="page-link">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <a href="{{ url_for('admin_users', page=pagination.pages, per_page=per_page, search=request.args.get('search'), type=request.args.get('type'), status=request.args.get('status')) }}" class="page-link">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal" id="addUserModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-plus"></i> Add New User</h3>
+            <button class="modal-close" onclick="closeAddUserModal()">&times;</button>
+        </div>
+        <form id="addUserForm" onsubmit="addUser(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Full Name *</label>
+                    <input type="text" class="form-control" name="fullname" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email *</label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone</label>
+                    <input type="tel" class="form-control" name="phone" placeholder="0755123456">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> User Type *</label>
+                    <select class="form-select" name="user_type" id="userTypeSelect" required>
+                        <option value="">Select type...</option>
+                        <option value="buyer">Buyer</option>
+                        <option value="seller">Seller</option>
+                        <option value="admin">Admin</option>
+                        <option value="staff">Staff</option>
+                    </select>
+                </div>
+                <div class="form-group" id="businessField" style="display: none;">
+                    <label><i class="fas fa-store"></i> Business Name</label>
+                    <input type="text" class="form-control" name="business_name">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password *</label>
+                    <input type="password" class="form-control" name="password" required minlength="6">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeAddUserModal()">Cancel</button>
+                <button type="submit" class="modal-btn modal-btn-primary">Create User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-trash"></i> Delete User</h3>
+            <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-confirm">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Are you sure you want to delete <strong id="deleteUserName"></strong>?</p>
+                <p style="font-size: 0.7rem;">This action cannot be undone. All user data will be permanently removed.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="modal-btn modal-btn-primary" onclick="deleteUser()" style="background: var(--danger);">Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="margin-top: 10px;">Processing...</p>
+</div>
+
+<script>
+let selectedUsers = new Set();
+let currentDeleteUserId = null;
+
+// Change per page
+function changePerPage() {
+    const perPage = document.getElementById('perPage').value;
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('per_page', perPage);
+    currentUrl.searchParams.set('page', '1');
+    window.location.href = currentUrl.toString();
+}
+
+// Show/hide business field based on user type
+document.getElementById('userTypeSelect')?.addEventListener('change', function() {
+    document.getElementById('businessField').style.display = this.value === 'seller' ? 'block' : 'none';
+});
+
+// Toggle select all
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAllCheckbox');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+        if (selectAll.checked) {
+            selectedUsers.add(checkbox.value);
+        } else {
+            selectedUsers.delete(checkbox.value);
+        }
+    });
+}
+
+function selectAll() {
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+        selectedUsers.add(checkbox.value);
+    });
+    if (selectAllCheckbox) selectAllCheckbox.checked = true;
+}
+
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    selectedUsers.clear();
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked) selectedUsers.add(checkbox.value);
+    });
+}
+
+function bulkAction() {
+    updateSelectedCount();
+    if (selectedUsers.size === 0) {
+        alert('Please select at least one user');
+        return;
+    }
+    const action = prompt('Select action:\n- activate\n- deactivate\n- delete', 'activate');
+    if (action) {
+        if (action === 'activate') {
+            selectedUsers.forEach(id => toggleUserStatus(parseInt(id), false));
+        } else if (action === 'deactivate') {
+            selectedUsers.forEach(id => toggleUserStatus(parseInt(id), true));
+        } else if (action === 'delete') {
+            if (confirm(`Delete ${selectedUsers.size} user(s)? This cannot be undone.`)) {
+                selectedUsers.forEach(id => {
+                    fetch(`/api/admin/users/${id}/delete`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    }).then(() => {});
+                });
+                setTimeout(() => location.reload(), 1000);
+            }
+        } else {
+            alert('Invalid action');
+        }
+    }
+}
+
+async function toggleUserStatus(userId, isActive) {
+    const action = isActive ? 'deactivate' : 'activate';
+    if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+    
+    showLoading(true);
+    
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/toggle-status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`✅ User ${action}d successfully`);
+            location.reload();
+        } else {
+            alert(data.message || `Error ${action}ing user`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Error ${action}ing user`);
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function resetPassword(userId) {
+    if (!confirm('Reset password for this user? A new password will be generated.')) return;
+    
+    showLoading(true);
+    
+    try {
+        const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`✅ Password reset successful!\n\nNew password: ${data.new_password}\n\nPlease share this with the user.`);
+            location.reload();
+        } else {
+            alert(data.message || 'Error resetting password');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error resetting password');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function confirmDelete(userId, userName) {
+    currentDeleteUserId = userId;
+    document.getElementById('deleteUserName').textContent = userName;
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+    currentDeleteUserId = null;
+}
+
+async function deleteUser() {
+    if (!currentDeleteUserId) return;
+    
+    showLoading(true);
+    closeDeleteModal();
+    
+    try {
+        const response = await fetch(`/api/admin/users/${currentDeleteUserId}/delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ User deleted successfully');
+            location.reload();
+        } else {
+            alert(data.message || 'Error deleting user');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error deleting user');
+    } finally {
+        showLoading(false);
+        currentDeleteUserId = null;
+    }
+}
+
+async function addUser(event) {
+    event.preventDefault();
+    const form = document.getElementById('addUserForm');
+    const formData = new FormData(form);
+    const password = formData.get('password');
+    
+    if (password.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+    }
+    
+    showLoading(true);
+    
+    try {
+        const response = await fetch('/api/admin/users/add', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ User created successfully');
+            location.reload();
+        } else {
+            alert(data.message || 'Error creating user');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error creating user');
+    } finally {
+        showLoading(false);
+    }
+    
+    closeAddUserModal();
+}
+
+function exportUsers() {
+    const currentUrl = new URL(window.location.href);
+    window.location.href = `/api/admin/users/export?${currentUrl.searchParams.toString()}`;
+}
+
+function openAddUserModal() {
+    document.getElementById('addUserModal').classList.add('show');
+}
+
+function closeAddUserModal() {
+    document.getElementById('addUserModal').classList.remove('show');
+    document.getElementById('addUserForm').reset();
+    document.getElementById('businessField').style.display = 'none';
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.toggle('show', show);
+    }
+}
+
+// Make functions global
+window.toggleSelectAll = toggleSelectAll;
+window.selectAll = selectAll;
+window.updateSelectedCount = updateSelectedCount;
+window.bulkAction = bulkAction;
+window.toggleUserStatus = toggleUserStatus;
+window.resetPassword = resetPassword;
+window.confirmDelete = confirmDelete;
+window.closeDeleteModal = closeDeleteModal;
+window.deleteUser = deleteUser;
+window.addUser = addUser;
+window.exportUsers = exportUsers;
+window.openAddUserModal = openAddUserModal;
+window.closeAddUserModal = closeAddUserModal;
+window.changePerPage = changePerPage;
+</script>
+{% endblock %}

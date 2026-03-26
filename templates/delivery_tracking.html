@@ -1,0 +1,963 @@
+{% extends "base.html" %}
+
+{% block title %}Delivery Tracking - Admin - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .tracking-page {
+        padding: 30px 0;
+        background: var(--white);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: var(--white);
+        padding: 10px 16px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px 25px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-outline-light {
+        background: rgba(255,255,255,0.15);
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline-light:hover {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    .btn-outline-orange {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-outline-orange:hover {
+        background: var(--secondary-dark);
+    }
+
+    /* Stats Cards - 4 in a row */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stat-card:hover {
+        border-color: var(--secondary);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1.1rem;
+    }
+
+    .stat-info h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .stat-info p {
+        color: var(--gray);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .stat-change {
+        font-size: 0.6rem;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        color: var(--gray);
+    }
+
+    .stat-change.positive {
+        color: var(--success);
+    }
+
+    .stat-change.warning {
+        color: var(--warning);
+    }
+
+    /* Map Container */
+    .map-container {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 20px;
+        height: 400px;
+        position: relative;
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    .map-overlay {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        background: var(--white);
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: 1px solid var(--border);
+        max-width: 200px;
+    }
+
+    .overlay-title {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.7rem;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .rider-list {
+        max-height: 150px;
+        overflow-y: auto;
+    }
+
+    .rider-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        font-size: 0.65rem;
+    }
+
+    .rider-item:hover {
+        background: var(--gray-light);
+    }
+
+    .rider-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 8px;
+    }
+
+    .rider-dot.online { background: var(--success); }
+    .rider-dot.offline { background: var(--gray); }
+    .rider-dot.busy { background: var(--warning); }
+
+    .rider-name {
+        font-weight: 500;
+        color: var(--primary);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: var(--white);
+        border-radius: 30px;
+        padding: 10px 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--gray);
+    }
+
+    .filter-tab:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .filter-tab.active {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .filter-search {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--gray-light);
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .filter-search i {
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    .filter-search input {
+        border: none;
+        background: transparent;
+        padding: 4px 0;
+        width: 180px;
+        outline: none;
+        font-size: 0.7rem;
+    }
+
+    /* Deliveries Table */
+    .deliveries-section {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .section-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-header h2 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .section-header h2 i {
+        color: var(--secondary);
+    }
+
+    .refresh-btn {
+        background: rgba(255,255,255,0.15);
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .refresh-btn:hover {
+        background: var(--secondary);
+    }
+
+    .deliveries-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.7rem;
+    }
+
+    .deliveries-table th {
+        text-align: left;
+        padding: 10px 12px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 600;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .deliveries-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .order-id {
+        font-weight: 600;
+        color: var(--secondary);
+    }
+
+    .rider-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .rider-avatar {
+        width: 28px;
+        height: 28px;
+        background: var(--secondary);
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .rider-details h4 {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 1px;
+    }
+
+    .rider-details p {
+        font-size: 0.6rem;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+    }
+
+    .status-assigned {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--info);
+        border: 1px solid var(--info);
+    }
+
+    .status-picked_up {
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    .status-in_transit {
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    .status-delivered {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .action-btn {
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        margin: 0 2px;
+    }
+
+    .action-track {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .action-track:hover {
+        background: var(--secondary-dark);
+    }
+
+    .action-view {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .action-view:hover {
+        background: var(--primary-dark);
+    }
+
+    /* Recent Updates */
+    .updates-section {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        border: 1px solid var(--border);
+    }
+
+    .updates-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .update-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.65rem;
+    }
+
+    .update-item:last-child {
+        border-bottom: none;
+    }
+
+    .update-icon {
+        width: 24px;
+        height: 24px;
+        background: var(--gray-light);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--secondary);
+        font-size: 0.6rem;
+    }
+
+    .update-content {
+        flex: 1;
+    }
+
+    .update-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2px;
+    }
+
+    .update-order {
+        font-weight: 600;
+        color: var(--secondary);
+    }
+
+    .update-time {
+        color: var(--gray);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-search input {
+            width: 100%;
+        }
+        
+        .map-overlay {
+            position: static;
+            max-width: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .deliveries-table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .action-btn {
+            display: block;
+            width: 100%;
+            margin: 2px 0;
+        }
+    }
+</style>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+{% endblock %}
+
+{% block content %}
+<div class="tracking-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Tracking</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Live Tracking</h1>
+                    <p><i class="fas fa-map-pin"></i> UCU Campus</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-sm btn-outline-light" onclick="centerMap()">
+                    <i class="fas fa-crosshairs"></i> Center
+                </button>
+                <button class="btn-sm btn-outline-orange" onclick="refreshTracking()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                    <h3>{{ pending_deliveries_count|default(0) }}</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-motorcycle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ in_transit_count|default(0) }}</h3>
+                    <p>In Transit</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ completed_today_count|default(0) }}</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-info">
+                    <h3>{{ delivery_persons|length|default(0) }}</h3>
+                    <p>Riders</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="map-overlay">
+                <div class="overlay-title">
+                    <i class="fas fa-motorcycle"></i> Riders
+                </div>
+                <div class="rider-list" id="riderList">
+                    {% for rider in delivery_persons %}
+                    <div class="rider-item" onclick="focusRider({{ rider.id }})">
+                        <span class="rider-dot {{ 'online' if rider.is_active else 'offline' }}"></span>
+                        <span class="rider-name">{{ rider.name }}</span>
+                    </div>
+                    {% else %}
+                    <div style="color: var(--gray); text-align: center;">No riders</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all" onclick="filterDeliveries('all')">All</button>
+                <button class="filter-tab" data-filter="assigned" onclick="filterDeliveries('assigned')">Assigned</button>
+                <button class="filter-tab" data-filter="picked_up" onclick="filterDeliveries('picked_up')">Picked Up</button>
+                <button class="filter-tab" data-filter="in_transit" onclick="filterDeliveries('in_transit')">In Transit</button>
+                <button class="filter-tab" data-filter="delivered" onclick="filterDeliveries('delivered')">Delivered</button>
+            </div>
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchDeliveries()">
+            </div>
+        </div>
+
+        <!-- Active Deliveries Table -->
+        <div class="deliveries-section">
+            <div class="section-header">
+                <h2><i class="fas fa-truck"></i> Active Deliveries</h2>
+                <button class="refresh-btn" onclick="refreshTracking()">↻ Refresh</button>
+            </div>
+
+            <table class="deliveries-table" id="deliveriesTable">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Rider</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in active_assignments %}
+                    <tr data-status="{{ assignment.status }}">
+                        <td><span class="order-id">#{{ assignment.order.id }}</span></td>
+                        <td>
+                            {% if assignment.delivery_person %}
+                            <div class="rider-info">
+                                <div class="rider-avatar">{{ assignment.delivery_person.name[:1] }}</div>
+                                <div class="rider-details">
+                                    <h4>{{ assignment.delivery_person.name }}</h4>
+                                    <p><i class="fas fa-phone"></i> {{ assignment.delivery_person.phone }}</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            Unassigned
+                            {% endif %}
+                        </td>
+                        <td>{{ assignment.order.user.fullname.split()[0] if assignment.order.user else 'Unknown' }}</td>
+                        <td>
+                            <span class="status-badge status-{{ assignment.status }}">
+                                {{ assignment.status|replace('_', ' ')|title }}
+                            </span>
+                        </td>
+                        <td>{{ assignment.assigned_at.strftime('%H:%M') if assignment.assigned_at else 'N/A' }}</td>
+                        <td>
+                            <button class="action-btn action-track" onclick="trackDelivery({{ assignment.order.id }})">
+                                Track
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px;">
+                            <i class="fas fa-truck" style="color: var(--border);"></i>
+                            <p style="color: var(--gray);">No active deliveries</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recent Updates -->
+        <div class="updates-section">
+            <h3 style="color: var(--primary); font-size:0.8rem; margin-bottom:10px;">
+                <i class="fas fa-history" style="color: var(--secondary);"></i> Recent Updates
+            </h3>
+            <div class="updates-list">
+                {% for update in recent_tracking_updates[:5] %}
+                <div class="update-item">
+                    <div class="update-icon"><i class="fas fa-map-pin"></i></div>
+                    <div class="update-content">
+                        <div class="update-header">
+                            <span class="update-order">#{{ update.order_id }}</span>
+                            <span class="update-time">{{ update.created_at.strftime('%H:%M') if update.created_at else '' }}</span>
+                        </div>
+                        <div>{{ update.status|replace('_', ' ')|title }}</div>
+                    </div>
+                </div>
+                {% else %}
+                <div style="text-align: center; color: var(--gray);">No updates</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-size:0.7rem; color:var(--primary);">Loading...</p>
+</div>
+
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let map;
+let markers = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+    loadRiderPositions();
+    setInterval(refreshTracking, 30000);
+});
+
+function initMap() {
+    map = L.map('map').setView([0.3136, 32.5811], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+}
+
+function loadRiderPositions() {
+    fetch('/api/admin/delivery/live-positions')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) updateMapMarkers(data.positions);
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function updateMapMarkers(positions) {
+    for (let id in markers) map.removeLayer(markers[id]);
+    markers = {};
+    
+    positions.forEach(pos => {
+        if (pos.lat && pos.lng) {
+            const marker = L.marker([pos.lat, pos.lng]).addTo(map);
+            marker.bindPopup(`
+                <b>${pos.rider_name}</b><br>
+                Order #${pos.order_id}<br>
+                ${pos.customer}<br>
+                <button onclick="trackDelivery(${pos.order_id})">Track</button>
+            `);
+            markers[pos.order_id] = marker;
+        }
+    });
+}
+
+function focusRider(riderId) {
+    fetch(`/api/admin/delivery/persons/${riderId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.current_location) {
+                const coords = data.current_location.split(',').map(Number);
+                if (coords.length === 2) map.setView(coords, 18);
+            }
+        });
+}
+
+function trackDelivery(orderId) {
+    if (markers[orderId]) {
+        map.setView(markers[orderId].getLatLng(), 18);
+        markers[orderId].openPopup();
+    } else {
+        window.location.href = `/admin/delivery/${orderId}/tracking-details`;
+    }
+}
+
+function centerMap() {
+    if (Object.keys(markers).length > 0) {
+        const group = L.featureGroup(Object.values(markers));
+        map.fitBounds(group.getBounds().pad(0.1));
+    } else {
+        map.setView([0.3136, 32.5811], 15);
+    }
+}
+
+function filterDeliveries(status) {
+    document.querySelectorAll('.filter-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.filter === status);
+    });
+    document.querySelectorAll('#deliveriesTable tbody tr').forEach(row => {
+        row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
+    });
+}
+
+function searchDeliveries() {
+    const term = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('#deliveriesTable tbody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+    });
+}
+
+function refreshTracking() {
+    document.getElementById('loadingOverlay').classList.add('show');
+    loadRiderPositions();
+    setTimeout(() => {
+        document.getElementById('loadingOverlay').classList.remove('show');
+    }, 500);
+}
+
+window.filterDeliveries = filterDeliveries;
+window.searchDeliveries = searchDeliveries;
+window.trackDelivery = trackDelivery;
+window.refreshTracking = refreshTracking;
+window.centerMap = centerMap;
+window.focusRider = focusRider;
+</script>
+{% endblock %}

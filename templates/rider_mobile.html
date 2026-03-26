@@ -1,0 +1,1543 @@
+{% extends "base.html" %}
+
+{% block title %}Rider Mobile Portal - {{ rider.name }} - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Mobile-first design */
+    .rider-mobile-page {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Status Bar */
+    .status-bar {
+        background: rgba(0,0,0,0.3);
+        color: white;
+        padding: 10px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .battery {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .battery i {
+        color: #4caf50;
+    }
+
+    .signal {
+        display: flex;
+        gap: 2px;
+    }
+
+    .signal-bar {
+        width: 4px;
+        height: 10px;
+        background: rgba(255,255,255,0.5);
+        border-radius: 2px;
+    }
+
+    .signal-bar.active {
+        background: white;
+    }
+
+    /* Header */
+    .rider-header {
+        background: white;
+        padding: 20px;
+        border-radius: 30px 30px 0 0;
+        margin-top: 10px;
+        box-shadow: 0 -10px 20px rgba(0,0,0,0.1);
+    }
+
+    .rider-profile {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .rider-avatar {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+        border-radius: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        font-weight: 700;
+        border: 3px solid var(--primary);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .rider-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 70px;
+        object-fit: cover;
+    }
+
+    .rider-info h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 5px;
+    }
+
+    .rider-info p {
+        color: var(--gray);
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .online-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(40, 167, 69, 0.15);
+        color: #28a745;
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-top: 8px;
+    }
+
+    .online-badge i {
+        font-size: 0.5rem;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        padding: 20px;
+        background: white;
+    }
+
+    .stat-card {
+        background: var(--gray-light);
+        border-radius: 16px;
+        padding: 15px 10px;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--secondary);
+        margin-bottom: 3px;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+        color: var(--gray);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 20px;
+        background: white;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .quick-btn {
+        background: var(--gray-light);
+        border: none;
+        border-radius: 16px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quick-btn:active {
+        transform: scale(0.95);
+        background: #e9ecef;
+    }
+
+    .quick-btn i {
+        font-size: 1.5rem;
+        color: var(--secondary);
+    }
+
+    .quick-btn span {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .quick-btn.active {
+        background: var(--secondary);
+    }
+
+    .quick-btn.active i,
+    .quick-btn.active span {
+        color: white;
+    }
+
+    /* Location Banner */
+    .location-banner {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .location-icon {
+        width: 45px;
+        height: 45px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .location-info {
+        flex: 1;
+    }
+
+    .location-label {
+        font-size: 0.7rem;
+        opacity: 0.8;
+        margin-bottom: 2px;
+    }
+
+    .location-address {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .location-update {
+        font-size: 0.65rem;
+        opacity: 0.7;
+        margin-top: 3px;
+    }
+
+    .location-refresh {
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .location-refresh:active {
+        background: rgba(255,255,255,0.3);
+        transform: rotate(180deg);
+    }
+
+    /* Active Deliveries */
+    .deliveries-section {
+        padding: 20px;
+        background: white;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .section-header h3 {
+        color: var(--primary);
+        font-size: 1.1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-header h3 i {
+        color: var(--secondary);
+    }
+
+    .new-delivery-btn {
+        background: var(--secondary);
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+    }
+
+    .new-delivery-btn:active {
+        transform: scale(0.95);
+        background: var(--secondary-dark);
+    }
+
+    /* Delivery Card */
+    .delivery-card {
+        background: white;
+        border: 2px solid var(--primary);
+        border-radius: 20px;
+        margin-bottom: 15px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        transition: all 0.2s;
+        position: relative;
+    }
+
+    .delivery-card:active {
+        transform: scale(0.98);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .delivery-card.active {
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 2px rgba(255,107,0,0.2);
+    }
+
+    .delivery-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .delivery-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .delivery-title i {
+        color: var(--secondary);
+    }
+
+    .order-id {
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .delivery-status {
+        background: rgba(255,255,255,0.2);
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+
+    .delivery-body {
+        padding: 15px;
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .customer-avatar {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+
+    .customer-details h4 {
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 3px;
+    }
+
+    .customer-details p {
+        font-size: 0.75rem;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .delivery-details {
+        background: var(--gray-light);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+
+    .detail-row {
+        display: flex;
+        margin-bottom: 8px;
+        font-size: 0.8rem;
+    }
+
+    .detail-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .detail-label {
+        width: 80px;
+        color: var(--gray);
+    }
+
+    .detail-value {
+        flex: 1;
+        font-weight: 500;
+        color: var(--dark);
+    }
+
+    .delivery-amount {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--secondary);
+        text-align: right;
+        margin-top: 10px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 12px;
+        border-radius: 40px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .action-btn:active {
+        transform: scale(0.95);
+    }
+
+    .btn-primary {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .btn-primary:active {
+        background: var(--secondary-dark);
+    }
+
+    .btn-secondary {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-secondary:active {
+        background: var(--primary-dark);
+    }
+
+    .btn-success {
+        background: var(--success);
+        color: white;
+    }
+
+    .btn-success:active {
+        background: #218838;
+    }
+
+    .btn-warning {
+        background: var(--warning);
+        color: var(--dark);
+    }
+
+    .btn-warning:active {
+        background: #e0a800;
+    }
+
+    .btn-outline {
+        background: white;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    .btn-outline:active {
+        background: var(--gray-light);
+    }
+
+    /* Timeline */
+    .timeline-mini {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px dashed var(--border);
+    }
+
+    .timeline-step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        font-size: 0.75rem;
+    }
+
+    .step-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 8px;
+        background: var(--border);
+    }
+
+    .step-dot.completed {
+        background: var(--success);
+    }
+
+    .step-dot.active {
+        background: var(--secondary);
+        animation: pulse 1.5s infinite;
+    }
+
+    .step-text {
+        flex: 1;
+        color: var(--gray);
+    }
+
+    .step-time {
+        color: var(--dark);
+        font-weight: 500;
+    }
+
+    /* Navigation Bar */
+    .bottom-nav {
+        background: white;
+        border-top: 2px solid var(--primary);
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-around;
+        position: sticky;
+        bottom: 0;
+        z-index: 1000;
+    }
+
+    .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        color: var(--gray);
+        font-size: 0.65rem;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 30px;
+        transition: all 0.2s;
+    }
+
+    .nav-item i {
+        font-size: 1.2rem;
+    }
+
+    .nav-item.active {
+        color: var(--secondary);
+        background: #fff3e0;
+    }
+
+    .nav-item:active {
+        background: var(--gray-light);
+    }
+
+    /* Modals */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 30px 30px 0 0;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 25px 20px;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .modal-header h3 {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-close {
+        width: 40px;
+        height: 40px;
+        background: var(--gray-light);
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .modal-close:active {
+        background: var(--border);
+    }
+
+    /* Status Update Modal */
+    .status-options {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .status-option {
+        background: var(--gray-light);
+        border: 2px solid transparent;
+        border-radius: 16px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .status-option:active {
+        transform: scale(0.98);
+    }
+
+    .status-option.selected {
+        border-color: var(--secondary);
+        background: #fff3e0;
+    }
+
+    .status-icon {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--secondary);
+        font-size: 1.3rem;
+    }
+
+    .status-info h4 {
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 3px;
+    }
+
+    .status-info p {
+        font-size: 0.75rem;
+        color: var(--gray);
+    }
+
+    /* Proof Upload */
+    .upload-area {
+        border: 2px dashed var(--border);
+        border-radius: 16px;
+        padding: 25px;
+        text-align: center;
+        margin-bottom: 20px;
+        cursor: pointer;
+    }
+
+    .upload-area i {
+        font-size: 2.5rem;
+        color: var(--secondary);
+        margin-bottom: 10px;
+    }
+
+    .upload-area p {
+        color: var(--gray);
+        font-size: 0.85rem;
+    }
+
+    .photo-preview {
+        width: 100%;
+        height: 150px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 15px;
+        display: none;
+    }
+
+    .photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .signature-pad {
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        margin-bottom: 15px;
+        height: 150px;
+        width: 100%;
+    }
+
+    /* Loading */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Toast */
+    .toast {
+        position: fixed;
+        bottom: 100px;
+        left: 20px;
+        right: 20px;
+        background: white;
+        border-radius: 30px;
+        padding: 15px 20px;
+        box-shadow: var(--shadow-2xl);
+        border-left: 4px solid var(--secondary);
+        display: none;
+        align-items: center;
+        gap: 10px;
+        z-index: 9998;
+        animation: slideUp 0.3s ease;
+    }
+
+    .toast.show {
+        display: flex;
+    }
+
+    .toast i {
+        color: var(--secondary);
+        font-size: 1.2rem;
+    }
+
+    .toast-message {
+        flex: 1;
+        font-size: 0.9rem;
+        color: var(--dark);
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+        .rider-mobile-page {
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: 30px;
+            overflow: hidden;
+        }
+        
+        .status-bar {
+            border-radius: 30px 30px 0 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rider-mobile-page">
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="time" id="currentTime">12:00 PM</div>
+        <div class="signal">
+            <span class="signal-bar active"></span>
+            <span class="signal-bar active"></span>
+            <span class="signal-bar active"></span>
+            <span class="signal-bar active"></span>
+        </div>
+        <div class="battery">
+            <i class="fas fa-battery-full"></i>
+            <span>100%</span>
+        </div>
+    </div>
+
+    <!-- Rider Header -->
+    <div class="rider-header">
+        <div class="rider-profile">
+            <div class="rider-avatar">
+                {% if rider.photo %}
+                <img src="{{ url_for('static', filename='uploads/' + rider.photo) }}" alt="{{ rider.name }}">
+                {% else %}
+                {{ rider.name[:1] }}
+                {% endif %}
+            </div>
+            <div class="rider-info">
+                <h2>{{ rider.name }}</h2>
+                <p><i class="fas fa-motorcycle"></i> {{ rider.vehicle_type }} • {{ rider.vehicle_number }}</p>
+                <div class="online-badge">
+                    <i class="fas fa-circle"></i> Online
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ active_assignments|length }}</div>
+            <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ today_completed }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_earnings or 0 }}</div>
+            <div class="stat-label">Earnings</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button class="quick-btn" onclick="toggleOnline()" id="onlineBtn">
+            <i class="fas fa-power-off"></i>
+            <span>Go Online</span>
+        </button>
+        <button class="quick-btn" onclick="openEarnings()">
+            <i class="fas fa-wallet"></i>
+            <span>Earnings</span>
+        </button>
+        <button class="quick-btn" onclick="openHistory()">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </button>
+        <button class="quick-btn" onclick="openSupport()">
+            <i class="fas fa-headset"></i>
+            <span>Support</span>
+        </button>
+    </div>
+
+    <!-- Location Banner -->
+    <div class="location-banner">
+        <div class="location-icon">
+            <i class="fas fa-map-pin"></i>
+        </div>
+        <div class="location-info">
+            <div class="location-label">CURRENT LOCATION</div>
+            <div class="location-address" id="currentAddress">{{ rider.current_location or 'Detecting location...' }}</div>
+            <div class="location-update" id="locationUpdate">Updated just now</div>
+        </div>
+        <div class="location-refresh" onclick="refreshLocation()">
+            <i class="fas fa-sync-alt"></i>
+        </div>
+    </div>
+
+    <!-- Active Deliveries -->
+    <div class="deliveries-section">
+        <div class="section-header">
+            <h3>
+                <i class="fas fa-truck"></i>
+                Active Deliveries
+            </h3>
+            <button class="new-delivery-btn" onclick="checkNewDeliveries()">
+                <i class="fas fa-sync-alt"></i>
+                Check New
+            </button>
+        </div>
+
+        {% for assignment in active_assignments %}
+        <div class="delivery-card" data-assignment-id="{{ assignment.id }}" onclick="selectDelivery({{ assignment.id }})">
+            <div class="delivery-header">
+                <div class="delivery-title">
+                    <i class="fas fa-box"></i>
+                    <span class="order-id">Order #{{ assignment.order.id }}</span>
+                </div>
+                <span class="delivery-status">{{ assignment.status|replace('_', ' ')|upper }}</span>
+            </div>
+            <div class="delivery-body">
+                <div class="customer-info">
+                    <div class="customer-avatar">
+                        {{ assignment.order.user.fullname[:1] if assignment.order.user else '?' }}
+                    </div>
+                    <div class="customer-details">
+                        <h4>{{ assignment.order.user.fullname if assignment.order.user else 'Customer' }}</h4>
+                        <p><i class="fas fa-phone"></i> {{ assignment.order.user.phone or 'No phone' }}</p>
+                    </div>
+                </div>
+
+                <div class="delivery-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Pickup:</span>
+                        <span class="detail-value">Seller Location</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Dropoff:</span>
+                        <span class="detail-value">{{ assignment.order.delivery_address }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Distance:</span>
+                        <span class="detail-value">2.5 km</span>
+                    </div>
+                </div>
+
+                <div class="delivery-amount">
+                    UGX {{ "{:,.0f}".format(assignment.order.total_amount) }}
+                </div>
+
+                <!-- Timeline Mini -->
+                <div class="timeline-mini">
+                    <div class="timeline-step">
+                        <span class="step-dot {% if assignment.status != 'assigned' %}completed{% endif %}"></span>
+                        <span class="step-text">Order assigned</span>
+                        <span class="step-time">{{ assignment.assigned_at.strftime('%H:%M') }}</span>
+                    </div>
+                    <div class="timeline-step">
+                        <span class="step-dot {% if assignment.status == 'picked_up' %}completed{% elif assignment.status == 'assigned' %}active{% endif %}"></span>
+                        <span class="step-text">Picked up</span>
+                        {% if assignment.status == 'picked_up' %}
+                        <span class="step-time">{{ assignment.order.updated_at.strftime('%H:%M') }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="timeline-step">
+                        <span class="step-dot {% if assignment.status == 'in_transit' %}active{% endif %}"></span>
+                        <span class="step-text">In transit</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    {% if assignment.status == 'assigned' %}
+                    <button class="action-btn btn-primary" onclick="startDelivery({{ assignment.id }}, event)">
+                        <i class="fas fa-play"></i> Start Delivery
+                    </button>
+                    <button class="action-btn btn-outline" onclick="callCustomer('{{ assignment.order.user.phone }}', event)">
+                        <i class="fas fa-phone"></i> Call
+                    </button>
+                    {% elif assignment.status == 'picked_up' %}
+                    <button class="action-btn btn-primary" onclick="updateStatus({{ assignment.id }}, 'in_transit', event)">
+                        <i class="fas fa-truck"></i> In Transit
+                    </button>
+                    <button class="action-btn btn-outline" onclick="navigate({{ assignment.id }}, event)">
+                        <i class="fas fa-directions"></i> Navigate
+                    </button>
+                    {% elif assignment.status == 'in_transit' %}
+                    <button class="action-btn btn-success" onclick="openDeliveryProof({{ assignment.id }}, event)">
+                        <i class="fas fa-camera"></i> Complete Delivery
+                    </button>
+                    <button class="action-btn btn-outline" onclick="messageCustomer('{{ assignment.order.user.phone }}', event)">
+                        <i class="fas fa-comment"></i> Message
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px 20px; background: var(--gray-light); border-radius: 20px;">
+            <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--border); margin-bottom: 15px;"></i>
+            <h4 style="color: var(--dark); margin-bottom: 5px;">No Active Deliveries</h4>
+            <p style="color: var(--gray); font-size: 0.85rem;">You're all caught up! Check back later for new deliveries.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('deliveries')">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('earnings')">
+            <i class="fas fa-wallet"></i>
+            <span>Earnings</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('history')">
+            <i class="fas fa-history"></i>
+            <span>History</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile')">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </div>
+    </div>
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal" id="statusModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>
+                <i class="fas fa-sync-alt"></i>
+                Update Status
+            </h3>
+            <div class="modal-close" onclick="closeModal('statusModal')">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div class="status-options" id="statusOptions">
+            <!-- Options loaded dynamically -->
+        </div>
+        <div class="form-group">
+            <label><i class="fas fa-sticky-note"></i> Notes (Optional)</label>
+            <textarea class="form-control" id="statusNotes" placeholder="Add any notes about this status..."></textarea>
+        </div>
+        <button class="action-btn btn-primary" onclick="submitStatusUpdate()" style="width: 100%;">
+            Update Status
+        </button>
+    </div>
+</div>
+
+<!-- Delivery Proof Modal -->
+<div class="modal" id="proofModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>
+                <i class="fas fa-camera"></i>
+                Delivery Proof
+            </h3>
+            <div class="modal-close" onclick="closeModal('proofModal')">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        
+        <div class="upload-area" onclick="document.getElementById('proofPhoto').click()">
+            <i class="fas fa-camera"></i>
+            <p>Take a photo of the delivered items</p>
+        </div>
+        <input type="file" id="proofPhoto" accept="image/*" capture="environment" style="display: none;" onchange="previewPhoto(event)">
+        
+        <div class="photo-preview" id="photoPreview">
+            <img src="" alt="Preview">
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-pen"></i> Signature</label>
+            <canvas class="signature-pad" id="signaturePad"></canvas>
+            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                <button class="action-btn btn-outline" onclick="clearSignature()" style="flex: 1;">
+                    <i class="fas fa-undo"></i> Clear
+                </button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-user"></i> Recipient Name</label>
+            <input type="text" class="form-control" id="recipientName" placeholder="Enter recipient name">
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-phone"></i> Recipient Phone</label>
+            <input type="tel" class="form-control" id="recipientPhone" placeholder="Enter recipient phone">
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-sticky-note"></i> Notes</label>
+            <textarea class="form-control" id="deliveryNotes" placeholder="Any additional notes..."></textarea>
+        </div>
+
+        <button class="action-btn btn-success" onclick="submitDeliveryProof()" style="width: 100%;">
+            <i class="fas fa-check-circle"></i> Complete Delivery
+        </button>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <i class="fas fa-info-circle"></i>
+    <div class="toast-message" id="toastMessage">Notification message</div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="color: var(--primary); font-weight: 600;">Loading...</p>
+</div>
+
+<script>
+let currentAssignmentId = null;
+let signaturePad = null;
+let locationWatcher = null;
+let online = true;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateTime();
+    setInterval(updateTime, 1000);
+    initLocationTracking();
+    initSignaturePad();
+});
+
+// Update current time
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+    });
+    document.getElementById('currentTime').textContent = timeString;
+}
+
+// Location tracking
+function initLocationTracking() {
+    if (navigator.geolocation) {
+        locationWatcher = navigator.geolocation.watchPosition(
+            updateLocation,
+            locationError,
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    } else {
+        showToast('Geolocation not supported', 'error');
+    }
+}
+
+function updateLocation(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    const accuracy = position.coords.accuracy;
+    
+    // Update UI
+    document.getElementById('currentAddress').textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    document.getElementById('locationUpdate').textContent = 'Updated just now';
+    
+    // Send to server
+    fetch('/api/rider/update-location', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            rider_id: {{ rider.id }},
+            latitude: lat,
+            longitude: lng,
+            accuracy: accuracy,
+            speed: position.coords.speed,
+            battery: getBatteryLevel()
+        })
+    }).catch(error => console.error('Error updating location:', error));
+}
+
+function locationError(error) {
+    let message = 'Error getting location';
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            message = 'Location permission denied';
+            break;
+        case error.POSITION_UNAVAILABLE:
+            message = 'Location information unavailable';
+            break;
+        case error.TIMEOUT:
+            message = 'Location request timed out';
+            break;
+    }
+    showToast(message, 'error');
+}
+
+// Get battery level
+function getBatteryLevel() {
+    if (navigator.getBattery) {
+        navigator.getBattery().then(function(battery) {
+            return battery.level * 100;
+        });
+    }
+    return null;
+}
+
+// Refresh location
+function refreshLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(updateLocation, locationError);
+        showToast('Location updated', 'success');
+    }
+}
+
+// Toggle online status
+function toggleOnline() {
+    online = !online;
+    const btn = document.getElementById('onlineBtn');
+    
+    if (online) {
+        btn.innerHTML = '<i class="fas fa-power-off"></i><span>Go Online</span>';
+        btn.classList.remove('active');
+        showToast('You are now online', 'success');
+    } else {
+        btn.innerHTML = '<i class="fas fa-power-off"></i><span>Go Offline</span>';
+        btn.classList.add('active');
+        showToast('You are now offline', 'info');
+    }
+}
+
+// Delivery functions
+function selectDelivery(assignmentId) {
+    document.querySelectorAll('.delivery-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    document.querySelector(`[data-assignment-id="${assignmentId}"]`).classList.add('active');
+    currentAssignmentId = assignmentId;
+}
+
+function startDelivery(assignmentId, event) {
+    event.stopPropagation();
+    
+    if (!confirm('Start this delivery?')) return;
+    
+    showLoading(true);
+    
+    fetch('/api/rider/update-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            rider_id: {{ rider.id }},
+            order_id: assignmentId,
+            status: 'picked_up',
+            latitude: getCurrentLat(),
+            longitude: getCurrentLng()
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Delivery started', 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showToast('Error starting delivery', 'error');
+            showLoading(false);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error starting delivery', 'error');
+        showLoading(false);
+    });
+}
+
+function updateStatus(assignmentId, status, event) {
+    event.stopPropagation();
+    
+    showLoading(true);
+    
+    fetch('/api/rider/update-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            rider_id: {{ rider.id }},
+            order_id: assignmentId,
+            status: status,
+            latitude: getCurrentLat(),
+            longitude: getCurrentLng()
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Status updated', 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showToast('Error updating status', 'error');
+            showLoading(false);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating status', 'error');
+        showLoading(false);
+    });
+}
+
+function openDeliveryProof(assignmentId, event) {
+    event.stopPropagation();
+    currentAssignmentId = assignmentId;
+    openModal('proofModal');
+}
+
+// Signature pad
+function initSignaturePad() {
+    const canvas = document.getElementById('signaturePad');
+    if (canvas) {
+        signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: 'rgb(0, 0, 0)'
+        });
+        
+        // Set canvas size
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            signaturePad.clear();
+        }
+        
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+    }
+}
+
+function clearSignature() {
+    if (signaturePad) {
+        signaturePad.clear();
+    }
+}
+
+// Photo preview
+function previewPhoto(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('photoPreview');
+            preview.style.display = 'block';
+            preview.querySelector('img').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Submit delivery proof
+function submitDeliveryProof() {
+    if (!signaturePad || signaturePad.isEmpty()) {
+        showToast('Please provide a signature', 'error');
+        return;
+    }
+    
+    const photo = document.getElementById('proofPhoto').files[0];
+    const recipientName = document.getElementById('recipientName').value;
+    const recipientPhone = document.getElementById('recipientPhone').value;
+    const notes = document.getElementById('deliveryNotes').value;
+    
+    if (!recipientName) {
+        showToast('Please enter recipient name', 'error');
+        return;
+    }
+    
+    showLoading(true);
+    
+    const formData = new FormData();
+    formData.append('rider_id', {{ rider.id }});
+    formData.append('order_id', currentAssignmentId);
+    formData.append('signature', signaturePad.toDataURL());
+    formData.append('recipient_name', recipientName);
+    formData.append('recipient_phone', recipientPhone);
+    formData.append('notes', notes);
+    if (photo) {
+        formData.append('photo', photo);
+    }
+    
+    fetch('/api/delivery/upload-proof', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Delivery completed!', 'success');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showToast('Error completing delivery', 'error');
+            showLoading(false);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error completing delivery', 'error');
+        showLoading(false);
+    });
+}
+
+// Helper functions
+function getCurrentLat() {
+    // Implementation to get current latitude
+    return 0.3136;
+}
+
+function getCurrentLng() {
+    // Implementation to get current longitude
+    return 32.5811;
+}
+
+// Modal functions
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+// Toast
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    
+    toastMessage.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// Loading
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.toggle('show', show);
+    }
+}
+
+// Navigation
+function switchTab(tab) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+    showToast(`Switched to ${tab} tab`, 'info');
+}
+
+// Placeholder functions
+function checkNewDeliveries() {
+    showLoading(true);
+    setTimeout(() => {
+        showLoading(false);
+        showToast('No new deliveries', 'info');
+    }, 1000);
+}
+
+function callCustomer(phone, event) {
+    event.stopPropagation();
+    window.location.href = `tel:${phone}`;
+}
+
+function messageCustomer(phone, event) {
+    event.stopPropagation();
+    window.location.href = `sms:${phone}`;
+}
+
+function navigate(assignmentId, event) {
+    event.stopPropagation();
+    window.open(`https://maps.google.com/?q=${getCurrentLat()},${getCurrentLng()}`);
+}
+
+function openEarnings() {
+    showToast('Earnings page coming soon', 'info');
+}
+
+function openHistory() {
+    showToast('History page coming soon', 'info');
+}
+
+function openSupport() {
+    showToast('Support chat coming soon', 'info');
+}
+
+// Make functions global
+window.selectDelivery = selectDelivery;
+window.startDelivery = startDelivery;
+window.updateStatus = updateStatus;
+window.openDeliveryProof = openDeliveryProof;
+window.submitDeliveryProof = submitDeliveryProof;
+window.callCustomer = callCustomer;
+window.messageCustomer = messageCustomer;
+window.navigate = navigate;
+window.toggleOnline = toggleOnline;
+window.refreshLocation = refreshLocation;
+window.checkNewDeliveries = checkNewDeliveries;
+window.openEarnings = openEarnings;
+window.openHistory = openHistory;
+window.openSupport = openSupport;
+window.switchTab = switchTab;
+window.closeModal = closeModal;
+window.clearSignature = clearSignature;
+window.previewPhoto = previewPhoto;
+</script>
+{% endblock %}

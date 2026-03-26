@@ -1,0 +1,827 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-dark: #e65100;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --gray-light: #e9ecef;
+        --border: #dee2e6;
+        --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+        --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+        --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+        --shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
+    }
+
+    .about-page {
+        padding: 40px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(145deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 50px 40px;
+        border-radius: 24px;
+        margin-bottom: 40px;
+        text-align: center;
+        box-shadow: var(--shadow-xl);
+    }
+
+    .hero-section h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .hero-section h1 span {
+        color: var(--secondary);
+    }
+
+    .hero-section .subtitle {
+        font-size: 1.1rem;
+        max-width: 700px;
+        margin: 0 auto 20px;
+        opacity: 0.95;
+    }
+
+    .hero-section .academic-info {
+        padding: 8px 18px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 40px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .hero-section .academic-info i {
+        color: var(--secondary);
+    }
+
+    /* Section Headers */
+    .section-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .section-header h2 {
+        color: var(--primary);
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .section-header p {
+        color: var(--gray);
+        font-size: 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Overview Card */
+    .overview-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 30px;
+    }
+
+    .overview-header {
+        padding: 18px 25px;
+        border-bottom: 2px solid var(--secondary);
+        background: linear-gradient(145deg, white, var(--light));
+    }
+
+    .overview-header h3 {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+    }
+
+    .overview-header i {
+        color: var(--secondary);
+    }
+
+    .overview-body {
+        padding: 25px;
+    }
+
+    .overview-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 30px;
+        align-items: center;
+    }
+
+    .overview-text p {
+        color: var(--dark);
+        font-size: 0.95rem;
+        line-height: 1.7;
+        margin-bottom: 15px;
+    }
+
+    .overview-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .stat-item {
+        background: var(--light);
+        border-radius: 12px;
+        padding: 15px 10px;
+        text-align: center;
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .stat-item:hover {
+        border-color: var(--secondary);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 8px;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 3px;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+        color: var(--gray);
+        line-height: 1.3;
+    }
+
+    .overview-image {
+        position: relative;
+        display: flex;
+        justify-content: center;
+    }
+
+    .overview-image img {
+        width: 90%;
+        max-width: 320px;
+        height: auto;
+        border-radius: 16px;
+        border: 4px solid white;
+        box-shadow: var(--shadow-xl);
+        object-fit: cover;
+    }
+
+    /* Problem Solution Box - Compact */
+    .problem-solution-box {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border);
+        text-align: center;
+    }
+
+    .ps-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+        border-radius: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .problem-solution-box h3 {
+        color: var(--primary);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .ps-content {
+        max-width: 700px;
+        margin: 0 auto;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--dark);
+    }
+
+    .ps-highlight {
+        color: var(--secondary);
+        font-weight: 600;
+    }
+
+    .ps-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin: 15px 0;
+    }
+
+    .ps-divider .line {
+        width: 40px;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+    }
+
+    .ps-divider i {
+        color: var(--secondary);
+        font-size: 1rem;
+    }
+
+    /* Tools Section - Redesigned */
+    .tools-section {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border);
+    }
+
+    .tools-intro {
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto 25px;
+        color: var(--gray);
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .tools-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px 40px;
+        margin-top: 20px;
+    }
+
+    .tool-group {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .tool-group-title {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--secondary);
+        display: inline-block;
+    }
+
+    .tools-mini-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .tool-mini-card {
+        background: var(--light);
+        border-radius: 12px;
+        padding: 15px 10px;
+        text-align: center;
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .tool-mini-card:hover {
+        border-color: var(--secondary);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        background: white;
+    }
+
+    .tool-mini-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 8px;
+        color: white;
+        font-size: 1.1rem;
+    }
+
+    .tool-mini-name {
+        color: var(--primary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+
+    .tool-mini-desc {
+        color: var(--gray);
+        font-size: 0.6rem;
+    }
+
+    /* Team Section - With Circular Photos */
+    .team-section {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border);
+    }
+
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-top: 25px;
+    }
+
+    .team-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        transition: all 0.3s;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        padding: 20px 15px 15px;
+    }
+
+    .team-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--secondary);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .team-photo-wrapper {
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 15px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .team-photo {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid var(--secondary);
+        box-shadow: 0 8px 20px rgba(255,107,0,0.3);
+        transition: all 0.3s;
+        background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .team-card:hover .team-photo {
+        border-color: var(--primary);
+        transform: scale(1.05);
+        box-shadow: 0 12px 25px rgba(255,107,0,0.4);
+    }
+
+    .team-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .team-photo-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.8rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        text-transform: uppercase;
+    }
+
+    /* Optional overlay effect */
+    .team-photo::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(255,107,0,0.2), transparent);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+
+    .team-card:hover .team-photo::after {
+        opacity: 1;
+    }
+
+    .team-info {
+        padding: 0 10px;
+    }
+
+    .team-name {
+        color: var(--primary);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .team-role {
+        color: var(--secondary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        padding: 4px 12px;
+        background: rgba(255,107,0,0.1);
+        border-radius: 30px;
+        display: inline-block;
+    }
+
+    .team-id {
+        color: var(--gray);
+        font-size: 0.65rem;
+        font-family: monospace;
+        background: var(--light);
+        padding: 4px 10px;
+        border-radius: 30px;
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+
+    .team-bio {
+        color: var(--gray);
+        font-size: 0.75rem;
+        line-height: 1.5;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+        margin-top: 8px;
+    }
+
+    /* Footer Note */
+    .footer-note {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(145deg, white, var(--light));
+        border-radius: 16px;
+        border: 1px dashed var(--secondary);
+    }
+
+    .footer-note p {
+        color: var(--primary);
+        font-size: 0.85rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .footer-note i {
+        color: var(--secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .overview-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .overview-image img {
+            width: 70%;
+            max-width: 280px;
+        }
+        
+        .team-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .tools-wrapper {
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .tool-group {
+            min-width: 100%;
+        }
+        
+        .tools-mini-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .team-photo-wrapper {
+            width: 130px;
+            height: 130px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 40px 20px;
+        }
+        
+        .hero-section h1 {
+            font-size: 2rem;
+        }
+        
+        .overview-image img {
+            width: 80%;
+            max-width: 240px;
+        }
+        
+        .team-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .tools-mini-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .overview-stats {
+            grid-template-columns: 1fr;
+        }
+        
+        .problem-solution-box {
+            padding: 25px 15px;
+        }
+        
+        .ps-content {
+            font-size: 0.95rem;
+        }
+        
+        .team-photo-wrapper {
+            width: 150px;
+            height: 150px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-page">
+    <div class="container-custom">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>About <span>ShopMax</span></h1>
+            <p class="subtitle">A Web-Based E-Commerce Marketplace for the Uganda Christian University Community</p>
+            <div class="academic-info">
+                <i class="fas fa-graduation-cap"></i>
+                <span>BIT • Faculty of Engineering, Design & Technology • Dept of Computing & Technology • 2026</span>
+            </div>
+        </div>
+
+        <!-- Project Overview -->
+        <div class="overview-card">
+            <div class="overview-header">
+                <h3><i class="fas fa-project-diagram"></i> Project Overview</h3>
+            </div>
+            <div class="overview-body">
+                <div class="overview-grid">
+                    <div class="overview-text">
+                        <p>ShopMax is a final year project by BIT students at Uganda Christian University. It creates a unified digital marketplace where the UCU community can buy and sell goods securely, replacing scattered informal platforms with one dedicated campus solution.</p>
+                        
+                        <div class="overview-stats">
+                            <div class="stat-item">
+                                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                                <div class="stat-value">2025/2026</div>
+                                <div class="stat-label">Academic Year</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon"><i class="fas fa-university"></i></div>
+                                <div class="stat-value">UCU</div>
+                                <div class="stat-label">Faculty of Engineering, Design & Technology</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                                <div class="stat-value">5,000+</div>
+                                <div class="stat-label">Target Users</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overview-image">
+                        <img src="static/images/Team1.jpeg" alt="UCU Campus">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Problem & Solution - One Statement -->
+        <div class="problem-solution-box">
+            <div class="ps-icon">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h3>Problem & Solution</h3>
+            <div class="ps-content">
+                <p><span class="ps-highlight">The Problem:</span> UCU lacks a centralized campus marketplace, forcing students and staff to use scattered WhatsApp and Facebook groups for buying and selling.</p>
+                
+                <div class="ps-divider">
+                    <span class="line"></span>
+                    <i class="fas fa-arrow-down"></i>
+                    <span class="line"></span>
+                </div>
+                
+                <p><span class="ps-highlight">The Solution:</span> ShopMax provides one unified platform where the entire UCU community can buy, sell, and connect securely.</p>
+            </div>
+        </div>
+
+        <!-- Tools & Technologies - Redesigned -->
+        <div class="tools-section">
+            <h3 style="color: var(--primary); font-size: 1.3rem; font-weight: 700; text-align: center; margin-bottom: 10px;">Built With Modern Technologies</h3>
+            <p class="tools-intro">A combination of powerful frontend and backend tools delivering a seamless campus marketplace experience.</p>
+            
+            <div class="tools-wrapper">
+                <!-- Frontend Group -->
+                <div class="tool-group">
+                    <div class="tool-group-title">
+                        <i class="fas fa-paint-brush" style="color: var(--secondary); margin-right: 6px;"></i> Frontend
+                    </div>
+                    <div class="tools-mini-grid">
+                        <div class="tool-mini-card">
+                            <div class="tool-mini-icon"><i class="fab fa-html5"></i></div>
+                            <div class="tool-mini-name">HTML5</div>
+                            <div class="tool-mini-desc">Structure</div>
+                        </div>
+                        <div class="tool-mini-card">
+                            <div class="tool-mini-icon"><i class="fab fa-css3-alt"></i></div>
+                            <div class="tool-mini-name">CSS3</div>
+                            <div class="tool-mini-desc">Styling</div>
+                        </div>
+                        <div class="tool-mini-card">
+                            <div class="tool-mini-icon"><i class="fab fa-js"></i></div>
+                            <div class="tool-mini-name">JavaScript</div>
+                            <div class="tool-mini-desc">Interactivity</div>
+                        </div>
+                        <div class="tool-mini-card">
+                            <div class="tool-mini-icon"><i class="fab fa-figma"></i></div>
+                            <div class="tool-mini-name">Figma</div>
+                            <div class="tool-mini-desc">Design</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Backend Group -->
+                <div class="tool-group">
+                    <div class="tool-group-title">
+                        <i class="fas fa-code" style="color: var(--secondary); margin-right: 6px;"></i> Backend
+                    </div>
+                    <div class="tools-mini-grid">
+                        <div class="tool-mini-card">
+                            <div class="tool-mini-icon"><i class="fab fa-python"></i></div>
+                            <div class="tool-mini-name">Python</div>
+                            <div class="tool-mini-desc">Flask</div>
+                        </div>
+                        <div class="tool-mini-card">
+                            <div class="tool-mini-icon"><i class="fas fa-database"></i></div>
+                            <div class="tool-mini-name">SQLite</div>
+                            <div class="tool-mini-desc">Database</div>
+                        </div>
+                        <div class="tool-mini-card">
+                            <div class="tool-mini-icon"><i class="fas fa-lock"></i></div>
+                            <div class="tool-mini-name">Auth</div>
+                            <div class="tool-mini-desc">Google/UCU</div>
+                        </div>
+                        <div class="tool-mini-card">
+                            <div class="tool-mini-icon"><i class="fas fa-map-marked-alt"></i></div>
+                            <div class="tool-mini-name">Leaflet</div>
+                            <div class="tool-mini-desc">Tracking</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Development Team - With Circular Photos -->
+        <div class="team-section">
+            <h3 style="color: var(--primary); font-size: 1.3rem; font-weight: 700; text-align: center;">Development Team</h3>
+            <p style="text-align: center; color: var(--gray); font-size: 0.9rem; margin-bottom: 25px;">BIT • Final Year Students</p>
+            
+            <div class="team-grid">
+                <!-- Emma's Card -->
+                <div class="team-card">
+                    <div class="team-photo-wrapper">
+                        <div class="team-photo">
+                            <!-- Emma's photo - update path when available -->
+                            <img src="static/images/Ema1.jpg" alt="Emma Marial Domkoc" 
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'team-photo-placeholder\'>ED</div>'">
+                        </div>
+                    </div>
+                    <div class="team-info">
+                        <div class="team-name">Emma Marial Domkoc</div>
+                        <div class="team-role">Backend Developer</div>
+                        <div class="team-id">S23B13/020</div>
+                        <div class="team-bio">Flask Framework & API Integration</div>
+                    </div>
+                </div>
+                
+                <!-- Bruno's Card -->
+                <div class="team-card">
+                    <div class="team-photo-wrapper">
+                        <div class="team-photo">
+                            <!-- Bruno's photo - update path when available -->
+                            <img src="static/images/Bruno.jpeg" alt="Nasasira Bruno" 
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'team-photo-placeholder\'>NB</div>'">
+                        </div>
+                    </div>
+                    <div class="team-info">
+                        <div class="team-name">Nasasira Bruno</div>
+                        <div class="team-role">Lead Developer</div>
+                        <div class="team-id">S23/B13/044</div>
+                        <div class="team-bio">Backend Architecture & Database Design</div>
+                    </div>
+                </div>
+                
+                <!-- Moreen's Card -->
+                <div class="team-card">
+                    <div class="team-photo-wrapper">
+                        <div class="team-photo">
+                            <!-- Moreen's photo - update path when available -->
+                            <img src="static/images/Mukisa.jpeg" alt="Mukisa Moreen" 
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'team-photo-placeholder\'>MM</div>'">
+                        </div>
+                    </div>
+                    <div class="team-info">
+                        <div class="team-name">Mukisa Moreen</div>
+                        <div class="team-role">Frontend Developer</div>
+                        <div class="team-id">M23B13/099</div>
+                        <div class="team-bio">Responsive UI & User Experience</div>
+                    </div>
+                </div>
+                
+                <!-- Joseline's Card -->
+                <div class="team-card">
+                    <div class="team-photo-wrapper">
+                        <div class="team-photo">
+                            <!-- Joseline's photo - update path when available -->
+                            <img src="static/images/joseline.jpeg" alt="Joseline Akurut" 
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'team-photo-placeholder\'>JA</div>'">
+                        </div>
+                    </div>
+                    <div class="team-info">
+                        <div class="team-name">Joseline Akurut</div>
+                        <div class="team-role">UI/UX Designer</div>
+                        <div class="team-id">S23B13/008</div>
+                        <div class="team-bio">Interface Design & Accessibility</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Note -->
+        <div class="footer-note">
+            <p>
+                <i class="fas fa-graduation-cap"></i>
+                <span>Uganda Christian University • Faculty of Engineering, Design & Technology</span>
+                <span>• Department of Computing & Technology • 2026</span>
+                <i class="fas fa-check-circle" style="color: var(--success);"></i>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

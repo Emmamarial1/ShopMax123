@@ -1,0 +1,929 @@
+{% extends "base.html" %}
+
+{% block title %}Track Order #{{ order.id }} - ShopMax{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    :root {
+        --primary: #000080;
+        --secondary: #ff6b00;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gray: #6b7280;
+        --light: #f3f4f6;
+        --dark: #1f2937;
+    }
+
+    .tracking-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+    }
+
+    .tracking-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .tracking-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+    }
+
+    .tracking-header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+
+    .order-number {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        background: #ffd700;
+        color: #333;
+        border-radius: 30px;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    /* Live Map */
+    .map-container {
+        height: 300px;
+        width: 100%;
+        position: relative;
+    }
+
+    #map {
+        height: 100%;
+        width: 100%;
+        z-index: 1;
+    }
+
+    .map-overlay {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: white;
+        padding: 8px 15px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 500;
+    }
+
+    .map-overlay i {
+        color: var(--secondary);
+    }
+
+    /* Progress Tracker */
+    .progress-section {
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin: 30px 0;
+        position: relative;
+    }
+
+    .progress-step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+    }
+
+    .step-icon {
+        width: 45px;
+        height: 45px;
+        background: white;
+        border: 2px solid #d1d5db;
+        border-radius: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        color: #9ca3af;
+        transition: all 0.3s;
+        font-size: 1.1rem;
+    }
+
+    .progress-step.completed .step-icon {
+        background: var(--success);
+        border-color: var(--success);
+        color: white;
+    }
+
+    .progress-step.active .step-icon {
+        background: var(--secondary);
+        border-color: var(--secondary);
+        color: white;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255,107,0,0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(255,107,0,0); }
+        100% { box-shadow: 0 0 0 0 rgba(255,107,0,0); }
+    }
+
+    .step-label {
+        font-size: 0.75rem;
+        color: var(--gray);
+        font-weight: 500;
+    }
+
+    .progress-step.completed .step-label {
+        color: var(--success);
+    }
+
+    .progress-step.active .step-label {
+        color: var(--secondary);
+        font-weight: 600;
+    }
+
+    .progress-bar-bg {
+        position: absolute;
+        top: 22px;
+        left: 60px;
+        right: 60px;
+        height: 2px;
+        background: #e5e7eb;
+        z-index: 1;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: var(--secondary);
+        transition: width 0.5s ease;
+    }
+
+    /* Rider Info */
+    .rider-section {
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--dark);
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .section-title i {
+        color: var(--secondary);
+    }
+
+    .rider-card {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: var(--light);
+        padding: 15px;
+        border-radius: 12px;
+        border-left: 4px solid var(--secondary);
+    }
+
+    .rider-avatar {
+        width: 60px;
+        height: 60px;
+        background: var(--secondary);
+        border-radius: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+        flex-shrink: 0;
+        border: 2px solid white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .rider-info {
+        flex: 1;
+    }
+
+    .rider-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 5px;
+    }
+
+    .rider-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+
+    .rider-meta i {
+        color: var(--secondary);
+        width: 16px;
+    }
+
+    .call-btn {
+        background: var(--success);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .call-btn:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(16,185,129,0.3);
+    }
+
+    /* No Rider Message */
+    .no-rider {
+        background: var(--light);
+        padding: 30px;
+        text-align: center;
+        border-radius: 12px;
+        color: var(--gray);
+    }
+
+    .no-rider i {
+        font-size: 2rem;
+        color: var(--secondary);
+        margin-bottom: 10px;
+    }
+
+    /* Tracking Timeline */
+    .timeline-section {
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .timeline {
+        max-height: 250px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .timeline-item {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        padding: 12px;
+        background: var(--light);
+        border-radius: 10px;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+    }
+
+    .timeline-item:hover {
+        background: #e5e7eb;
+        border-left-color: var(--secondary);
+    }
+
+    .timeline-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--secondary);
+        border-radius: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .timeline-content {
+        flex: 1;
+    }
+
+    .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+
+    .timeline-status {
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 0.85rem;
+    }
+
+    .timeline-time {
+        font-size: 0.65rem;
+        color: var(--gray);
+        background: white;
+        padding: 2px 8px;
+        border-radius: 20px;
+    }
+
+    .timeline-location {
+        font-size: 0.75rem;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .timeline-location i {
+        color: var(--secondary);
+        font-size: 0.7rem;
+    }
+
+    /* Order Info */
+    .order-info {
+        padding: 20px;
+        background: var(--light);
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.8rem;
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .info-item i {
+        width: 24px;
+        height: 24px;
+        background: var(--secondary);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.7rem;
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+    .info-label {
+        color: var(--gray);
+        font-size: 0.65rem;
+        margin-bottom: 2px;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 0.8rem;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        padding: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        background: white;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #e65100;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #000066;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid var(--gray);
+        color: var(--gray);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--light);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .tracking-page {
+            padding: 10px;
+        }
+        
+        .progress-steps {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .progress-step {
+            display: flex;
+            align-items: center;
+            text-align: left;
+            gap: 15px;
+        }
+        
+        .step-icon {
+            margin: 0;
+        }
+        
+        .progress-bar-bg {
+            display: none;
+        }
+        
+        .rider-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .call-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .order-info {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tracking-page">
+    <div class="tracking-card">
+        <div class="tracking-header">
+            <h1>Live Tracking</h1>
+            <div class="order-number">Order #{{ order.id }}</div>
+            <div class="status-badge">{{ order.status|replace('_', ' ')|upper }}</div>
+        </div>
+
+        <!-- Live Map -->
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="map-overlay" id="lastUpdate">
+                <i class="fas fa-sync-alt fa-spin"></i>
+                <span>Waiting for rider...</span>
+            </div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div class="progress-section">
+            <div class="progress-steps">
+                {% set steps = ['pending', 'confirmed', 'processing', 'out_for_delivery', 'delivered'] %}
+                {% set labels = ['Order Placed', 'Confirmed', 'Processing', 'On the Way', 'Delivered'] %}
+                {% set icons = ['fa-check-circle', 'fa-check-double', 'fa-box-open', 'fa-truck', 'fa-home'] %}
+                
+                {% for i in range(5) %}
+                <div class="progress-step 
+                    {% if i < current_step %}completed
+                    {% elif i == current_step %}active
+                    {% endif %}">
+                    <div class="step-icon">
+                        <i class="fas {{ icons[i] }}"></i>
+                    </div>
+                    <div class="step-label">{{ labels[i] }}</div>
+                </div>
+                {% endfor %}
+                
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: {{ (current_step / 4 * 100)|round }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rider Info -->
+        <div class="rider-section">
+            <h3 class="section-title">
+                <i class="fas fa-motorcycle"></i>
+                Delivery Rider
+            </h3>
+            
+            {% if rider %}
+            <div class="rider-card">
+                <div class="rider-avatar">{{ rider.name[:1] }}</div>
+                <div class="rider-info">
+                    <div class="rider-name">{{ rider.name }}</div>
+                    <div class="rider-meta">
+                        <span><i class="fas fa-motorcycle"></i> {{ rider.vehicle_type|title }}</span>
+                        <span><i class="fas fa-id-card"></i> {{ rider.vehicle_number }}</span>
+                    </div>
+                </div>
+                <a href="tel:{{ rider.phone }}" class="call-btn">
+                    <i class="fas fa-phone-alt"></i> Call Rider
+                </a>
+            </div>
+            {% else %}
+            <div class="no-rider">
+                <i class="fas fa-truck"></i>
+                <h3>No rider assigned yet</h3>
+                <p>A rider will be assigned to your order soon</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Tracking Timeline -->
+        <div class="timeline-section">
+            <h3 class="section-title">
+                <i class="fas fa-history"></i>
+                Tracking History
+            </h3>
+            <div class="timeline" id="timeline">
+                {% if tracking_points and tracking_points|length > 0 %}
+                    {% for point in tracking_points|reverse %}
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-{{ 'check' if point.status == 'delivered' else 'map-marker-alt' }}"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-status">{{ point.status|replace('_', ' ')|title }}</span>
+                                <span class="timeline-time">{{ point.created_at.strftime('%H:%M, %d %b') }}</span>
+                            </div>
+                            {% if point.location_name %}
+                            <div class="timeline-location">
+                                <i class="fas fa-map-marker-alt"></i> {{ point.location_name }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 30px; color: var(--gray);">
+                        <i class="fas fa-map-marked-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <p>No tracking updates yet</p>
+                        <p style="font-size: 0.7rem;">Updates will appear once your rider starts the journey</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Order Info -->
+        <div class="order-info">
+            <div class="info-item">
+                <i class="fas fa-calendar"></i>
+                <div class="info-content">
+                    <div class="info-label">Order Date</div>
+                    <div class="info-value">{{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-map-pin"></i>
+                <div class="info-content">
+                    <div class="info-label">Delivery Address</div>
+                    <div class="info-value">{{ order.delivery_address }}</div>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-credit-card"></i>
+                <div class="info-content">
+                    <div class="info-label">Payment Method</div>
+                    <div class="info-value">{{ order.payment_method|replace('_', ' ')|title }}</div>
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-clock"></i>
+                <div class="info-content">
+                    <div class="info-label">Estimated Delivery</div>
+                    <div class="info-value">
+                        {% if order.estimated_delivery %}
+                            {{ order.estimated_delivery.strftime('%d %b %Y, %I:%M %p') }}
+                        {% else %}
+                            Within 3-5 business days
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('order_details', order_id=order.id) }}" class="btn btn-secondary">
+                <i class="fas fa-eye"></i> Order Details
+            </a>
+            <a href="{{ url_for('products') }}" class="btn btn-primary">
+                <i class="fas fa-store"></i> Shop More
+            </a>
+            {% if order.status == 'delivered' %}
+            <button class="btn btn-outline" onclick="window.location.href='{{ url_for('order_details', order_id=order.id) }}?confirm=true'">
+                <i class="fas fa-check-circle"></i> Confirm Delivery
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p>Loading map...</p>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Socket.IO -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+<script>
+let map = null;
+let riderMarker = null;
+let routePolyline = null;
+let socket = null;
+let orderId = {{ order.id }};
+let currentLat = {{ last_location.lat if last_location else 0.3136 }};
+let currentLng = {{ last_location.lng if last_location else 32.5811 }};
+
+// Initialize everything when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    showLoading(true);
+    initMap();
+    initSocket();
+    loadTrackingHistory();
+});
+
+// Initialize map
+function initMap() {
+    try {
+        // Default to Kampala coordinates if no location
+        const defaultLat = 0.3136;
+        const defaultLng = 32.5811;
+        
+        // Use last known location or default
+        const centerLat = currentLat || defaultLat;
+        const centerLng = currentLng || defaultLng;
+        
+        // Create map
+        map = L.map('map').setView([centerLat, centerLng], 13);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Add delivery destination marker
+        L.marker([centerLat, centerLng], {
+            icon: L.divIcon({
+                className: 'destination-marker',
+                html: '<div style="background: #000080; width: 20px; height: 20px; border-radius: 20px; border: 3px solid white;"></div>'
+            })
+        }).addTo(map).bindTooltip('Delivery Location', { permanent: false });
+        
+        // Add rider marker if location exists
+        if (currentLat && currentLng) {
+            riderMarker = L.marker([currentLat, currentLng], {
+                icon: L.divIcon({
+                    className: 'rider-marker',
+                    html: '<div style="background: #ff6b00; width: 24px; height: 24px; border-radius: 24px; border: 3px solid white; animation: pulse 2s infinite;"></div>'
+                })
+            }).addTo(map).bindTooltip('Rider', { permanent: true });
+        }
+        
+        showLoading(false);
+        updateOverlay('Map loaded');
+        
+    } catch (error) {
+        console.error('Map initialization error:', error);
+        showLoading(false);
+        updateOverlay('Error loading map');
+    }
+}
+
+// Initialize Socket.IO connection
+function initSocket() {
+    socket = io();
+    
+    socket.on('connect', function() {
+        console.log('Connected to tracking server');
+        
+        // Join the room for this order
+        socket.emit('join_order_tracking', {
+            order_id: orderId,
+            user_type: 'customer'
+        });
+        
+        updateOverlay('Connected - waiting for updates');
+    });
+    
+    socket.on('location_update', function(data) {
+        console.log('Location update received:', data);
+        
+        // Update rider marker position
+        if (riderMarker) {
+            riderMarker.setLatLng([data.lat, data.lng]);
+            map.panTo([data.lat, data.lng]);
+            
+            // Add to route polyline
+            if (routePolyline) {
+                const latlngs = routePolyline.getLatLngs();
+                latlngs.push([data.lat, data.lng]);
+                routePolyline.setLatLngs(latlngs);
+            } else {
+                routePolyline = L.polyline([[data.lat, data.lng]], { 
+                    color: '#ff6b00', 
+                    weight: 3,
+                    opacity: 0.7
+                }).addTo(map);
+            }
+        }
+        
+        updateOverlay(`Last update: ${new Date().toLocaleTimeString()}`);
+    });
+    
+    socket.on('status_update', function(data) {
+        console.log('Status update received:', data);
+        
+        // Update status badge
+        const statusBadge = document.querySelector('.status-badge');
+        if (statusBadge) {
+            statusBadge.textContent = data.status.toUpperCase();
+        }
+        
+        // Add to timeline
+        addToTimeline({
+            status: data.status,
+            time: new Date().toLocaleString(),
+            location: 'Location updated'
+        });
+    });
+    
+    socket.on('disconnect', function() {
+        console.log('Disconnected from server');
+        updateOverlay('Disconnected - reconnecting...');
+    });
+}
+
+// Add entry to timeline
+function addToTimeline(data) {
+    const timeline = document.getElementById('timeline');
+    const newItem = document.createElement('div');
+    newItem.className = 'timeline-item';
+    newItem.innerHTML = `
+        <div class="timeline-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="timeline-content">
+            <div class="timeline-header">
+                <span class="timeline-status">${data.status.replace(/_/g, ' ').toUpperCase()}</span>
+                <span class="timeline-time">${data.time}</span>
+            </div>
+            <div class="timeline-location">
+                <i class="fas fa-map-marker-alt"></i> ${data.location}
+            </div>
+        </div>
+    `;
+    
+    // Remove empty state if exists
+    const emptyState = timeline.querySelector('div[style*="text-align: center"]');
+    if (emptyState) {
+        timeline.innerHTML = '';
+    }
+    
+    timeline.insertBefore(newItem, timeline.firstChild);
+}
+
+// Load tracking history from API
+async function loadTrackingHistory() {
+    try {
+        const response = await fetch(`/api/order/${orderId}/tracking`);
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.latest_tracking) {
+            const latest = data.data.latest_tracking;
+            if (latest.location && riderMarker) {
+                const coords = latest.location.split(',').map(Number);
+                if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+                    riderMarker.setLatLng([coords[0], coords[1]]);
+                    map.setView([coords[0], coords[1]], 15);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error loading tracking history:', error);
+    }
+}
+
+// Update map overlay
+function updateOverlay(message) {
+    const overlay = document.querySelector('#lastUpdate span');
+    if (overlay) {
+        overlay.textContent = message;
+    }
+}
+
+// Show/hide loading
+function showLoading(show) {
+    document.getElementById('loadingOverlay').classList.toggle('show', show);
+}
+
+// Clean up on page unload
+window.addEventListener('beforeunload', function() {
+    if (socket) {
+        socket.disconnect();
+    }
+});
+
+// Add CSS animation for marker
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255,107,0,0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(255,107,0,0); }
+        100% { box-shadow: 0 0 0 0 rgba(255,107,0,0); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

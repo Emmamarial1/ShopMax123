@@ -1,0 +1,1055 @@
+{% extends "base.html" %}
+
+{% block title %}Seller Guidelines - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    .seller-page {
+        padding: 30px 0;
+        background: var(--white);
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: var(--primary);
+        color: var(--white);
+        padding: 40px 30px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .hero-section h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .hero-section p {
+        font-size: 0.85rem;
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0.9;
+    }
+
+    /* Section Title */
+    .section-title {
+        margin-bottom: 20px;
+    }
+
+    .section-title h2 {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .section-title h2 i {
+        color: var(--secondary);
+    }
+
+    .section-title p {
+        color: var(--gray);
+        font-size: 0.75rem;
+    }
+
+    /* Steps Grid */
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .step-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 20px;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .step-card:hover {
+        border-color: var(--secondary);
+        transform: translateY(-2px);
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: var(--secondary);
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin: 0 auto 12px;
+    }
+
+    .step-card h3 {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .step-card p {
+        color: var(--gray);
+        font-size: 0.7rem;
+        line-height: 1.5;
+    }
+
+    /* Free Trial Alert */
+    .free-trial-alert {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .free-trial-alert i {
+        font-size: 2rem;
+    }
+
+    .free-trial-content {
+        flex: 1;
+    }
+
+    .free-trial-content h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .free-trial-content p {
+        font-size: 0.75rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .free-trial-btn {
+        background: white;
+        color: #059669;
+        padding: 8px 20px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+    }
+
+    .free-trial-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Requirements */
+    .req-section {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .req-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .req-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .req-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--primary);
+        border-radius: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .req-content h4 {
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .req-content p {
+        color: var(--gray);
+        font-size: 0.7rem;
+        line-height: 1.5;
+    }
+
+    /* Subscription Plans */
+    .plans-section {
+        margin-bottom: 30px;
+    }
+
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .plan-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all 0.2s;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .plan-card.popular {
+        border: 2px solid var(--secondary);
+        transform: scale(1.02);
+    }
+
+    .plan-card.popular:hover {
+        transform: scale(1.02) translateY(-5px);
+    }
+
+    .plan-header {
+        background: var(--primary);
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .plan-card.popular .plan-header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+
+    .plan-header h3 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+
+    .plan-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .plan-price small {
+        font-size: 0.7rem;
+        opacity: 0.8;
+    }
+
+    .plan-body {
+        padding: 20px;
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+    }
+
+    .plan-features li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.7rem;
+        color: var(--gray);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .plan-features li:last-child {
+        border-bottom: none;
+    }
+
+    .plan-features i {
+        color: var(--secondary);
+        width: 18px;
+    }
+
+    .plan-footer {
+        padding: 0 20px 20px;
+    }
+
+    .plan-btn {
+        display: block;
+        text-align: center;
+        padding: 10px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.75rem;
+        transition: all 0.2s;
+    }
+
+    .plan-btn-free {
+        background: var(--gray-light);
+        color: var(--primary);
+        border: 1px solid var(--border);
+    }
+
+    .plan-btn-free:hover {
+        background: var(--primary);
+        color: white;
+    }
+
+    .plan-btn-basic {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .plan-btn-basic:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-2px);
+    }
+
+    .plan-btn-premium {
+        background: var(--success);
+        color: white;
+    }
+
+    .plan-btn-premium:hover {
+        background: #0b8a5c;
+        transform: translateY(-2px);
+    }
+
+    .popular-badge {
+        position: absolute;
+        top: -10px;
+        right: 20px;
+        background: var(--secondary);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 700;
+    }
+
+    /* Rules Grid */
+    .rules-section {
+        margin-bottom: 30px;
+    }
+
+    .rules-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    .rule-card {
+        background: var(--white);
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        padding: 20px;
+        transition: all 0.2s;
+    }
+
+    .rule-card:hover {
+        border-color: var(--secondary);
+    }
+
+    .rule-icon {
+        width: 40px;
+        height: 40px;
+        background: #fff3e0;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--secondary);
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+
+    .rule-card h3 {
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .rule-card p {
+        color: var(--gray);
+        font-size: 0.7rem;
+        line-height: 1.5;
+    }
+
+    .rule-card ul {
+        margin-left: 15px;
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    .rule-card li {
+        margin-bottom: 4px;
+    }
+
+    /* Payment Info */
+    .payment-section {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .payment-steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .payment-step {
+        text-align: center;
+        padding: 20px;
+        background: var(--gray-light);
+        border-radius: 8px;
+    }
+
+    .payment-step .step-number {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+        margin: 0 auto 10px;
+    }
+
+    .payment-step h4 {
+        color: var(--primary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .payment-step p {
+        color: var(--gray);
+        font-size: 0.65rem;
+    }
+
+    /* Do's and Don'ts */
+    .dodont-section {
+        margin-bottom: 30px;
+    }
+
+    .dodont-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .do-card {
+        background: #e8f5e9;
+        border-radius: 8px;
+        padding: 20px;
+        border-left: 4px solid var(--success);
+    }
+
+    .dont-card {
+        background: #ffebee;
+        border-radius: 8px;
+        padding: 20px;
+        border-left: 4px solid var(--danger);
+    }
+
+    .do-card h3, .dont-card h3 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .do-card h3 i {
+        color: var(--success);
+    }
+
+    .dont-card h3 i {
+        color: var(--danger);
+    }
+
+    .do-card ul, .dont-card ul {
+        margin-left: 20px;
+        font-size: 0.7rem;
+    }
+
+    .do-card li {
+        color: #2e7d32;
+        margin-bottom: 5px;
+    }
+
+    .dont-card li {
+        color: #c62828;
+        margin-bottom: 5px;
+    }
+
+    /* FAQ */
+    .faq-section {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .faq-item {
+        background: var(--gray-light);
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 8px;
+        cursor: pointer;
+    }
+
+    .faq-question {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--primary);
+        font-weight: 500;
+        font-size: 0.7rem;
+    }
+
+    .faq-question i {
+        color: var(--secondary);
+        transition: transform 0.2s;
+    }
+
+    .faq-answer {
+        display: none;
+        margin-top: 8px;
+        padding-left: 20px;
+        color: var(--gray);
+        font-size: 0.65rem;
+        line-height: 1.5;
+    }
+
+    .faq-item.active .faq-answer {
+        display: block;
+    }
+
+    .faq-item.active .faq-question i {
+        transform: rotate(90deg);
+    }
+
+    /* CTA */
+    .cta-section {
+        background: var(--primary);
+        color: white;
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .cta-section h2 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .cta-section p {
+        font-size: 0.7rem;
+        opacity: 0.9;
+        margin-bottom: 15px;
+    }
+
+    .cta-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .btn-primary, .btn-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 20px;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.7rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--secondary-dark);
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: white;
+        border: 1px solid white;
+    }
+
+    .btn-outline:hover {
+        background: white;
+        color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .steps-grid, .rules-grid, .plans-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .req-grid, .dodont-grid, .payment-steps {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .steps-grid, .rules-grid, .plans-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .plan-card.popular {
+            transform: scale(1);
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+        }
+        
+        .free-trial-alert {
+            text-align: center;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="seller-page">
+    <div class="container-custom">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>Seller Guidelines</h1>
+            <p>Everything you need to know to start selling on ShopMax</p>
+        </div>
+
+        <!-- Free Trial Alert for New Sellers -->
+        {% if current_user and current_user.user_type == 'seller' and current_user.subscription_tier is none %}
+        <div class="free-trial-alert">
+            <i class="fas fa-gift"></i>
+            <div class="free-trial-content">
+                <h3>🎉 You qualify for a FREE 30-day trial!</h3>
+                <p>As a new seller, you can start selling immediately with zero cost. Upgrade anytime!</p>
+            </div>
+            <a href="{{ url_for('seller_subscription') }}" class="free-trial-btn">Start Free Trial →</a>
+        </div>
+        {% endif %}
+
+        <!-- Quick Steps -->
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h3>Register as Seller</h3>
+                <p>Create account with UCU email or Google and select "Seller" as your user type.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h3>Choose Your Plan</h3>
+                <p>Start with FREE 30-day trial, then choose Business (UGX 30k/mo) or Semester (UGX 100k/4mo).</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h3>Add Products</h3>
+                <p>Upload photos, descriptions, and set prices. Product limits depend on your plan.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h3>Start Selling</h3>
+                <p>Receive orders, communicate with buyers, and get paid via cash on delivery.</p>
+            </div>
+        </div>
+
+        <!-- Requirements -->
+        <div class="req-section">
+            <div class="section-title">
+                <h2><i class="fas fa-check-circle"></i> Seller Requirements</h2>
+                <p>What you need to start selling</p>
+            </div>
+            <div class="req-grid">
+                <div class="req-item">
+                    <div class="req-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="req-content">
+                        <h4>Valid Email</h4>
+                        <p>UCU email (@students.ucu.ac.ug or @ucu.ac.ug) or Google account. All verified.</p>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon"><i class="fas fa-id-card"></i></div>
+                    <div class="req-content">
+                        <h4>National ID (NIN)</h4>
+                        <p>Valid NIN for identity verification and fraud prevention.</p>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon"><i class="fas fa-phone"></i></div>
+                    <div class="req-content">
+                        <h4>Active Phone Number</h4>
+                        <p>For customer communication and delivery coordination.</p>
+                    </div>
+                </div>
+                <div class="req-item">
+                    <div class="req-icon"><i class="fas fa-store"></i></div>
+                    <div class="req-content">
+                        <h4>Business/Store Name</h4>
+                        <p>Your store name that buyers will see.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Plans -->
+        <div class="plans-section">
+            <div class="section-title">
+                <h2><i class="fas fa-crown"></i> Subscription Plans</h2>
+                <p>Choose the plan that fits your business</p>
+            </div>
+
+            <div class="plans-grid">
+                <!-- Free Trial Plan -->
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <h3>🎁 Starter Trial</h3>
+                        <div class="plan-price">FREE</div>
+                        <div style="font-size: 0.7rem;">30-day trial</div>
+                    </div>
+                    <div class="plan-body">
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check-circle"></i> List up to 4 products</li>
+                            <li><i class="fas fa-check-circle"></i> Basic storefront</li>
+                            <li><i class="fas fa-check-circle"></i> Cash on delivery payments</li>
+                            <li><i class="fas fa-check-circle"></i> Email support</li>
+                            <li><i class="fas fa-gift"></i> <strong>One-time new seller offer</strong></li>
+                        </ul>
+                    </div>
+                    <div class="plan-footer">
+                        <a href="{{ url_for('seller_subscription') }}" class="plan-btn plan-btn-free">
+                            Start Free Trial →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Business Plan -->
+                <div class="plan-card popular" style="position: relative;">
+                    <div class="popular-badge">🔥 Most Popular</div>
+                    <div class="plan-header">
+                        <h3>🚀 Business Plan</h3>
+                        <div class="plan-price">UGX 30,000</div>
+                        <div style="font-size: 0.7rem;">per month</div>
+                    </div>
+                    <div class="plan-body">
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check-circle"></i> List up to 25 products</li>
+                            <li><i class="fas fa-check-circle"></i> Business analytics dashboard</li>
+                            <li><i class="fas fa-check-circle"></i> Priority email support</li>
+                            <li><i class="fas fa-check-circle"></i> Product visibility boost</li>
+                            <li><i class="fas fa-chart-line"></i> <strong>6.25x more products</strong></li>
+                        </ul>
+                    </div>
+                    <div class="plan-footer">
+                        <a href="{{ url_for('seller_subscription') }}" class="plan-btn plan-btn-basic">
+                            Choose Business Plan →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Semester Plan -->
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <h3>🎓 Semester Plan</h3>
+                        <div class="plan-price">UGX 100,000</div>
+                        <div style="font-size: 0.7rem;">4 months (Save 17%)</div>
+                    </div>
+                    <div class="plan-body">
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check-circle"></i> List up to 100 products</li>
+                            <li><i class="fas fa-check-circle"></i> Advanced analytics dashboard</li>
+                            <li><i class="fas fa-check-circle"></i> Priority 24/7 support</li>
+                            <li><i class="fas fa-check-circle"></i> Featured store placement</li>
+                            <li><i class="fas fa-graduation-cap"></i> <strong>Full semester coverage</strong></li>
+                        </ul>
+                    </div>
+                    <div class="plan-footer">
+                        <a href="{{ url_for('seller_subscription') }}" class="plan-btn plan-btn-premium">
+                            Choose Semester Plan →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selling Rules -->
+        <div class="section-title">
+            <h2><i class="fas fa-rules"></i> Selling Rules</h2>
+            <p>Follow these guidelines to keep your account active</p>
+        </div>
+
+        <div class="rules-grid">
+            <div class="rule-card">
+                <div class="rule-icon"><i class="fas fa-box"></i></div>
+                <h3>Product Listings</h3>
+                <ul>
+                    <li>Use clear, honest photos (no filters)</li>
+                    <li>Accurate descriptions (mention condition)</li>
+                    <li>Set fair prices</li>
+                    <li>Update stock after each sale</li>
+                </ul>
+            </div>
+            <div class="rule-card">
+                <div class="rule-icon"><i class="fas fa-clock"></i></div>
+                <h3>Order Fulfillment</h3>
+                <ul>
+                    <li>Confirm orders within 24 hours</li>
+                    <li>Prepare items for pickup/delivery</li>
+                    <li>Communicate with buyer promptly</li>
+                    <li>Notify buyer of any delays</li>
+                </ul>
+            </div>
+            <div class="rule-card">
+                <div class="rule-icon"><i class="fas fa-comment"></i></div>
+                <h3>Communication</h3>
+                <ul>
+                    <li>Respond to messages within 1 hour</li>
+                    <li>Be polite and professional</li>
+                    <li>Use ShopMax chat only</li>
+                    <li>Don't share personal contacts</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Prohibited Items -->
+        <div class="rules-grid" style="margin-top: 0;">
+            <div class="rule-card" style="border-left: 3px solid var(--danger);">
+                <div class="rule-icon" style="background: #ffebee; color: var(--danger);"><i class="fas fa-ban"></i></div>
+                <h3 style="color: var(--danger);">❌ Absolutely NOT Allowed</h3>
+                <ul style="color: var(--danger);">
+                    <li>Illegal drugs or substances</li>
+                    <li>Weapons or ammunition</li>
+                    <li>Stolen goods</li>
+                    <li>Counterfeit items</li>
+                    <li>Alcohol or tobacco</li>
+                    <li>Prescription medication</li>
+                    <li>Live animals</li>
+                    <li>Adult content</li>
+                </ul>
+            </div>
+            <div class="rule-card" style="border-left: 3px solid var(--success);">
+                <div class="rule-icon" style="background: #e8f5e9; color: var(--success);"><i class="fas fa-check-circle"></i></div>
+                <h3 style="color: var(--success);">✅ Allowed Items</h3>
+                <ul style="color: var(--success);">
+                    <li>Textbooks and stationery</li>
+                    <li>Clothing and accessories</li>
+                    <li>Electronics (phones, laptops)</li>
+                    <li>Dorm essentials</li>
+                    <li>Snacks and food items</li>
+                    <li>Sports equipment</li>
+                    <li>Services (tutoring, repairs)</li>
+                </ul>
+            </div>
+            <div class="rule-card" style="border-left: 3px solid var(--warning);">
+                <div class="rule-icon" style="background: #fff3e0; color: var(--warning);"><i class="fas fa-exclamation-triangle"></i></div>
+                <h3 style="color: var(--warning);">⚠️ Requires Permission</h3>
+                <ul>
+                    <li>Perishable food (must note expiry)</li>
+                    <li>Expensive electronics (>UGX 500k)</li>
+                    <li>Bulk sales (20+ items)</li>
+                    <li>Services requiring deposits</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Getting Paid -->
+        <div class="payment-section">
+            <div class="section-title">
+                <h2><i class="fas fa-hand-holding-usd"></i> Getting Paid</h2>
+                <p>How you receive money from sales</p>
+            </div>
+            <div class="payment-steps">
+                <div class="payment-step">
+                    <div class="step-number">1</div>
+                    <h4>Buyer Places Order</h4>
+                    <p>You receive notification of new order</p>
+                </div>
+                <div class="payment-step">
+                    <div class="step-number">2</div>
+                    <h4>Prepare Items</h4>
+                    <p>Package items for delivery/pickup</p>
+                </div>
+                <div class="payment-step">
+                    <div class="step-number">3</div>
+                    <h4>Receive Payment</h4>
+                    <p>Buyer pays the rider in cash on delivery, rider pays you</p>
+                </div>
+            </div>
+            <div style="background: #fff3e0; border-radius: 8px; padding: 12px; margin-top: 15px;">
+                <p style="margin: 0; font-size: 0.7rem; color: var(--secondary);">
+                    <i class="fas fa-motorcycle"></i> <strong>Important:</strong> You'll receive payment from the rider after delivery. 
+                    Riders collect cash from buyers and pay you directly. Keep small change ready!
+                </p>
+            </div>
+        </div>
+
+        <!-- Do's and Don'ts -->
+        <div class="dodont-section">
+            <div class="dodont-grid">
+                <div class="do-card">
+                    <h3><i class="fas fa-check-circle"></i> ✅ Seller Do's</h3>
+                    <ul>
+                        <li>Provide clear, accurate photos of items</li>
+                        <li>Describe items honestly (mention defects)</li>
+                        <li>Respond to buyers within 1 hour</li>
+                        <li>Package items securely for delivery</li>
+                        <li>Confirm delivery promptly after payment</li>
+                        <li>Update stock after each sale</li>
+                        <li>Be polite and professional</li>
+                        <li>Report issues immediately to support</li>
+                    </ul>
+                </div>
+                <div class="dont-card">
+                    <h3><i class="fas fa-times-circle"></i> ❌ Seller Don'ts</h3>
+                    <ul>
+                        <li>Don't use fake or stolen photos</li>
+                        <li>Don't mislead buyers about condition</li>
+                        <li>Don't ignore buyer messages</li>
+                        <li>Don't delay delivery without notice</li>
+                        <li>Don't share NIN or passwords</li>
+                        <li>Don't list prohibited items</li>
+                        <li>Don't harass or scam buyers</li>
+                        <li>Don't cancel orders after confirmation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq-section">
+            <div class="section-title">
+                <h2><i class="fas fa-question-circle"></i> Seller FAQs</h2>
+                <p>Common questions from sellers</p>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-right"></i>
+                    <span>How do I get paid after a sale?</span>
+                </div>
+                <div class="faq-answer">
+                    Buyers pay the UCU boda rider in cash on delivery. The rider then pays you directly. No waiting for bank transfers!
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-right"></i>
+                    <span>What's the free trial offer?</span>
+                </div>
+                <div class="faq-answer">
+                    New sellers get a 30-day FREE trial! List up to 4 products with zero cost. After trial, choose a paid plan to continue selling.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-right"></i>
+                    <span>How much are subscription fees?</span>
+                </div>
+                <div class="faq-answer">
+                    Business Plan: UGX 30,000/month (25 products). Semester Plan: UGX 100,000/4 months (100 products). Free trial for new sellers!
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-right"></i>
+                    <span>What if a buyer cancels?</span>
+                </div>
+                <div class="faq-answer">
+                    If canceled before delivery, no issue. If already delivered, contact support for dispute resolution. Always communicate with buyers!
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Can I sell on the free trial forever?</span>
+                </div>
+                <div class="faq-answer">
+                    No, free trial is one-time for 30 days. After that, choose Business or Semester plan to continue selling and list more products.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <i class="fas fa-chevron-right"></i>
+                    <span>What happens if I violate rules?</span>
+                </div>
+                <div class="faq-answer">
+                    First violation: warning. Repeated violations: temporary suspension. Serious violations (fraud, harassment): permanent ban.
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2>Ready to Start Selling?</h2>
+            <p>Join hundreds of UCU students already earning on ShopMax</p>
+            <div class="cta-buttons">
+                {% if current_user and current_user.user_type == 'seller' %}
+                    <a href="{{ url_for('seller_subscription') }}" class="btn-primary">
+                        <i class="fas fa-crown"></i> View Subscription Plans
+                    </a>
+                    <a href="{{ url_for('add_product') }}" class="btn-outline">
+                        <i class="fas fa-plus-circle"></i> Add Products
+                    </a>
+                {% elif current_user %}
+                    <a href="{{ url_for('unified_register') }}" class="btn-primary">
+                        <i class="fas fa-store"></i> Register as Seller
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('unified_register') }}" class="btn-primary">
+                        <i class="fas fa-store"></i> Register as Seller
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn-outline">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleFaq(element) {
+    element.classList.toggle('active');
+}
+</script>
+{% endblock %}

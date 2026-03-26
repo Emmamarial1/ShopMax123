@@ -1,0 +1,1279 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Orders - Admin - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .admin-orders-page {
+        padding: 30px 0;
+        background: var(--white);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: var(--white);
+        padding: 10px 16px;
+        border-radius: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--border);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-weight: 500;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.65rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px 25px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .total-badge {
+        background: rgba(255,255,255,0.15);
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-outline-light {
+        background: rgba(255,255,255,0.15);
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline-light:hover {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    .btn-outline-orange {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-outline-orange:hover {
+        background: var(--secondary-dark);
+    }
+
+    /* Stats Cards - 4 in a row */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stat-card:hover {
+        border-color: var(--secondary);
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 1.1rem;
+    }
+
+    .stat-info h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .stat-info p {
+        color: var(--gray);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: var(--white);
+        border-radius: 30px;
+        padding: 10px 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+        background: var(--white);
+        color: var(--gray);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .filter-tab:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .filter-tab.active {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .filter-tab i {
+        margin-right: 3px;
+    }
+
+    .filter-search {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--gray-light);
+        padding: 4px 12px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+    }
+
+    .filter-search i {
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    .filter-search input {
+        border: none;
+        background: transparent;
+        padding: 4px 0;
+        width: 180px;
+        outline: none;
+        font-size: 0.7rem;
+    }
+
+    /* Table Card */
+    .table-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .table-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .table-header h3 i {
+        color: var(--secondary);
+    }
+
+    /* Orders Table */
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.7rem;
+    }
+
+    .orders-table th {
+        text-align: left;
+        padding: 10px 12px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 600;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .orders-table td {
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .orders-table tr:hover td {
+        background: var(--gray-light);
+    }
+
+    .order-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .order-id {
+        font-weight: 700;
+        color: var(--secondary);
+        font-size: 0.8rem;
+    }
+
+    .order-date {
+        font-size: 0.6rem;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .customer-avatar {
+        width: 30px;
+        height: 30px;
+        background: var(--secondary);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .customer-details {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+
+    .customer-name {
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.7rem;
+    }
+
+    .customer-email {
+        font-size: 0.6rem;
+        color: var(--gray);
+    }
+
+    .seller-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .seller-avatar {
+        width: 24px;
+        height: 24px;
+        background: var(--primary);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.6rem;
+        font-weight: 600;
+    }
+
+    .seller-name {
+        font-weight: 500;
+        color: var(--primary);
+        font-size: 0.65rem;
+    }
+
+    .items-count {
+        background: var(--gray-light);
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        color: var(--gray);
+    }
+
+    .amount {
+        font-weight: 700;
+        color: var(--secondary);
+        font-size: 0.8rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: rgba(100, 116, 139, 0.1);
+        color: var(--gray);
+        border: 1px solid var(--gray);
+    }
+
+    .status-confirmed {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--info);
+        border: 1px solid var(--info);
+    }
+
+    .status-processing {
+        background: rgba(0, 0, 128, 0.1);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+    }
+
+    .status-out_for_delivery {
+        background: rgba(255, 107, 0, 0.1);
+        color: var(--secondary);
+        border: 1px solid var(--secondary);
+    }
+
+    .status-delivered {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid var(--warning);
+    }
+
+    .status-completed {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .status-cancelled {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .status-issue {
+        background: rgba(245, 158, 11, 0.1);
+        color: #b45309;
+        border: 1px solid #f59e0b;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .action-view {
+        background: var(--primary);
+        color: var(--white);
+    }
+
+    .action-view:hover {
+        background: var(--primary-dark);
+    }
+
+    .action-edit {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .action-edit:hover {
+        background: var(--secondary-dark);
+    }
+
+    .action-assign {
+        background: var(--warning);
+        color: var(--white);
+    }
+
+    .action-assign:hover {
+        background: #e65100;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        margin: 20px 0;
+    }
+
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 28px;
+        background: var(--white);
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.65rem;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+    }
+
+    .page-link:hover {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .page-item.active .page-link {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: var(--white);
+        border-radius: 12px;
+        width: 90%;
+        max-width: 450px;
+        border: 1px solid var(--primary);
+    }
+
+    .modal-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .modal-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .modal-header h3 i {
+        color: var(--secondary);
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: var(--white);
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--primary);
+        font-weight: 500;
+        font-size: 0.7rem;
+    }
+
+    .form-group label i {
+        color: var(--secondary);
+        margin-right: 4px;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.7rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--secondary);
+        outline: none;
+    }
+
+    .rider-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+    }
+
+    .rider-option:hover {
+        border-color: var(--secondary);
+        background: #fff3e0;
+    }
+
+    .rider-option input[type="radio"] {
+        accent-color: var(--secondary);
+    }
+
+    .rider-avatar-small {
+        width: 32px;
+        height: 32px;
+        background: var(--secondary);
+        border-radius: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .rider-details {
+        flex: 1;
+    }
+
+    .rider-name {
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.7rem;
+    }
+
+    .rider-meta {
+        font-size: 0.6rem;
+        color: var(--gray);
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .modal-btn {
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+    }
+
+    .modal-btn-primary {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .modal-btn-primary:hover {
+        background: var(--secondary-dark);
+    }
+
+    .modal-btn-secondary {
+        background: var(--gray-light);
+        color: var(--gray);
+        border: 1px solid var(--border);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-search input {
+            width: 100%;
+        }
+        
+        .orders-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-orders-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Orders</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Manage Orders</h1>
+                    <p><i class="fas fa-map-pin"></i> UCU Campus Delivery</p>
+                </div>
+            </div>
+            <div class="total-badge">
+                <i class="fas fa-box"></i> {{ total_orders|default(0) }} Total Orders
+            </div>
+        </div>
+
+        <!-- Stats Cards - Using variables from your route -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                    <h3>{{ pending_count|default(0) }}</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ confirmed_count|default(0) }}</h3>
+                    <p>Confirmed</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-motorcycle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ out_for_delivery_count|default(0) }}</h3>
+                    <p>Out for Delivery</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ issue_count|default(0) }}</h3>
+                    <p>Issues</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar - Using local terminology -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <a href="{{ url_for('admin_orders') }}" class="filter-tab {% if not request.args.get('status') %}active{% endif %}">
+                    <i class="fas fa-list"></i> All
+                </a>
+                <a href="{{ url_for('admin_orders', status='pending') }}" class="filter-tab {% if request.args.get('status') == 'pending' %}active{% endif %}">
+                    <i class="fas fa-clock"></i> Pending
+                </a>
+                <a href="{{ url_for('admin_orders', status='confirmed') }}" class="filter-tab {% if request.args.get('status') == 'confirmed' %}active{% endif %}">
+                    <i class="fas fa-check-circle"></i> Confirmed
+                </a>
+                <a href="{{ url_for('admin_orders', status='processing') }}" class="filter-tab {% if request.args.get('status') == 'processing' %}active{% endif %}">
+                    <i class="fas fa-cog"></i> Processing
+                </a>
+                <a href="{{ url_for('admin_orders', status='out_for_delivery') }}" class="filter-tab {% if request.args.get('status') == 'out_for_delivery' %}active{% endif %}">
+                    <i class="fas fa-motorcycle"></i> Out for Delivery
+                </a>
+                <a href="{{ url_for('admin_orders', status='delivered') }}" class="filter-tab {% if request.args.get('status') == 'delivered' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Delivered
+                </a>
+                <a href="{{ url_for('admin_orders', status='completed') }}" class="filter-tab {% if request.args.get('status') == 'completed' %}active{% endif %}">
+                    <i class="fas fa-check-double"></i> Completed
+                </a>
+                <a href="{{ url_for('admin_orders', status='cancelled') }}" class="filter-tab {% if request.args.get('status') == 'cancelled' %}active{% endif %}">
+                    <i class="fas fa-times-circle"></i> Cancelled
+                </a>
+            </div>
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by order ID or customer..." onkeyup="searchOrders()">
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> Orders</h3>
+                <span style="color: var(--white); font-size: 0.7rem;">{{ pagination.total if pagination else orders|length }} orders found</span>
+            </div>
+
+            <table class="orders-table" id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Seller</th>
+                        <th>Items</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr data-status="{{ order.status }}" data-order-id="{{ order.id }}">
+                        <td>
+                            <div class="order-info">
+                                <span class="order-id">#{{ order.id }}</span>
+                                <span class="order-date">
+                                    <i class="far fa-calendar-alt"></i> {{ order.created_at.strftime('%d %b %Y') if order.created_at else 'N/A' }}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="customer-info">
+                                <div class="customer-avatar">{{ order.user.fullname[:1] if order.user else '?' }}</div>
+                                <div class="customer-details">
+                                    <span class="customer-name">{{ order.user.fullname if order.user else 'Unknown' }}</span>
+                                    <span class="customer-email">{{ order.user.email if order.user else 'N/A' }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if order.order_items and order.order_items|length > 0 %}
+                                {% set seller = order.order_items[0].seller %}
+                                <div class="seller-info">
+                                    <div class="seller-avatar">{{ seller.fullname[:1] if seller else '?' }}</div>
+                                    <span class="seller-name">{{ seller.business_name or seller.fullname if seller else 'Unknown' }}</span>
+                                </div>
+                            {% else %}
+                                <span class="seller-name">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="items-count">{{ order.order_items|length }} items</span></td>
+                        <td><span class="amount">UGX {{ "{:,.0f}".format(order.total_amount) }}</span></td>
+                        <td>
+                            {% if order.status in ['out_for_delivery', 'shipped', 'in_transit'] %}
+                                <span class="status-badge status-out_for_delivery">OUT FOR DELIVERY</span>
+                            {% else %}
+                                <span class="status-badge status-{{ order.status }}">
+                                    {{ order.status|replace('_', ' ')|upper }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ order.created_at.strftime('%d %b %Y') if order.created_at else 'N/A' }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('order_details', order_id=order.id) }}" class="action-btn action-view" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button class="action-btn action-edit" onclick="openUpdateModal({{ order.id }}, '{{ order.status }}')" title="Update Status">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% if order.status in ['pending', 'confirmed', 'processing'] %}
+                                <button class="action-btn action-assign" onclick="openAssignModal({{ order.id }})" title="Assign Boda Rider">
+                                    <i class="fas fa-motorcycle"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-shopping-cart" style="color: var(--border); font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                            <p style="color: var(--gray);">No orders found</p>
+                            {% if request.args.get('status') %}
+                            <p style="font-size: 0.65rem;"><a href="{{ url_for('admin_orders') }}" style="color: var(--secondary);">Clear filters</a></p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination and pagination.pages > 1 %}
+        <nav>
+            <ul class="pagination">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin_orders', page=pagination.prev_num, status=request.args.get('status')) }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin_orders', page=page_num, status=request.args.get('status')) }}">{{ page_num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin_orders', page=pagination.next_num, status=request.args.get('status')) }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal" id="updateModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Update Order Status</h3>
+            <button class="modal-close" onclick="closeModal('updateModal')">&times;</button>
+        </div>
+        <form id="updateForm" onsubmit="updateOrderStatus(event)">
+            <div class="modal-body">
+                <input type="hidden" name="order_id" id="updateOrderId">
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> New Status</label>
+                    <select class="form-select" name="status" id="updateStatus" required>
+                        <option value="">Select status...</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="processing">Processing</option>
+                        <option value="out_for_delivery">Out for Delivery</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeModal('updateModal')">Cancel</button>
+                <button type="submit" class="modal-btn modal-btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Assign Rider Modal -->
+<div class="modal" id="assignModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-motorcycle"></i> Assign Boda Rider</h3>
+            <button class="modal-close" onclick="closeModal('assignModal')">&times;</button>
+        </div>
+        <form id="assignForm" onsubmit="assignRider(event)">
+            <div class="modal-body">
+                <input type="hidden" name="order_id" id="assignOrderId">
+                <div class="form-group" id="ridersList">
+                    <p style="text-align: center;">Loading available riders...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeModal('assignModal')">Cancel</button>
+                <button type="submit" class="modal-btn modal-btn-primary" id="assignSubmitBtn" disabled>Assign</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-size:0.7rem; color:var(--primary);">Processing...</p>
+</div>
+
+<script>
+// Search orders
+function searchOrders() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#ordersTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+}
+
+// Update order status
+function openUpdateModal(orderId, currentStatus) {
+    document.getElementById('updateOrderId').value = orderId;
+    document.getElementById('updateStatus').value = currentStatus;
+    document.getElementById('updateModal').classList.add('show');
+}
+
+async function updateOrderStatus(event) {
+    event.preventDefault();
+    
+    const orderId = document.getElementById('updateOrderId').value;
+    const status = document.getElementById('updateStatus').value;
+    
+    if (!status) {
+        alert('Please select a status');
+        return;
+    }
+    
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/api/admin/orders/${orderId}/update_status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: status })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Status updated successfully');
+            location.reload();
+        } else {
+            alert(data.message || 'Error updating status');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error updating status. Please try again.');
+    } finally {
+        document.getElementById('loadingOverlay').classList.remove('show');
+        closeModal('updateModal');
+    }
+}
+
+// Assign rider
+async function openAssignModal(orderId) {
+    document.getElementById('assignOrderId').value = orderId;
+    document.getElementById('assignModal').classList.add('show');
+    document.getElementById('ridersList').innerHTML = '<p style="text-align: center;">Loading riders...</p>';
+    document.getElementById('assignSubmitBtn').disabled = true;
+    
+    try {
+        const response = await fetch('/api/admin/delivery/persons/available');
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success && data.riders && data.riders.length > 0) {
+            let html = '';
+            data.riders.forEach(rider => {
+                html += `
+                    <label class="rider-option" onclick="selectRider(this)">
+                        <input type="radio" name="rider_id" value="${rider.id}" style="display: none;">
+                        <div class="rider-avatar-small">${rider.name.charAt(0)}</div>
+                        <div class="rider-details">
+                            <div class="rider-name">${rider.name}</div>
+                            <div class="rider-meta">${rider.vehicle_type || 'Motorcycle'} • ${rider.phone}</div>
+                        </div>
+                    </label>
+                `;
+            });
+            document.getElementById('ridersList').innerHTML = html;
+        } else {
+            document.getElementById('ridersList').innerHTML = '<p style="text-align: center; color: var(--gray);">No riders available at the moment</p>';
+        }
+    } catch (error) {
+        console.error('Error loading riders:', error);
+        document.getElementById('ridersList').innerHTML = '<p style="text-align: center; color: var(--danger);">Error loading riders</p>';
+    }
+}
+
+function selectRider(element) {
+    // Remove selected class from all options
+    document.querySelectorAll('.rider-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    // Add selected class to clicked option
+    element.classList.add('selected');
+    // Check the radio button
+    const radio = element.querySelector('input[type="radio"]');
+    if (radio) {
+        radio.checked = true;
+        document.getElementById('assignSubmitBtn').disabled = false;
+    }
+}
+
+async function assignRider(event) {
+    event.preventDefault();
+    
+    const orderId = document.getElementById('assignOrderId').value;
+    const riderInput = document.querySelector('input[name="rider_id"]:checked');
+    
+    if (!riderInput) {
+        alert('Please select a rider');
+        return;
+    }
+    
+    const riderId = riderInput.value;
+    
+    document.getElementById('loadingOverlay').classList.add('show');
+    
+    try {
+        const response = await fetch(`/api/order/${orderId}/assign-boda`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ boda_id: riderId })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Rider assigned successfully');
+            location.reload();
+        } else {
+            alert(data.message || 'Error assigning rider');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error assigning rider. Please try again.');
+    } finally {
+        document.getElementById('loadingOverlay').classList.remove('show');
+        closeModal('assignModal');
+    }
+}
+
+// Close modal
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+// Search on enter
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchOrders();
+    }
+});
+
+// Make functions global
+window.searchOrders = searchOrders;
+window.openUpdateModal = openUpdateModal;
+window.updateOrderStatus = updateOrderStatus;
+window.openAssignModal = openAssignModal;
+window.assignRider = assignRider;
+window.selectRider = selectRider;
+window.closeModal = closeModal;
+</script>
+{% endblock %}

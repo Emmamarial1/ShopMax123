@@ -1,0 +1,927 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Admin - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .settings-page {
+        padding: 30px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: white;
+        padding: 10px 20px;
+        border-radius: 50px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        border: 1px solid var(--primary);
+        font-size: 0.8rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.7rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-weight: 600;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 25px 30px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 55px;
+        height: 55px;
+        background: var(--secondary);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.8rem;
+    }
+
+    /* Settings Navigation */
+    .settings-nav {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        margin-bottom: 25px;
+    }
+
+    .nav-tabs {
+        display: flex;
+        background: var(--primary);
+        overflow-x: auto;
+        flex-wrap: wrap;
+    }
+
+    .nav-tab {
+        padding: 15px 25px;
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+    }
+
+    .nav-tab i {
+        color: var(--secondary);
+    }
+
+    .nav-tab:hover {
+        color: white;
+        background: rgba(255,255,255,0.1);
+    }
+
+    .nav-tab.active {
+        color: white;
+        border-bottom-color: var(--secondary);
+    }
+
+    /* Settings Content */
+    .settings-content {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        margin-bottom: 25px;
+    }
+
+    .settings-section {
+        display: none;
+    }
+
+    .settings-section.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .section-header h2 {
+        color: var(--primary);
+        font-size: 1.2rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 5px;
+    }
+
+    .section-header h2 i {
+        color: var(--secondary);
+    }
+
+    .section-header p {
+        color: var(--gray);
+        font-size: 0.8rem;
+    }
+
+    /* Form Styles */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .form-group label i {
+        color: var(--secondary);
+        margin-right: 6px;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.85rem;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--secondary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255,107,0,0.1);
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding: 12px;
+        background: var(--gray-light);
+        border-radius: 12px;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+        flex-shrink: 0;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #cbd5e1;
+        transition: .3s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: var(--secondary);
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(24px);
+    }
+
+    .toggle-label {
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 4px;
+    }
+
+    .toggle-description {
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+
+    /* Commission Table */
+    .commission-table-container {
+        overflow-x: auto;
+    }
+
+    .commission-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .commission-table th {
+        text-align: left;
+        padding: 12px 15px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.8rem;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .commission-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .commission-table input {
+        width: 120px;
+        padding: 8px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        text-align: right;
+    }
+
+    .commission-table input:focus {
+        border-color: var(--secondary);
+        outline: none;
+    }
+
+    /* Logo Upload */
+    .logo-upload {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    .logo-preview {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        border: 2px solid var(--border);
+        overflow: hidden;
+        background: var(--gray-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .logo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .logo-preview i {
+        font-size: 2rem;
+        color: var(--gray);
+    }
+
+    .upload-btn {
+        padding: 8px 16px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .upload-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    /* Save Bar */
+    .save-bar {
+        position: sticky;
+        bottom: 20px;
+        background: white;
+        border-radius: 60px;
+        padding: 15px 25px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border: 1px solid var(--secondary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        z-index: 100;
+    }
+
+    .save-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--gray);
+        font-size: 0.8rem;
+    }
+
+    .save-info i {
+        color: var(--secondary);
+    }
+
+    .save-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .save-btn {
+        padding: 10px 24px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .save-btn-primary {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .save-btn-primary:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-2px);
+    }
+
+    .save-btn-secondary {
+        background: var(--gray-light);
+        color: var(--gray);
+        border: 1px solid var(--border);
+    }
+
+    .save-btn-secondary:hover {
+        background: var(--gray);
+        color: white;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.95);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Notification */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-left: 4px solid;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 100000;
+        animation: slideIn 0.3s ease;
+    }
+
+    .notification.success {
+        border-left-color: var(--success);
+    }
+
+    .notification.error {
+        border-left-color: var(--danger);
+    }
+
+    .notification.info {
+        border-left-color: var(--info);
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .save-bar {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .save-actions {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Settings</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="header-text">
+                    <h1>System Settings</h1>
+                    <p><i class="fas fa-sliders-h"></i> Configure your marketplace preferences</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Navigation -->
+        <div class="settings-nav">
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-tab="general">
+                    <i class="fas fa-globe"></i> General
+                </div>
+                <div class="nav-tab" data-tab="site">
+                    <i class="fas fa-palette"></i> Site Settings
+                </div>
+                <div class="nav-tab" data-tab="commission">
+                    <i class="fas fa-percent"></i> Commission
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="settings-content">
+            <!-- General Settings -->
+            <div id="general" class="settings-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-globe"></i> General Settings</h2>
+                    <p>Configure basic system settings and preferences</p>
+                </div>
+
+                <form id="generalForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-store"></i> Site Name</label>
+                        <input type="text" class="form-control" name="site_name" id="siteName" value="ShopMax UCU Marketplace">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Support Email</label>
+                            <input type="email" class="form-control" name="support_email" id="supportEmail" value="support@shopmax.ucu.ac.ug">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Support Phone</label>
+                            <input type="tel" class="form-control" name="support_phone" id="supportPhone" value="+256 782 713764">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Default Location</label>
+                        <input type="text" class="form-control" name="default_location" id="defaultLocation" value="UCU Main Campus, Mukono">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Timezone</label>
+                        <select class="form-select" name="timezone" id="timezone">
+                            <option value="Africa/Kampala" selected>Africa/Kampala (EAT)</option>
+                            <option value="Africa/Nairobi">Africa/Nairobi</option>
+                            <option value="UTC">UTC</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-currency-sign"></i> Currency</label>
+                        <select class="form-select" name="currency" id="currency">
+                            <option value="UGX" selected>UGX - Ugandan Shilling</option>
+                            <option value="USD">USD - US Dollar</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Site Settings -->
+            <div id="site" class="settings-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-palette"></i> Site Settings</h2>
+                    <p>Customize the look and feel of your marketplace</p>
+                </div>
+
+                <form id="siteForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-image"></i> Site Logo</label>
+                        <div class="logo-upload">
+                            <div class="logo-preview" id="logoPreview">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div>
+                                <input type="file" id="logoUpload" accept="image/*" style="display: none;">
+                                <button type="button" class="upload-btn" onclick="document.getElementById('logoUpload').click()">
+                                    <i class="fas fa-upload"></i> Upload Logo
+                                </button>
+                                <p style="font-size: 0.65rem; color: var(--gray); margin-top: 5px;">PNG, JPG up to 2MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" name="maintenance_mode" id="maintenanceMode">
+                            <span class="slider"></span>
+                        </label>
+                        <div>
+                            <div class="toggle-label">Maintenance Mode</div>
+                            <div class="toggle-description">Enable maintenance mode to prevent user access during updates</div>
+                        </div>
+                    </div>
+
+                    <div class="toggle-switch">
+                        <label class="switch">
+                            <input type="checkbox" name="registration_open" id="registrationOpen" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <div>
+                            <div class="toggle-label">Allow New Registrations</div>
+                            <div class="toggle-description">Allow new users to register on the platform</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Commission Settings -->
+            <div id="commission" class="settings-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-percent"></i> Commission Settings</h2>
+                    <p>Configure seller commission rates per category</p>
+                </div>
+
+                <form id="commissionForm">
+                    <div class="commission-table-container">
+                        <table class="commission-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Commission Rate (%)</th>
+                                    <th>Fixed Fee (UGX)</th>
+                                </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Electronics</td>
+                                    <td><input type="number" class="commission-rate" value="5" min="0" max="100" step="0.1"> %</td>
+                                    <td><input type="number" class="fixed-fee" value="1000" min="0" step="100"> UGX</td>
+                                </tr>
+                                <tr>
+                                    <td>Fashion</td>
+                                    <td><input type="number" class="commission-rate" value="3" min="0" max="100" step="0.1"> %</td>
+                                    <td><input type="number" class="fixed-fee" value="500" min="0" step="100"> UGX</td>
+                                </tr>
+                                <tr>
+                                    <td>Books</td>
+                                    <td><input type="number" class="commission-rate" value="2" min="0" max="100" step="0.1"> %</td>
+                                    <td><input type="number" class="fixed-fee" value="0" min="0" step="100"> UGX</td>
+                                </tr>
+                                <tr>
+                                    <td>Food & Drinks</td>
+                                    <td><input type="number" class="commission-rate" value="4" min="0" max="100" step="0.1"> %</td>
+                                    <td><input type="number" class="fixed-fee" value="500" min="0" step="100"> UGX</td>
+                                </tr>
+                                <tr>
+                                    <td>Services</td>
+                                    <td><input type="number" class="commission-rate" value="5" min="0" max="100" step="0.1"> %</td>
+                                    <td><input type="number" class="fixed-fee" value="1000" min="0" step="100"> UGX</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Save Bar -->
+        <div class="save-bar">
+            <div class="save-info">
+                <i class="fas fa-info-circle"></i>
+                <span>Changes are not saved yet. Click Save Changes to apply.</span>
+            </div>
+            <div class="save-actions">
+                <button class="save-btn save-btn-secondary" onclick="resetChanges()">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+                <button class="save-btn save-btn-primary" onclick="saveAllSettings()">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="color: var(--primary);">Saving settings...</p>
+</div>
+
+<script>
+// Tab switching
+document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        const tabId = this.dataset.tab;
+        
+        // Update active tab
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update active section
+        document.querySelectorAll('.settings-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(tabId).classList.add('active');
+    });
+});
+
+// Load saved settings from localStorage
+function loadSettings() {
+    const savedSettings = localStorage.getItem('shopmax_settings');
+    if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        
+        // General settings
+        if (settings.general) {
+            document.getElementById('siteName').value = settings.general.site_name || 'ShopMax UCU Marketplace';
+            document.getElementById('supportEmail').value = settings.general.support_email || 'support@shopmax.ucu.ac.ug';
+            document.getElementById('supportPhone').value = settings.general.support_phone || '+256 782 713764';
+            document.getElementById('defaultLocation').value = settings.general.default_location || 'UCU Main Campus, Mukono';
+            document.getElementById('timezone').value = settings.general.timezone || 'Africa/Kampala';
+            document.getElementById('currency').value = settings.general.currency || 'UGX';
+        }
+        
+        // Site settings
+        if (settings.site) {
+            document.getElementById('maintenanceMode').checked = settings.site.maintenance_mode || false;
+            document.getElementById('registrationOpen').checked = settings.site.registration_open !== false;
+        }
+        
+        // Commission settings
+        if (settings.commission) {
+            const rates = document.querySelectorAll('.commission-rate');
+            const fees = document.querySelectorAll('.fixed-fee');
+            for (let i = 0; i < rates.length; i++) {
+                if (settings.commission[i]) {
+                    rates[i].value = settings.commission[i].rate || rates[i].value;
+                    fees[i].value = settings.commission[i].fee || fees[i].value;
+                }
+            }
+        }
+    }
+}
+
+// Save all settings
+function saveAllSettings() {
+    showLoading(true);
+    
+    // Collect settings
+    const settings = {
+        general: {
+            site_name: document.getElementById('siteName').value,
+            support_email: document.getElementById('supportEmail').value,
+            support_phone: document.getElementById('supportPhone').value,
+            default_location: document.getElementById('defaultLocation').value,
+            timezone: document.getElementById('timezone').value,
+            currency: document.getElementById('currency').value
+        },
+        site: {
+            maintenance_mode: document.getElementById('maintenanceMode').checked,
+            registration_open: document.getElementById('registrationOpen').checked
+        },
+        commission: []
+    };
+    
+    // Collect commission rates
+    const rates = document.querySelectorAll('.commission-rate');
+    const fees = document.querySelectorAll('.fixed-fee');
+    for (let i = 0; i < rates.length; i++) {
+        settings.commission.push({
+            rate: parseFloat(rates[i].value),
+            fee: parseFloat(fees[i].value)
+        });
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('shopmax_settings', JSON.stringify(settings));
+    
+    // Simulate API call
+    setTimeout(() => {
+        showNotification('✅ Settings saved successfully!', 'success');
+        showLoading(false);
+    }, 1000);
+}
+
+// Reset changes
+function resetChanges() {
+    if (confirm('Are you sure you want to reset all unsaved changes?')) {
+        localStorage.removeItem('shopmax_settings');
+        location.reload();
+    }
+}
+
+// Upload logo
+document.getElementById('logoUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+            showNotification('File too large! Maximum 2MB', 'error');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('logoPreview');
+            preview.innerHTML = `<img src="${e.target.result}" alt="Logo">`;
+            showNotification('Logo uploaded successfully! Click Save to apply.', 'success');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Show/hide loading
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.toggle('show', show);
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Load settings on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadSettings();
+});
+
+// Make functions global
+window.saveAllSettings = saveAllSettings;
+window.resetChanges = resetChanges;
+</script>
+{% endblock %}

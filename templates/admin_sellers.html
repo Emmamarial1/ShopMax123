@@ -1,0 +1,1406 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Sellers - Admin - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-light: #0000CD;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-light: #ff8533;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #3b82f6;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .admin-sellers-page {
+        padding: 30px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+    }
+
+    .container-custom {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .breadcrumb-custom {
+        background: white;
+        padding: 10px 16px;
+        border-radius: 40px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        border: 1px solid var(--primary);
+        font-size: 0.75rem;
+    }
+
+    .breadcrumb-custom a {
+        color: var(--primary);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .breadcrumb-custom a:hover {
+        color: var(--secondary);
+    }
+
+    .breadcrumb-custom i {
+        color: var(--secondary);
+        font-size: 0.6rem;
+    }
+
+    .breadcrumb-custom .current {
+        color: var(--secondary);
+        background: #fff3e0;
+        padding: 2px 8px;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 20px 25px;
+        border-radius: 20px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--secondary);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .header-text h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+
+    .header-text p {
+        opacity: 0.9;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .header-text p i {
+        color: var(--secondary);
+    }
+
+    .total-badge {
+        background: rgba(255,255,255,0.15);
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-outline-light {
+        background: rgba(255,255,255,0.15);
+        color: var(--white);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline-light:hover {
+        background: var(--white);
+        color: var(--primary);
+    }
+
+    .btn-outline-orange {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-outline-orange:hover {
+        background: var(--secondary-dark);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 18px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        border-color: var(--secondary);
+    }
+
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .stat-card.total .stat-icon { background: rgba(0,0,128,0.1); color: var(--primary); }
+    .stat-card.active .stat-icon { background: rgba(16,185,129,0.1); color: var(--success); }
+    .stat-card.revenue .stat-icon { background: rgba(255,107,0,0.1); color: var(--secondary); }
+    .stat-card.products .stat-icon { background: rgba(59,130,246,0.1); color: var(--info); }
+
+    .stat-info h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .stat-card.total .stat-info h3 { color: var(--primary); }
+    .stat-card.active .stat-info h3 { color: var(--success); }
+    .stat-card.revenue .stat-info h3 { color: var(--secondary); }
+    .stat-card.products .stat-info h3 { color: var(--info); }
+
+    .stat-info p {
+        color: var(--gray);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .top-sellers {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px solid var(--border);
+        margin-bottom: 25px;
+    }
+
+    .section-title {
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-title i {
+        color: var(--secondary);
+    }
+
+    .top-sellers-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+    }
+
+    .top-seller-card {
+        background: var(--gray-light);
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+        border-left: 3px solid var(--secondary);
+        transition: all 0.2s;
+    }
+
+    .top-seller-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .top-seller-avatar {
+        width: 45px;
+        height: 45px;
+        background: var(--primary);
+        border-radius: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 8px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .top-seller-name {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 4px;
+    }
+
+    .top-seller-rating {
+        color: var(--secondary);
+        font-size: 0.6rem;
+        margin-bottom: 4px;
+    }
+
+    .top-seller-revenue {
+        font-size: 0.6rem;
+        color: var(--gray);
+        font-weight: 500;
+    }
+
+    .filter-bar {
+        background: white;
+        border-radius: 50px;
+        padding: 8px 16px;
+        margin-bottom: 25px;
+        border: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 5px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--gray);
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .filter-tab:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .filter-tab.active {
+        background: var(--secondary);
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    .filter-tab i {
+        margin-right: 4px;
+        font-size: 0.65rem;
+    }
+
+    .filter-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--gray-light);
+        padding: 5px 15px;
+        border-radius: 30px;
+        border: 1px solid var(--border);
+    }
+
+    .filter-search i {
+        color: var(--secondary);
+        font-size: 0.7rem;
+    }
+
+    .filter-search input {
+        border: none;
+        background: transparent;
+        padding: 5px 0;
+        width: 200px;
+        outline: none;
+        font-size: 0.7rem;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .table-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-header h3 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .table-header h3 i {
+        color: var(--secondary);
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .table-btn {
+        background: rgba(255,255,255,0.15);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 4px 12px;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .table-btn:hover {
+        background: var(--secondary);
+        border-color: var(--secondary);
+    }
+
+    .sellers-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.75rem;
+    }
+
+    .sellers-table th {
+        text-align: left;
+        padding: 12px 16px;
+        background: var(--gray-light);
+        color: var(--primary);
+        font-weight: 600;
+        border-bottom: 2px solid var(--secondary);
+    }
+
+    .sellers-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .sellers-table tr:hover td {
+        background: var(--gray-light);
+    }
+
+    .seller-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .seller-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 600;
+        overflow: hidden;
+    }
+
+    .seller-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .seller-details h4 {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 2px;
+    }
+
+    .seller-details p {
+        font-size: 0.65rem;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .business-name {
+        font-weight: 500;
+        color: var(--primary);
+        font-size: 0.7rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 500;
+    }
+
+    .badge-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .badge-inactive {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+    }
+
+    .badge-verified {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .badge-unverified {
+        background: rgba(100, 116, 139, 0.1);
+        color: var(--gray);
+        border: 1px solid var(--gray);
+    }
+
+    .rating-stars {
+        color: var(--secondary);
+        font-size: 0.6rem;
+        white-space: nowrap;
+    }
+
+    .rating-value {
+        font-weight: 600;
+        color: var(--primary);
+        margin-left: 4px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 0.6rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .action-edit {
+        background: var(--primary);
+        color: white;
+    }
+
+    .action-edit:hover {
+        background: var(--primary-dark);
+    }
+
+    .action-view {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .action-view:hover {
+        background: var(--secondary-dark);
+    }
+
+    .action-toggle {
+        background: var(--warning);
+        color: white;
+    }
+
+    .action-toggle:hover {
+        background: #e65100;
+    }
+
+    .action-delete {
+        background: var(--danger);
+        color: white;
+    }
+
+    .action-delete:hover {
+        background: #b91c1c;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        border-radius: 32px;
+        background: white;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.7rem;
+        transition: all 0.2s;
+        border: 1px solid var(--border);
+    }
+
+    .page-link:hover {
+        background: var(--secondary);
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    .page-item.active .page-link {
+        background: var(--secondary);
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 100000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 450px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+
+    .modal-header i {
+        color: var(--secondary);
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.75rem;
+    }
+
+    .form-group label i {
+        color: var(--secondary);
+        margin-right: 5px;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.75rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--secondary);
+        outline: none;
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .modal-btn {
+        padding: 6px 20px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+    }
+
+    .modal-btn-primary {
+        background: var(--secondary);
+        color: white;
+    }
+
+    .modal-btn-primary:hover {
+        background: var(--secondary-dark);
+    }
+
+    .modal-btn-secondary {
+        background: var(--gray-light);
+        color: var(--gray);
+        border: 1px solid var(--border);
+    }
+
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.95);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 35px;
+        height: 35px;
+        border: 3px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .delete-confirm {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .delete-confirm i {
+        font-size: 3rem;
+        color: var(--danger);
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: 992px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .top-sellers-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .filter-search input {
+            width: 100%;
+        }
+        .sellers-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .top-sellers-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .action-buttons {
+            flex-direction: column;
+        }
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-sellers-page">
+    <div class="container-custom">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-custom">
+            <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ url_for('admin_dashboard') }}">Admin</a>
+            <i class="fas fa-chevron-right"></i>
+            <span class="current">Sellers</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Manage Sellers</h1>
+                    <p><i class="fas fa-chart-line"></i> UCU Campus Marketplace</p>
+                </div>
+            </div>
+            <div class="total-badge">
+                <i class="fas fa-store"></i> {{ total_sellers|default(0) }} Total Sellers
+            </div>
+            <div class="header-actions">
+                <button class="btn-sm btn-outline-light" onclick="exportSellers()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <button class="btn-sm btn-outline-orange" onclick="openAddSellerModal()">
+                    <i class="fas fa-plus"></i> Add Seller
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-icon"><i class="fas fa-store"></i></div>
+                <div class="stat-info">
+                    <h3>{{ total_sellers|default(0) }}</h3>
+                    <p>Total Sellers</p>
+                </div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ active_sellers|default(0) }}</h3>
+                    <p>Active Sellers</p>
+                </div>
+            </div>
+            <div class="stat-card revenue">
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-info">
+                    <h3>UGX {{ "{:,.0f}".format(total_revenue_all|default(0)) }}</h3>
+                    <p>Total Revenue</p>
+                </div>
+            </div>
+            <div class="stat-card products">
+                <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+                <div class="stat-info">
+                    <h3>{{ total_products_sold|default(0) }}</h3>
+                    <p>Products Sold</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Sellers -->
+        {% if top_sellers %}
+        <div class="top-sellers">
+            <h3 class="section-title"><i class="fas fa-trophy"></i> Top Performing Sellers</h3>
+            <div class="top-sellers-grid">
+                {% for seller in top_sellers %}
+                <div class="top-seller-card">
+                    <div class="top-seller-avatar">{{ seller.fullname[:1] }}</div>
+                    <div class="top-seller-name">{{ seller.fullname.split()[0] }}</div>
+                    <div class="top-seller-rating">
+                        {% set rating = seller.seller_rating|default(0) %}
+                        {% for i in range(5) %}
+                            {% if i < rating|int %}
+                                <i class="fas fa-star"></i>
+                            {% elif rating - i > 0 and rating - i < 1 %}
+                                <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="rating-value">{{ "%.1f"|format(rating) }}</span>
+                    </div>
+                    <div class="top-seller-revenue">UGX {{ "{:,.0f}".format(seller.total_revenue|default(0)) }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <a href="{{ url_for('admin_sellers', page=1, per_page=per_page|default(20)) }}" class="filter-tab {% if not request.args.get('status') and not request.args.get('verification') %}active{% endif %}">
+                    <i class="fas fa-list"></i> All
+                </a>
+                <a href="{{ url_for('admin_sellers', page=1, per_page=per_page|default(20), status='active') }}" class="filter-tab {% if request.args.get('status') == 'active' %}active{% endif %}">
+                    <i class="fas fa-check-circle"></i> Active
+                </a>
+                <a href="{{ url_for('admin_sellers', page=1, per_page=per_page|default(20), status='inactive') }}" class="filter-tab {% if request.args.get('status') == 'inactive' %}active{% endif %}">
+                    <i class="fas fa-ban"></i> Inactive
+                </a>
+                <a href="{{ url_for('admin_sellers', page=1, per_page=per_page|default(20), verification='verified') }}" class="filter-tab {% if request.args.get('verification') == 'verified' %}active{% endif %}">
+                    <i class="fas fa-check-double"></i> Verified
+                </a>
+                <a href="{{ url_for('admin_sellers', page=1, per_page=per_page|default(20), verification='unverified') }}" class="filter-tab {% if request.args.get('verification') == 'unverified' %}active{% endif %}">
+                    <i class="fas fa-question-circle"></i> Unverified
+                </a>
+            </div>
+            <div class="filter-search">
+                <i class="fas fa-search"></i>
+                <form method="GET" action="{{ url_for('admin_sellers') }}" style="display: flex; gap: 5px; margin: 0;">
+                    <input type="hidden" name="per_page" value="{{ per_page|default(20) }}">
+                    <input type="hidden" name="status" value="{{ request.args.get('status', '') }}">
+                    <input type="hidden" name="verification" value="{{ request.args.get('verification', '') }}">
+                    <input type="text" name="search" placeholder="Search by name, business, email..." value="{{ request.args.get('search', '') }}" style="border: none; background: transparent; padding: 5px 0; width: 200px; outline: none; font-size: 0.7rem;">
+                    <button type="submit" style="background: none; border: none; cursor: pointer;"><i class="fas fa-search" style="color: var(--secondary);"></i></button>
+                </form>
+            </div>
+            <div class="page-size-selector" style="display: flex; align-items: center; gap: 8px;">
+                <label><i class="fas fa-eye"></i> Show:</label>
+                <select id="perPage" onchange="changePerPage()" style="border: none; background: var(--gray-light); padding: 4px 8px; border-radius: 20px; font-size: 0.7rem;">
+                    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+                    <option value="30" {% if per_page == 30 %}selected{% endif %}>30</option>
+                    <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                </select>
+                <span>per page</span>
+            </div>
+        </div>
+
+        <!-- Sellers Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3><i class="fas fa-list"></i> Sellers</h3>
+                <div class="table-actions">
+                    <button class="table-btn" onclick="selectAll()">
+                        <i class="fas fa-check-double"></i> Select All
+                    </button>
+                    <button class="table-btn" onclick="bulkAction()">
+                        <i class="fas fa-tasks"></i> Bulk Actions
+                    </button>
+                </div>
+            </div>
+
+            <table class="sellers-table" id="sellersTable">
+                <thead>
+                    <tr>
+                        <th width="30"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll()"></th>
+                        <th>Seller</th>
+                        <th>Business</th>
+                        <th>Products</th>
+                        <th>Rating</th>
+                        <th>Revenue</th>
+                        <th>Status</th>
+                        <th>Verified</th>
+                        <th>Actions</th>
+                    </thead>
+                <tbody>
+                    {% for seller in sellers %}
+                    <tr data-seller-id="{{ seller.id }}" data-status="{% if seller.is_active %}active{% else %}inactive{% endif %}" 
+                        data-verified="{% if seller.nin %}verified{% else %}unverified{% endif %}">
+                        <td><input type="checkbox" class="seller-checkbox" value="{{ seller.id }}" onchange="updateSelectedCount()">\</td>
+                        <td>
+                            <div class="seller-info">
+                                <div class="seller-avatar">
+                                    {% if seller.profile_image %}
+                                    <img src="{{ url_for('static', filename='uploads/' + seller.profile_image) }}" alt="{{ seller.fullname }}">
+                                    {% else %}
+                                    {{ seller.fullname[:1] }}
+                                    {% endif %}
+                                </div>
+                                <div class="seller-details">
+                                    <h4>{{ seller.fullname }}</h4>
+                                    <p><i class="fas fa-map-marker-alt"></i> {{ seller.location or 'N/A' }}</p>
+                                    <p><i class="fas fa-envelope"></i> {{ seller.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="business-name">{{ seller.business_name or 'N/A' }}</div>
+                            <small style="color: var(--gray);">{{ seller.business_type or 'Individual Seller' }}</small>
+                        </td>
+                        <td><strong>{{ seller.products_count|default(0) }}</strong></td>
+                        <td>
+                            <div class="rating-stars">
+                                {% set rating = seller.seller_rating|default(0) %}
+                                {% for i in range(5) %}
+                                    {% if i < rating|int %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif rating - i > 0 and rating - i < 1 %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="rating-value">{{ "%.1f"|format(rating) }}</span>
+                            </div>
+                        </td>
+                        <td><strong>UGX {{ "{:,.0f}".format(seller.total_revenue|default(0)) }}</strong></td>
+                        <td>
+                            <span class="badge badge-{{ 'active' if seller.is_active else 'inactive' }}">
+                                {{ 'Active' if seller.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ 'verified' if seller.nin else 'unverified' }}">
+                                {{ 'Verified' if seller.nin else 'Unverified' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('admin_edit_user', user_id=seller.id) }}" class="action-btn action-edit" title="Edit Seller">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('seller_store', seller_id=seller.id) }}" class="action-btn action-view" target="_blank" title="View Store">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button onclick="toggleSellerStatus({{ seller.id }}, {{ seller.is_active|lower }})" class="action-btn action-toggle" title="{{ 'Deactivate' if seller.is_active else 'Activate' }}">
+                                    <i class="fas fa-{{ 'ban' if seller.is_active else 'check' }}"></i>
+                                </button>
+                                <button onclick="confirmDelete({{ seller.id }}, '{{ seller.fullname|replace("'", "\\'") }}')" class="action-btn action-delete" title="Delete Seller">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 50px;">
+                            <i class="fas fa-store" style="font-size: 2rem; color: var(--border); margin-bottom: 10px; display: block;"></i>
+                            <p style="color: var(--gray);">No sellers found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination and pagination.pages > 1 %}
+        <div class="pagination">
+            {% if pagination.has_prev %}
+            <a href="{{ url_for('admin_sellers', page=1, per_page=per_page|default(20), search=request.args.get('search'), status=request.args.get('status'), verification=request.args.get('verification')) }}" class="page-link">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="{{ url_for('admin_sellers', page=pagination.prev_num, per_page=per_page|default(20), search=request.args.get('search'), status=request.args.get('status'), verification=request.args.get('verification')) }}" class="page-link">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            {% endif %}
+            
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                    <span class="page-link active">{{ page_num }}</span>
+                    {% else %}
+                    <a href="{{ url_for('admin_sellers', page=page_num, per_page=per_page|default(20), search=request.args.get('search'), status=request.args.get('status'), verification=request.args.get('verification')) }}" class="page-link">{{ page_num }}</a>
+                    {% endif %}
+                {% else %}
+                    <span class="page-link">...</span>
+                {% endif %}
+            {% endfor %}
+            
+            {% if pagination.has_next %}
+            <a href="{{ url_for('admin_sellers', page=pagination.next_num, per_page=per_page|default(20), search=request.args.get('search'), status=request.args.get('status'), verification=request.args.get('verification')) }}" class="page-link">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <a href="{{ url_for('admin_sellers', page=pagination.pages, per_page=per_page|default(20), search=request.args.get('search'), status=request.args.get('status'), verification=request.args.get('verification')) }}" class="page-link">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Seller Modal -->
+<div class="modal" id="addSellerModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-store-alt"></i> Add New Seller</h3>
+            <button class="modal-close" onclick="closeAddSellerModal()">&times;</button>
+        </div>
+        <form id="addSellerForm" onsubmit="addSeller(event)">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Full Name *</label>
+                    <input type="text" class="form-control" name="fullname" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email *</label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone *</label>
+                    <input type="tel" class="form-control" name="phone" placeholder="0755123456" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-store"></i> Business Name *</label>
+                    <input type="text" class="form-control" name="business_name" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-id-card"></i> NIN *</label>
+                    <input type="text" class="form-control" name="nin" placeholder="CM123456789AB" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password *</label>
+                    <input type="password" class="form-control" name="password" required minlength="6">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-btn modal-btn-secondary" onclick="closeAddSellerModal()">Cancel</button>
+                <button type="submit" class="modal-btn modal-btn-primary">Create Seller</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-trash"></i> Delete Seller</h3>
+            <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-confirm">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Are you sure you want to delete <strong id="deleteSellerName"></strong>?</p>
+                <p style="font-size: 0.7rem;">This action cannot be undone. All seller products and data will be permanently removed.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="modal-btn modal-btn-primary" onclick="deleteSeller()" style="background: var(--danger);">Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="margin-top: 10px;">Processing...</p>
+</div>
+
+<script>
+let selectedSellers = new Set();
+let currentDeleteSellerId = null;
+
+// Change per page
+function changePerPage() {
+    const perPage = document.getElementById('perPage').value;
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('per_page', perPage);
+    currentUrl.searchParams.set('page', '1');
+    window.location.href = currentUrl.toString();
+}
+
+// Toggle select all
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAllCheckbox');
+    const checkboxes = document.querySelectorAll('.seller-checkbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+        if (selectAll.checked) {
+            selectedSellers.add(checkbox.value);
+        } else {
+            selectedSellers.delete(checkbox.value);
+        }
+    });
+}
+
+function selectAll() {
+    const checkboxes = document.querySelectorAll('.seller-checkbox');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+        selectedSellers.add(checkbox.value);
+    });
+    if (selectAllCheckbox) selectAllCheckbox.checked = true;
+}
+
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.seller-checkbox');
+    selectedSellers.clear();
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked) selectedSellers.add(checkbox.value);
+    });
+}
+
+function bulkAction() {
+    updateSelectedCount();
+    if (selectedSellers.size === 0) {
+        alert('Please select at least one seller');
+        return;
+    }
+    const action = prompt('Select action:\n- activate\n- deactivate\n- delete', 'activate');
+    if (action) {
+        if (action === 'activate') {
+            selectedSellers.forEach(id => toggleSellerStatus(parseInt(id), false));
+        } else if (action === 'deactivate') {
+            selectedSellers.forEach(id => toggleSellerStatus(parseInt(id), true));
+        } else if (action === 'delete') {
+            if (confirm(`Delete ${selectedSellers.size} seller(s)? This cannot be undone.`)) {
+                selectedSellers.forEach(id => {
+                    fetch(`/api/admin/users/${id}/delete`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    }).then(() => {});
+                });
+                setTimeout(() => location.reload(), 1000);
+            }
+        } else {
+            alert('Invalid action');
+        }
+    }
+}
+
+async function toggleSellerStatus(sellerId, isActive) {
+    const action = isActive ? 'deactivate' : 'activate';
+    if (!confirm(`Are you sure you want to ${action} this seller?`)) return;
+    
+    showLoading(true);
+    
+    try {
+        const response = await fetch(`/api/admin/users/${sellerId}/toggle-status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: action })
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert(`✅ Seller ${action}d successfully`);
+            location.reload();
+        } else {
+            alert(data.message || `Error ${action}ing seller`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Error ${action}ing seller`);
+    } finally {
+        showLoading(false);
+    }
+}
+
+function confirmDelete(sellerId, sellerName) {
+    currentDeleteSellerId = sellerId;
+    document.getElementById('deleteSellerName').textContent = sellerName;
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+    currentDeleteSellerId = null;
+}
+
+async function deleteSeller() {
+    if (!currentDeleteSellerId) return;
+    
+    showLoading(true);
+    closeDeleteModal();
+    
+    try {
+        const response = await fetch(`/api/admin/users/${currentDeleteSellerId}/delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ Seller deleted successfully');
+            location.reload();
+        } else {
+            alert(data.message || 'Error deleting seller');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error deleting seller');
+    } finally {
+        showLoading(false);
+        currentDeleteSellerId = null;
+    }
+}
+
+async function addSeller(event) {
+    event.preventDefault();
+    const form = document.getElementById('addSellerForm');
+    const formData = new FormData(form);
+    const password = formData.get('password');
+    
+    if (password.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+    }
+    
+    showLoading(true);
+    
+    try {
+        const response = await fetch('/api/admin/sellers/add', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('✅ Seller created successfully');
+            location.reload();
+        } else {
+            alert(data.message || 'Error creating seller');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error creating seller');
+    } finally {
+        showLoading(false);
+    }
+    
+    closeAddSellerModal();
+}
+
+function exportSellers() {
+    const currentUrl = new URL(window.location.href);
+    window.location.href = `/api/admin/sellers/export?${currentUrl.searchParams.toString()}`;
+}
+
+function openAddSellerModal() {
+    document.getElementById('addSellerModal').classList.add('show');
+}
+
+function closeAddSellerModal() {
+    document.getElementById('addSellerModal').classList.remove('show');
+    document.getElementById('addSellerForm').reset();
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.toggle('show', show);
+    }
+}
+
+// Make functions global
+window.toggleSelectAll = toggleSelectAll;
+window.selectAll = selectAll;
+window.updateSelectedCount = updateSelectedCount;
+window.bulkAction = bulkAction;
+window.toggleSellerStatus = toggleSellerStatus;
+window.confirmDelete = confirmDelete;
+window.closeDeleteModal = closeDeleteModal;
+window.deleteSeller = deleteSeller;
+window.addSeller = addSeller;
+window.exportSellers = exportSellers;
+window.openAddSellerModal = openAddSellerModal;
+window.closeAddSellerModal = closeAddSellerModal;
+window.changePerPage = changePerPage;
+</script>
+{% endblock %}

@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Careers at ShopMax{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">Join Our Team</h1>
+                <p class="lead mb-4">Help us build the future of campus commerce at Uganda Christian University</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <!-- Why Work With Us -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">Why ShopMax</h2>
+            <p class="text-muted">What makes us different</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="info-card text-center p-4">
+                <i class="fas fa-rocket fa-3x mb-3" style="color: #ff6b00;"></i>
+                <h5>Real Impact</h5>
+                <p class="text-muted small mb-0">Your work directly serves the UCU community</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="info-card text-center p-4">
+                <i class="fas fa-clock fa-3x mb-3" style="color: #1a237e;"></i>
+                <h5>Flexible Hours</h5>
+                <p class="text-muted small mb-0">Work around your class schedule</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="info-card text-center p-4">
+                <i class="fas fa-graduation-cap fa-3x mb-3" style="color: #ff6b00;"></i>
+                <h5>Learn & Grow</h5>
+                <p class="text-muted small mb-0">Gain real-world experience</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open Positions -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="fw-bold mb-4">Open Positions</h2>
+            
+            <!-- Frontend Developer -->
+            <div class="job-card mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-9">
+                                <h4 class="fw-bold mb-2" style="color: #ff6b00;">Frontend Developer (Intern)</h4>
+                                <div class="d-flex flex-wrap gap-3 mb-2">
+                                    <span class="text-muted"><i class="fas fa-clock me-2"></i>Part-time (15-20 hrs/wk)</span>
+                                    <span class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Remote / UCU Campus</span>
+                                </div>
+                                <p class="text-muted mb-0">Build responsive interfaces using HTML, CSS, JavaScript. Perfect for CS students.</p>
+                            </div>
+                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                                <button class="btn btn-primary px-4" onclick="showDetails('frontend')">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campus Ambassador -->
+            <div class="job-card mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-9">
+                                <h4 class="fw-bold mb-2" style="color: #ff6b00;">Campus Ambassador</h4>
+                                <div class="d-flex flex-wrap gap-3 mb-2">
+                                    <span class="text-muted"><i class="fas fa-clock me-2"></i>Part-time (10-15 hrs/wk)</span>
+                                    <span class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>UCU Main Campus</span>
+                                </div>
+                                <p class="text-muted mb-0">Represent ShopMax on campus and help grow our community.</p>
+                            </div>
+                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                                <button class="btn btn-primary px-4" onclick="showDetails('ambassador')">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Support -->
+            <div class="job-card mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-9">
+                                <h4 class="fw-bold mb-2" style="color: #ff6b00;">Customer Support Specialist</h4>
+                                <div class="d-flex flex-wrap gap-3 mb-2">
+                                    <span class="text-muted"><i class="fas fa-clock me-2"></i>Part-time (15-20 hrs/wk)</span>
+                                    <span class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Remote</span>
+                                </div>
+                                <p class="text-muted mb-0">Help users with questions and ensure great experiences on ShopMax.</p>
+                            </div>
+                            <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                                <button class="btn btn-primary px-4" onclick="showDetails('support')">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How to Apply -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 bg-light">
+                <div class="card-body p-5 text-center">
+                    <h3 class="fw-bold mb-4">Ready to apply?</h3>
+                    <p class="mb-4">Send your CV and a brief cover letter to:</p>
+                    <a href="mailto:careers@shopmax.ucu.ac.ug" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-envelope me-2"></i>careers@shopmax.ucu.ac.ug
+                    </a>
+                    <p class="text-muted small mt-3">We'll respond within 5-7 business days</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="jobModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #ff6b00;">
+                <h5 class="modal-title text-white" id="modalTitle"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="mailto:careers@shopmax.ucu.ac.ug" class="btn btn-primary" id="modalApplyBtn">Apply Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #ff6b00 0%, #1a237e 100%);
+    color: white;
+    padding: 80px 0;
+}
+
+/* Info Cards */
+.info-card {
+    background: white;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    height: 100%;
+    transition: all 0.3s;
+}
+
+.info-card:hover {
+    border-color: #ff6b00;
+    box-shadow: 0 5px 20px rgba(255,107,0,0.1);
+}
+
+/* Job Cards */
+.job-card {
+    transition: all 0.3s;
+}
+
+.job-card .card {
+    border-radius: 8px;
+    border-left: 4px solid #ff6b00 !important;
+}
+
+.job-card:hover .card {
+    transform: translateX(5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background: #ff6b00;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background: #e65100;
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #666;
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 8px;
+    border: none;
+}
+
+.modal-header {
+    border-radius: 8px 8px 0 0;
+    padding: 15px 20px;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+.modal-body li {
+    margin-bottom: 5px;
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 60px 0;
+    }
+    
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    
+    .job-card .text-md-end {
+        text-align: left !important;
+    }
+}
+</style>
+
+<script>
+// Job details
+const jobDetails = {
+    frontend: {
+        title: 'Frontend Developer (Intern)',
+        details: `
+            <p><strong>Type:</strong> Part-time (15-20 hours/week)</p>
+            <p><strong>Location:</strong> Remote / UCU Campus</p>
+            <p><strong>Stipend:</strong> UGX 300,000 - 500,000/month</p>
+            
+            <h6 class="fw-bold mt-4">Requirements:</h6>
+            <ul>
+                <li>UCU student in Computer Science or related field</li>
+                <li>Basic HTML, CSS, JavaScript knowledge</li>
+                <li>Understanding of Git</li>
+                <li>Problem-solving skills</li>
+            </ul>
+            
+            <h6 class="fw-bold mt-3">Bonus:</h6>
+            <ul>
+                <li>React or Vue.js experience</li>
+                <li>Personal projects</li>
+            </ul>
+        `
+    },
+    ambassador: {
+        title: 'Campus Ambassador',
+        details: `
+            <p><strong>Type:</strong> Part-time (10-15 hours/week)</p>
+            <p><strong>Location:</strong> UCU Main Campus</p>
+            <p><strong>Stipend:</strong> UGX 200,000/month + Bonuses</p>
+            
+            <h6 class="fw-bold mt-4">Requirements:</h6>
+            <ul>
+                <li>Currently enrolled UCU student</li>
+                <li>Active on campus</li>
+                <li>Good communication skills</li>
+                <li>Self-motivated</li>
+            </ul>
+        `
+    },
+    support: {
+        title: 'Customer Support Specialist',
+        details: `
+            <p><strong>Type:</strong> Part-time (15-20 hours/week)</p>
+            <p><strong>Location:</strong> Remote</p>
+            <p><strong>Stipend:</strong> UGX 250,000 - 400,000/month</p>
+            
+            <h6 class="fw-bold mt-4">Requirements:</h6>
+            <ul>
+                <li>UCU student</li>
+                <li>Good written and verbal communication</li>
+                <li>Patient and helpful attitude</li>
+                <li>Basic computer skills</li>
+            </ul>
+        `
+    }
+};
+
+function showDetails(position) {
+    const job = jobDetails[position];
+    if (job) {
+        document.getElementById('modalTitle').textContent = job.title;
+        document.getElementById('modalBody').innerHTML = job.details;
+        
+        const applyBtn = document.getElementById('modalApplyBtn');
+        applyBtn.href = `mailto:careers@shopmax.ucu.ac.ug?subject=Application for ${encodeURIComponent(job.title)}`;
+        
+        new bootstrap.Modal(document.getElementById('jobModal')).show();
+    }
+}
+</script>
+{% endblock %}

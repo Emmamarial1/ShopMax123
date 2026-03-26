@@ -1,0 +1,612 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm Delivery - ShopMax UCU{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #000080;
+        --primary-dark: #000066;
+        --secondary: #ff6b00;
+        --secondary-dark: #e65100;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --gray: #64748b;
+        --gray-light: #f8fafc;
+        --border: #e2e8f0;
+        --white: #ffffff;
+    }
+
+    .confirm-page {
+        padding: 40px 0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+    }
+
+    .container-custom {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 20px;
+        width: 100%;
+    }
+
+    .confirm-card {
+        background: var(--white);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 1px solid var(--border);
+    }
+
+    .card-header {
+        background: var(--primary);
+        color: var(--white);
+        padding: 20px;
+        text-align: center;
+    }
+
+    .card-header i {
+        font-size: 2rem;
+        color: var(--secondary);
+        margin-bottom: 10px;
+    }
+
+    .card-header h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .card-body {
+        padding: 30px;
+    }
+
+    .delivery-icon {
+        width: 80px;
+        height: 80px;
+        background: #f0fff4;
+        border-radius: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        border: 3px solid var(--success);
+    }
+
+    .delivery-icon i {
+        font-size: 2.5rem;
+        color: var(--success);
+    }
+
+    .order-info {
+        background: var(--gray-light);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        border: 1px solid var(--border);
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed var(--border);
+        font-size: 0.9rem;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: var(--gray);
+        font-weight: 500;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    .info-value.highlight {
+        color: var(--secondary);
+        font-size: 1.1rem;
+    }
+
+    .order-items-preview {
+        background: var(--gray-light);
+        border-radius: 12px;
+        padding: 15px;
+        margin: 20px 0;
+    }
+
+    .preview-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .preview-item:last-child {
+        border-bottom: none;
+    }
+
+    .preview-item-image {
+        width: 45px;
+        height: 45px;
+        background: var(--white);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+    }
+
+    .preview-item-image i {
+        font-size: 1.2rem;
+        color: var(--gray);
+    }
+
+    .preview-item-details {
+        flex: 1;
+    }
+
+    .preview-item-name {
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 0.85rem;
+        margin-bottom: 2px;
+    }
+
+    .preview-item-meta {
+        display: flex;
+        gap: 10px;
+        font-size: 0.7rem;
+        color: var(--gray);
+    }
+
+    .preview-item-price {
+        font-weight: 700;
+        color: var(--secondary);
+        font-size: 0.85rem;
+    }
+
+    .rider-info {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 15px;
+        margin: 20px 0;
+        border-left: 4px solid var(--secondary);
+    }
+
+    .rider-name {
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 1rem;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .rider-name i {
+        color: var(--secondary);
+    }
+
+    .rider-phone {
+        color: var(--gray);
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .rider-phone i {
+        color: var(--secondary);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 14px;
+        border-radius: 40px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: var(--secondary);
+        color: var(--white);
+    }
+
+    .btn-primary:hover {
+        background: var(--secondary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255,107,0,0.3);
+    }
+
+    .btn-outline {
+        background: var(--white);
+        color: var(--gray);
+        border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+        background: var(--gray-light);
+        border-color: var(--secondary);
+    }
+
+    .btn-danger {
+        background: var(--danger);
+        color: var(--white);
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+
+    .issue-section {
+        margin-top: 20px;
+        display: none;
+        border-top: 1px solid var(--border);
+        padding-top: 20px;
+    }
+
+    .issue-section.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .issue-title {
+        font-weight: 600;
+        color: var(--danger);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+
+    .issue-title i {
+        font-size: 1rem;
+    }
+
+    .issue-textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        margin: 10px 0;
+        min-height: 100px;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .issue-textarea:focus {
+        border-color: var(--secondary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(255,107,0,0.1);
+    }
+
+    .issue-options {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .issue-type-btn {
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        background: var(--gray-light);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .issue-type-btn:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .issue-type-btn.active {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
+    .issue-type-btn i {
+        font-size: 0.65rem;
+    }
+
+    .toggle-link {
+        text-align: center;
+        margin-top: 20px;
+        color: var(--secondary);
+        cursor: pointer;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+        border-top: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .toggle-link:hover {
+        color: var(--secondary-dark);
+        background: var(--gray-light);
+    }
+
+    .help-note {
+        background: #e3f2fd;
+        border-radius: 10px;
+        padding: 12px;
+        margin-top: 15px;
+        font-size: 0.7rem;
+        color: #0c5460;
+        border-left: 3px solid var(--info);
+    }
+
+    .help-note i {
+        margin-right: 5px;
+        color: var(--info);
+    }
+
+    @media (max-width: 480px) {
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .issue-options {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirm-page">
+    <div class="container-custom">
+        <div class="confirm-card">
+            <div class="card-header">
+                <i class="fas fa-truck"></i>
+                <h1>Delivery Confirmation</h1>
+            </div>
+            
+            <div class="card-body">
+                <div class="delivery-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                
+                <h3 style="text-align: center; color: var(--primary); margin-bottom: 10px;">Order #{{ order.id }}</h3>
+                <p style="text-align: center; color: var(--gray); font-size: 0.8rem; margin-bottom: 20px;">
+                    {{ order.created_at.strftime('%d %b %Y, %H:%M') }}
+                </p>
+                
+                <!-- Order Items Preview -->
+                <div class="order-items-preview">
+                    {% for item in order.order_items[:2] %}
+                    <div class="preview-item">
+                        <div class="preview-item-image">
+                            {% if item.product and item.product.image %}
+                            <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                            {% else %}
+                            <i class="fas fa-box"></i>
+                            {% endif %}
+                        </div>
+                        <div class="preview-item-details">
+                            <div class="preview-item-name">{{ item.product.name if item.product else 'Product' }}</div>
+                            <div class="preview-item-meta">
+                                <span><i class="fas fa-sort-amount-up"></i> Qty: {{ item.quantity }}</span>
+                            </div>
+                        </div>
+                        <div class="preview-item-price">UGX {{ "{:,.0f}".format(item.price * item.quantity) }}</div>
+                    </div>
+                    {% endfor %}
+                    {% if order.order_items|length > 2 %}
+                    <div style="text-align: center; padding: 8px; font-size: 0.7rem; color: var(--gray);">
+                        +{{ order.order_items|length - 2 }} more item(s)
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="order-info">
+                    <div class="info-row">
+                        <span class="info-label">Total Amount:</span>
+                        <span class="info-value highlight">UGX {{ "{:,.0f}".format(order.total_amount) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Delivery Address:</span>
+                        <span class="info-value">{{ order.delivery_address }}</span>
+                    </div>
+                </div>
+
+                {% if order.delivery_person %}
+                <div class="rider-info">
+                    <div class="rider-name">
+                        <i class="fas fa-motorcycle"></i>
+                        {{ order.delivery_person.name }}
+                    </div>
+                    <div class="rider-phone">
+                        <i class="fas fa-phone"></i> {{ order.delivery_person.phone }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <p style="text-align: center; color: var(--gray); margin: 20px 0;">
+                    <i class="fas fa-question-circle"></i> Has your order been delivered successfully?
+                </p>
+
+                <!-- Main action buttons -->
+                <div class="action-buttons">
+                    <a href="{{ url_for('orders') }}" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Back to Orders
+                    </a>
+                    <form method="POST" action="{{ url_for('delivery_confirmation', order_id=order.id) }}" style="flex: 1;" id="confirmForm">
+                        <input type="hidden" name="action" value="confirm">
+                        <button type="submit" class="btn btn-primary" id="confirmBtn">
+                            <i class="fas fa-check"></i> Yes, Complete Order
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Report issue toggle -->
+                <div class="toggle-link" onclick="toggleIssueSection()">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Report a problem with this delivery</span>
+                    <i class="fas fa-chevron-down" id="toggleIcon"></i>
+                </div>
+
+                <!-- Issue section -->
+                <div class="issue-section" id="issueSection">
+                    <div class="issue-title">
+                        <i class="fas fa-flag"></i>
+                        Report an Issue
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('delivery_confirmation', order_id=order.id) }}" id="issueForm">
+                        <input type="hidden" name="action" value="issue">
+                        
+                        <!-- Issue Type Quick Select -->
+                        <div class="issue-options">
+                            <button type="button" class="issue-type-btn" onclick="selectIssueType(this, 'Damaged Item')">
+                                <i class="fas fa-box-open"></i> Damaged
+                            </button>
+                            <button type="button" class="issue-type-btn" onclick="selectIssueType(this, 'Wrong Item')">
+                                <i class="fas fa-exchange-alt"></i> Wrong Item
+                            </button>
+                            <button type="button" class="issue-type-btn" onclick="selectIssueType(this, 'Missing Item')">
+                                <i class="fas fa-box"></i> Missing
+                            </button>
+                            <button type="button" class="issue-type-btn" onclick="selectIssueType(this, 'Late Delivery')">
+                                <i class="fas fa-clock"></i> Late
+                            </button>
+                            <button type="button" class="issue-type-btn" onclick="selectIssueType(this, 'Other')">
+                                <i class="fas fa-question-circle"></i> Other
+                            </button>
+                        </div>
+                        
+                        <textarea class="issue-textarea" name="issue_description" id="issueDescription" placeholder="Please describe the issue in detail... (e.g., item arrived damaged, received wrong item, missing parts, etc.)" required></textarea>
+                        
+                        <div class="help-note">
+                            <i class="fas fa-info-circle"></i>
+                            Our support team will review your report and contact you within 24-48 hours to resolve the issue.
+                        </div>
+                        
+                        <div class="action-buttons" style="margin-top: 15px;">
+                            <button type="button" class="btn btn-outline" onclick="toggleIssueSection()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button type="submit" class="btn btn-danger" id="issueSubmitBtn">
+                                <i class="fas fa-paper-plane"></i> Submit Issue Report
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleIssueSection() {
+    const section = document.getElementById('issueSection');
+    const icon = document.getElementById('toggleIcon');
+    
+    if (section.classList.contains('show')) {
+        section.classList.remove('show');
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+    } else {
+        section.classList.add('show');
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+    }
+}
+
+function selectIssueType(button, issueType) {
+    // Remove active class from all buttons
+    document.querySelectorAll('.issue-type-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active class to clicked button
+    button.classList.add('active');
+    
+    // Pre-fill the textarea with the issue type
+    const textarea = document.getElementById('issueDescription');
+    const currentText = textarea.value;
+    
+    if (!currentText || currentText === '') {
+        textarea.value = `Issue: ${issueType}\n\n`;
+    } else if (!currentText.toLowerCase().includes(issueType.toLowerCase())) {
+        textarea.value = `Issue: ${issueType}\n\n${currentText}`;
+    }
+    
+    // Focus on textarea
+    textarea.focus();
+}
+
+document.getElementById('confirmForm').addEventListener('submit', function(e) {
+    const btn = document.getElementById('confirmBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    btn.disabled = true;
+});
+
+document.getElementById('issueForm')?.addEventListener('submit', function(e) {
+    const description = document.getElementById('issueDescription').value.trim();
+    
+    if (!description) {
+        e.preventDefault();
+        alert('Please describe the issue before submitting.');
+        return;
+    }
+    
+    const btn = document.getElementById('issueSubmitBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    btn.disabled = true;
+});
+
+// Make functions global
+window.toggleIssueSection = toggleIssueSection;
+window.selectIssueType = selectIssueType;
+</script>
+{% endblock %}

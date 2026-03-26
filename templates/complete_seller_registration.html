@@ -1,0 +1,943 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Seller Registration - ShopMax UCU Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    .registration-page {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 20px;
+        background: linear-gradient(135deg, #1a237e 0%, #0d1a4a 100%);
+        position: relative;
+    }
+
+    .registration-page::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255,107,0,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .registration-page::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -5%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .registration-container {
+        max-width: 600px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        overflow: hidden;
+        position: relative;
+        z-index: 10;
+        animation: slideUp 0.5s ease;
+        border: 1px solid rgba(255,107,0,0.2);
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .registration-header {
+        background: #1a237e;
+        color: white;
+        padding: 30px 25px 20px;
+        text-align: center;
+        position: relative;
+    }
+
+    .registration-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(255,107,0,0.2) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .registration-header h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .registration-header h1 i {
+        color: #ff6b00;
+        margin-right: 8px;
+    }
+
+    .registration-header p {
+        opacity: 0.9;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .verification-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        background: rgba(255,107,0,0.2);
+        border-radius: 30px;
+        font-size: 0.75rem;
+        border: 1px solid #ff6b00;
+        position: relative;
+        z-index: 2;
+        backdrop-filter: blur(5px);
+    }
+
+    .verification-badge i {
+        color: #ff6b00;
+        margin-right: 5px;
+        font-size: 0.7rem;
+    }
+
+    .registration-body {
+        padding: 20px 25px 25px;
+    }
+
+    .alert {
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        animation: slideDown 0.3s ease;
+        background: white;
+        border-left: 4px solid;
+    }
+
+    .alert-danger {
+        border-left-color: #dc3545;
+        color: #1a237e;
+    }
+
+    .alert-success {
+        border-left-color: #28a745;
+        color: #1a237e;
+    }
+
+    .alert-warning {
+        border-left-color: #ffc107;
+        color: #1a237e;
+    }
+
+    .alert-info {
+        border-left-color: #17a2b8;
+        color: #1a237e;
+    }
+
+    .alert i {
+        color: #ff6b00;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .user-details {
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .user-details h3 {
+        color: #1a237e;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .user-details h3 i {
+        color: #ff6b00;
+        font-size: 0.85rem;
+    }
+
+    .detail-row {
+        display: flex;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed #cbd5e1;
+        font-size: 0.85rem;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        width: 110px;
+        color: #64748b;
+    }
+
+    .detail-value {
+        flex: 1;
+        font-weight: 500;
+        color: #1a237e;
+    }
+
+    .badge {
+        background: #ff6b00;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+
+    .location-info-box {
+        background: #fff3e0;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #ff6b00;
+        border: 1px solid #ff6b00;
+    }
+
+    .location-info-box h4 {
+        color: #1a237e;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .location-info-box h4 i {
+        color: #ff6b00;
+    }
+
+    .location-info-box p {
+        color: #1a237e;
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .location-info-box p i {
+        color: #ff6b00;
+        font-size: 0.7rem;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #1a237e;
+        font-weight: 500;
+        font-size: 0.8rem;
+    }
+
+    .form-group label i {
+        color: #ff6b00;
+        margin-right: 5px;
+        font-size: 0.75rem;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        background: white;
+        color: #1a237e;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #ff6b00;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255,107,0,0.1);
+    }
+
+    .form-control::placeholder {
+        color: #94a3b8;
+        font-size: 0.8rem;
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.7rem;
+        margin-top: 3px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .invalid-feedback i {
+        color: #dc3545;
+    }
+
+    .input-group {
+        display: flex;
+        gap: 8px;
+    }
+
+    .input-group .form-control {
+        flex: 1;
+    }
+
+    .input-group .btn {
+        padding: 10px 16px;
+        background: #1a237e;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .input-group .btn:hover {
+        background: #0d1a4a;
+    }
+
+    .text-muted {
+        color: #64748b;
+        font-size: 0.7rem;
+        margin-top: 3px;
+        display: block;
+    }
+
+    .password-strength {
+        display: flex;
+        gap: 4px;
+        margin: 8px 0 3px;
+    }
+
+    .strength-bar {
+        flex: 1;
+        height: 4px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+
+    .strength-bar.active:nth-child(1) { background: #dc3545; }
+    .strength-bar.active:nth-child(2) { background: #ffc107; }
+    .strength-bar.active:nth-child(3) { background: #28a745; }
+    .strength-bar.active:nth-child(4) { background: #28a745; }
+
+    .strength-text {
+        font-size: 0.7rem;
+        color: #64748b;
+        margin-top: 3px;
+        text-align: right;
+    }
+
+    .terms-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin: 15px 0 12px;
+    }
+
+    .terms-check input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+        cursor: pointer;
+        accent-color: #ff6b00;
+        margin-top: 2px;
+    }
+
+    .terms-check label {
+        color: #1a237e;
+        font-size: 0.75rem;
+        cursor: pointer;
+        line-height: 1.4;
+    }
+
+    .terms-check a {
+        color: #ff6b00;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .terms-check a:hover {
+        text-decoration: underline;
+    }
+
+    .btn-register {
+        width: 100%;
+        padding: 12px;
+        background: #ff6b00;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin: 15px 0 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-shadow: 0 4px 10px rgba(255,107,0,0.2);
+    }
+
+    .btn-register:hover {
+        background: #e65100;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(255,107,0,0.25);
+    }
+
+    .btn-register:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .login-link {
+        text-align: center;
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .login-link a {
+        color: #ff6b00;
+        text-decoration: none;
+        font-weight: 600;
+        margin-left: 4px;
+    }
+
+    .login-link a:hover {
+        color: #e65100;
+    }
+
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .demo-nin-options {
+        background: #fff8e5;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 10px 0 15px;
+        border-left: 4px solid #ffc107;
+    }
+
+    .demo-nin-options h5 {
+        color: #1a237e;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .demo-nin-options h5 i {
+        color: #ffc107;
+    }
+
+    .nin-badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .nin-badge {
+        background: white;
+        color: #1a237e;
+        padding: 4px 10px;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        cursor: pointer;
+        border: 1px solid #ffc107;
+        transition: all 0.2s;
+    }
+
+    .nin-badge:hover {
+        background: #ffc107;
+        color: #1a237e;
+    }
+
+    .warning-text {
+        color: #dc3545;
+        font-size: 0.7rem;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .warning-text i {
+        font-size: 0.65rem;
+    }
+
+    @media (max-width: 480px) {
+        .registration-header {
+            padding: 25px 20px 15px;
+        }
+        
+        .registration-header h1 {
+            font-size: 1.4rem;
+        }
+        
+        .registration-body {
+            padding: 15px 20px 20px;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .detail-label {
+            width: 100%;
+        }
+        
+        .input-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registration-page">
+    <div class="registration-container">
+        <div class="registration-header">
+            <h1>
+                <i class="fas fa-store"></i>
+                Seller Registration
+            </h1>
+            <p>Tell us about your business</p>
+            <div class="verification-badge">
+                <i class="fas fa-check-circle"></i>
+                UCU Email Verified
+            </div>
+        </div>
+
+        <div class="registration-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="user-details">
+                <h3>
+                    <i class="fas fa-user-check"></i>
+                    Verified UCU Information
+                </h3>
+                <div class="detail-row">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value">{{ name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">{{ email }}</span>
+                </div>
+                {% if ucu_type == 'student' and student_number %}
+                <div class="detail-row">
+                    <span class="detail-label">Student No:</span>
+                    <span class="detail-value">{{ student_number }}</span>
+                </div>
+                {% endif %}
+                <div class="detail-row">
+                    <span class="detail-label">Department:</span>
+                    <span class="detail-value">{{ department }}</span>
+                </div>
+                {% if ucu_type == 'staff' and staff_title %}
+                <div class="detail-row">
+                    <span class="detail-label">Title:</span>
+                    <span class="detail-value">{{ staff_title }}</span>
+                </div>
+                {% endif %}
+                <div class="detail-row">
+                    <span class="detail-label">Type:</span>
+                    <span class="detail-value">
+                        <span class="badge">{{ ucu_type|upper }} SELLER</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Location Information Box -->
+            <div class="location-info-box">
+                <h4><i class="fas fa-map-marker-alt"></i> Important: Seller Location Policy</h4>
+                <p><i class="fas fa-check-circle"></i> To ensure efficient delivery and lower costs for buyers, sellers must operate within or near UCU campus.</p>
+                <p><i class="fas fa-exclamation-triangle"></i> <strong>Allowed Areas:</strong> Bugujju, Wandegya, Nabuta, Mukono Mall, UCU Main Campus, Mukono Town, and surrounding UCU neighborhoods.</p>
+                <p><i class="fas fa-shield-alt"></i> If your business is located outside these areas, please note that delivery costs may be higher for buyers.</p>
+                <p><i class="fas fa-gavel"></i> By registering, you confirm that your business location is as selected below. Misrepresentation may affect your seller status.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('complete_seller_registration') }}" id="registrationForm">
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone Number *</label>
+                    <input type="tel" name="phone" class="form-control" 
+                           placeholder="0755123456" required 
+                           pattern="[0-9]{10}" title="10-digit phone number">
+                    <small class="text-muted">For important updates</small>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Business Location *</label>
+                    <select name="location" id="locationSelect" class="form-select" required>
+                        <option value="">Select your business location</option>
+                        <option value="Bugujju">Bugujju</option>
+                        <option value="Wandegya">Wandegya</option>
+                        <option value="Nabuta">Nabuta</option>
+                        <option value="Mukono Mall">Mukono Mall</option>
+                        <option value="UCU Main Campus">UCU Main Campus</option>
+                        <option value="Mukono Town">Mukono Town</option>
+                        <option value="Other (Near UCU)">Other (Near UCU)</option>
+                    </select>
+                    <div id="locationError" class="invalid-feedback" style="display: none;"></div>
+                    <small class="text-muted"><i class="fas fa-info-circle"></i> Choose the area where your business is located</small>
+                </div>
+
+                <div id="otherLocationField" style="display: none;">
+                    <div class="form-group">
+                        <label><i class="fas fa-map-pin"></i> Specify Your Location *</label>
+                        <input type="text" name="other_location" id="otherLocation" class="form-control" 
+                               placeholder="e.g., Kigunga, Kyampisi, etc.">
+                        <small class="text-muted">Please specify your exact location</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-store"></i> Business Name *</label>
+                    <input type="text" name="business_name" class="form-control" 
+                           placeholder="Your store name" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-map-marked-alt"></i> Business Address</label>
+                    <input type="text" name="business_address" class="form-control" 
+                           placeholder="Detailed address (optional)">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-id-card"></i> NIN (National ID) *</label>
+                    <div class="input-group">
+                        <input type="text" name="nin" id="nin" class="form-control" 
+                               placeholder="CM123456789AB" required 
+                               pattern="[A-Z0-9]{13,15}" title="Enter a valid NIN">
+                        <button type="button" class="btn" onclick="verifyNIN()">Verify</button>
+                    </div>
+                    <div id="ninStatus" class="invalid-feedback" style="display: none;"></div>
+                </div>
+
+                {% if config.DEBUG %}
+                <div class="demo-nin-options">
+                    <h5><i class="fas fa-flask"></i> Demo NINs (Testing)</h5>
+                    <div class="nin-badges">
+                        <span class="nin-badge" onclick="setNIN('CM123456789AB')">CM123456789AB</span>
+                        <span class="nin-badge" onclick="setNIN('CF987654321CD')">CF987654321CD</span>
+                        <span class="nin-badge" onclick="setNIN('CM456789123EF')">CM456789123EF</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password *</label>
+                    <input type="password" name="password" id="password" class="form-control" 
+                           placeholder="Create a password" required minlength="6">
+                    <div class="password-strength" id="strengthBars">
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                        <div class="strength-bar"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText">Enter a strong password</div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Confirm Password *</label>
+                    <input type="password" name="confirm_password" id="confirmPassword" class="form-control" 
+                           placeholder="Confirm your password" required>
+                    <div id="passwordMatchError" class="invalid-feedback" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Passwords do not match
+                    </div>
+                </div>
+
+                <div class="terms-check">
+                    <input type="checkbox" name="terms" id="terms" required>
+                    <label for="terms">
+                        I agree to the <a href="{{ url_for('terms_of_service') }}" target="_blank">Terms</a> and 
+                        <a href="{{ url_for('privacy_policy') }}" target="_blank">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <div class="terms-check">
+                    <input type="checkbox" name="seller_agreement" id="sellerAgreement" required>
+                    <label for="sellerAgreement">
+                        I confirm I am a verified UCU member
+                    </label>
+                </div>
+
+                <div class="terms-check">
+                    <input type="checkbox" name="location_confirmation" id="locationConfirmation" required>
+                    <label for="locationConfirmation">
+                        I confirm that my business is located in or near UCU campus as selected. I understand that misrepresentation may result in account suspension.
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-register" id="registerBtn">
+                    <i class="fas fa-store"></i> Create Seller Account
+                </button>
+
+                <div class="login-link">
+                    Already have an account? <a href="{{ url_for('login') }}">Sign In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Handle location dropdown change
+const locationSelect = document.getElementById('locationSelect');
+const otherLocationField = document.getElementById('otherLocationField');
+const otherLocationInput = document.getElementById('otherLocation');
+const locationError = document.getElementById('locationError');
+
+locationSelect.addEventListener('change', function() {
+    if (this.value === 'Other (Near UCU)') {
+        otherLocationField.style.display = 'block';
+        otherLocationInput.required = true;
+        locationError.style.display = 'none';
+    } else {
+        otherLocationField.style.display = 'none';
+        otherLocationInput.required = false;
+        if (!this.value) {
+            locationError.style.display = 'flex';
+            locationError.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please select your business location';
+        } else {
+            locationError.style.display = 'none';
+        }
+    }
+});
+
+function setNIN(nin) {
+    document.getElementById('nin').value = nin;
+    verifyNIN();
+}
+
+async function verifyNIN() {
+    const nin = document.getElementById('nin').value;
+    const statusDiv = document.getElementById('ninStatus');
+    
+    if (!nin) {
+        statusDiv.style.display = 'flex';
+        statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Enter NIN';
+        statusDiv.className = 'invalid-feedback';
+        return;
+    }
+    
+    statusDiv.style.display = 'flex';
+    statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+    statusDiv.className = 'invalid-feedback';
+    
+    try {
+        const response = await fetch('/api/verify-nin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nin: nin })
+        });
+        
+        const data = await response.json();
+        
+        if (data.valid) {
+            statusDiv.style.display = 'flex';
+            statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> Verified';
+            statusDiv.className = 'alert alert-success';
+            statusDiv.style.marginTop = '10px';
+            statusDiv.style.background = '#e8f5e9';
+        } else {
+            statusDiv.style.display = 'flex';
+            statusDiv.innerHTML = '<i class="fas fa-times-circle"></i> Invalid NIN';
+            statusDiv.className = 'alert alert-danger';
+        }
+    } catch (error) {
+        statusDiv.style.display = 'flex';
+        statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error';
+        statusDiv.className = 'alert alert-danger';
+    }
+}
+
+const password = document.getElementById('password');
+const confirmPassword = document.getElementById('confirmPassword');
+
+function checkPasswordStrength() {
+    const val = password.value;
+    
+    const hasLength = val.length >= 8;
+    const hasNumber = /\d/.test(val);
+    const hasUppercase = /[A-Z]/.test(val);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(val);
+    
+    let strength = 0;
+    if (hasLength) strength++;
+    if (hasNumber) strength++;
+    if (hasUppercase) strength++;
+    if (hasSpecial) strength++;
+    
+    const bars = document.querySelectorAll('.strength-bar');
+    bars.forEach((bar, index) => {
+        if (index < strength) {
+            bar.classList.add('active');
+        } else {
+            bar.classList.remove('active');
+        }
+    });
+    
+    const strengthText = document.getElementById('strengthText');
+    if (strength === 0) strengthText.textContent = 'Very Weak';
+    else if (strength === 1) strengthText.textContent = 'Weak';
+    else if (strength === 2) strengthText.textContent = 'Fair';
+    else if (strength === 3) strengthText.textContent = 'Good';
+    else if (strength === 4) strengthText.textContent = 'Strong';
+    
+    checkPasswordMatch();
+}
+
+function checkPasswordMatch() {
+    const matchError = document.getElementById('passwordMatchError');
+    if (password.value !== confirmPassword.value && confirmPassword.value.length > 0) {
+        matchError.style.display = 'flex';
+    } else {
+        matchError.style.display = 'none';
+    }
+}
+
+password.addEventListener('input', checkPasswordStrength);
+confirmPassword.addEventListener('input', checkPasswordMatch);
+
+document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirmPassword').value;
+    const nin = document.getElementById('nin').value;
+    const phone = document.querySelector('input[name="phone"]').value;
+    const businessName = document.querySelector('input[name="business_name"]').value;
+    const location = document.getElementById('locationSelect').value;
+    const otherLocation = document.getElementById('otherLocation')?.value;
+    const terms = document.getElementById('terms').checked;
+    const sellerAgreement = document.getElementById('sellerAgreement').checked;
+    const locationConfirmation = document.getElementById('locationConfirmation').checked;
+    
+    // Validate location
+    if (!location) {
+        e.preventDefault();
+        alert('Please select your business location');
+        return;
+    }
+    
+    if (location === 'Other (Near UCU)' && !otherLocation) {
+        e.preventDefault();
+        alert('Please specify your location');
+        return;
+    }
+    
+    if (password !== confirm) {
+        e.preventDefault();
+        alert('Passwords do not match');
+        return;
+    }
+    
+    if (password.length < 6) {
+        e.preventDefault();
+        alert('Password must be at least 6 characters');
+        return;
+    }
+    
+    if (!/^[0-9]{10}$/.test(phone)) {
+        e.preventDefault();
+        alert('Enter a valid 10-digit phone number');
+        return;
+    }
+    
+    if (!nin) {
+        e.preventDefault();
+        alert('Enter your NIN');
+        return;
+    }
+    
+    if (!businessName) {
+        e.preventDefault();
+        alert('Enter your business name');
+        return;
+    }
+    
+    if (!terms || !sellerAgreement || !locationConfirmation) {
+        e.preventDefault();
+        alert('Please agree to all terms and confirm your location');
+        return;
+    }
+    
+    const btn = document.getElementById('registerBtn');
+    btn.innerHTML = '<div class="spinner"></div> Creating Account...';
+    btn.disabled = true;
+});
+</script>
+{% endblock %}
