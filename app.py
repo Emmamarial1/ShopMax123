@@ -69,14 +69,72 @@ google = oauth.register(
 )
 
 
+
+# ==================== APP CONFIGURATION ====================
+app = Flask(__name__)
+
+# App Configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-here')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Email Configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'your-app@gmail.com')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'your-app-password')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME', 'your-app@gmail.com')
+
+# Upload Configuration
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max file size
+
+# ==================== DATABASE CONFIGURATION (MUST BE BEFORE db.create_all) ====================
+
+import os
+from urllib.parse import urlparse
+
+# Database configuration - Check for PostgreSQL FIRST
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    # Production (Render.com PostgreSQL)
+    # Fix for Render's PostgreSQL URL format
+    uri = urlparse(DATABASE_URL)
+    if uri.scheme == 'postgres':
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 5,
+        'pool_recycle': 300,
+        'pool_pre_ping': True
+    }
+    print("✅ Using PostgreSQL database (Production)")
+else:
+    # Local development (SQLite)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shopmax.db'
+    print("✅ Using SQLite database (Development)")
+
 # ==================== DATABASE INITIALIZATION ====================
-# Initialize SQLAlchemy FIRST before any database operations
+# Initialize SQLAlchemy AFTER database URL is set
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-# Add this right after db = SQLAlchemy(app)
+
+# Create tables AFTER db is initialized
 with app.app_context():
-    db.create_all()
-    print("✅ Tables created")
+    try:
+        db.create_all()
+        print("✅ Database tables created/verified successfully!")
+    except Exception as e:
+        print(f"⚠️ Database table creation error: {e}")
+
+# ==================== GOOGLE OAUTH CONFIGURATION ====================
+# ... rest of your code ...
+
+
 
 # ==================== SOCKET.IO INITIALIZATION ====================
 # Add Socket.IO right here after db initialization
