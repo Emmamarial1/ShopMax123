@@ -3637,17 +3637,14 @@ def export_products():
 
 # ==================== SOCKET.IO EVENT HANDLERS ====================
 # Put these RIGHT HERE, after socketio is defined
-@socketio.on('connect')
 def handle_connect():
     """Handle client connection"""
     print(f'Client connected: {request.sid}')
 
-@socketio.on('disconnect')
 def handle_disconnect():
     """Handle client disconnection"""
     print(f'Client disconnected: {request.sid}')
 
-@socketio.on('join_order_tracking')
 def handle_join_order_tracking(data):
     """Join a room for specific order tracking"""
     order_id = data.get('order_id')
@@ -3658,7 +3655,6 @@ def handle_join_order_tracking(data):
         join_room(room)
         print(f'{user_type} joined room: {room}')
 
-@socketio.on('rider_location_update')
 def handle_rider_location_update(data):
     """Receive location updates from rider and broadcast to customer"""
     try:
@@ -3710,7 +3706,6 @@ def handle_rider_location_update(data):
         print(f"Error in location update: {e}")
         db.session.rollback()
 
-@socketio.on('rider_status_update')
 def handle_rider_status_update(data):
     """Receive status updates from rider"""
     try:
@@ -15149,5 +15144,5 @@ def chat_status_public():
 if __name__ == '__main__':
     with app.app_context():
         initialize_database()
-    # Use socketio.run() instead of app.run()
-    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
+    # Use app.run() instead of app.run()
+    app.run(app, debug=True, host='0.0.0.0', port=5000)
