@@ -73,7 +73,10 @@ google = oauth.register(
 # Initialize SQLAlchemy FIRST before any database operations
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
+# Add this right after db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
+    print("✅ Tables created")
 
 # ==================== SOCKET.IO INITIALIZATION ====================
 # Add Socket.IO right here after db initialization
