@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -18,18 +19,16 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import traceback
 
-# Add these lines to load .env file
 from dotenv import load_dotenv
-load_dotenv()  # This loads the .env file
+load_dotenv()
 
-# Add these imports for Google OAuth
 from authlib.integrations.flask_client import OAuth
 import requests
 
-# ==================== APP CONFIGURATION ====================
+# ==================== CREATE APP ONCE ====================
 app = Flask(__name__)
 
-# App Configuration
+# ==================== APP CONFIGURATION ====================
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-here')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -45,12 +44,37 @@ app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME', 'your-app@gm
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 
-# ==================== GOOGLE OAUTH CONFIGURATION ====================
+# ==================== DATABASE CONFIGURATION ====================
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    # PostgreSQL on Render
+    from urllib.parse import urlparse
+    uri = urlparse(DATABASE_URL)
+    if uri.scheme == 'postgres':
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_size': 5,
+        'pool_recycle': 300,
+        'connect_args': {'sslmode': 'require'},
+        'pool_pre_ping': True
+    }
+    print("✅ Using PostgreSQL (Production)")
+else:
+    # SQLite for local development
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shopmax.db'
+    print("✅ Using SQLite (Development)")
+
+# ==================== DATABASE INITIALIZATION ====================
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+# ==================== GOOGLE OAUTH ====================
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
-
 oauth = OAuth(app)
 
 google = oauth.register(
@@ -64,34 +88,10 @@ google = oauth.register(
     }
 )
 
-# ==================== DATABASE CONFIGURATION ====================
-import os
-from urllib.parse import urlparse
+# ==================== MODELS GO HERE ====================
+# PASTE ALL YOUR DATABASE MODELS HERE (User, Product, Order, etc.)
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-if DATABASE_URL:
-    uri = urlparse(DATABASE_URL)
-    if uri.scheme == 'postgres':
-        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
-    
-    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-        'pool_size': 5,
-        'pool_recycle': 300,
-        'connect_args': {'sslmode': 'require'}, 
-        'pool_pre_ping': True
-    }
-    print("✅ Using PostgreSQL database (Production)")
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shopmax.db'
-    print("✅ Using SQLite database (Development)")
-
-# ==================== DATABASE INITIALIZATION ====================
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-
-# FORCE TABLE CREATION
+# ==================== CREATE TABLES ====================
 with app.app_context():
     try:
         db.create_all()
@@ -100,26 +100,13 @@ with app.app_context():
         from sqlalchemy import inspect
         inspector = inspect(db.engine)
         tables = inspector.get_table_names()
-        print(f"📊 Tables in database: {tables}")
+        print(f"📊 Tables: {tables}")
         
     except Exception as e:
-        print(f"⚠️ Database initialization error: {e}")
-        import traceback
+        print(f"⚠️ Database error: {e}")
         traceback.print_exc()
 
 
-@app.route('/create-tables')
-def create_tables():
-    """Temporary route to create database tables"""
-    try:
-        db.create_all()
-        return "✅ Database tables created successfully! <a href='/'>Go Home</a>"
-    except Exception as e:
-        return f"❌ Error: {e}"
-
-
-# Add Socket.IO right here after db initialization
-from flask_cors import CORS
 
 # ==================== DATABASE MODELS ====================
 
@@ -558,6 +545,16 @@ class MessageReadReceipt(db.Model):
     
     message = db.relationship('Message', backref='read_receipts')
 
+
+
+@app.route('/create-tables')
+def create_tables():
+    """Force create tables"""
+    try:
+        db.create_all()
+        return "✅ Tables created! <a href='/'>Go Home</a>"
+    except Exception as e:
+        return f"❌ Error: {e}"
 
 
 
