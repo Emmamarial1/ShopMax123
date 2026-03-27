@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -25,7 +24,7 @@ load_dotenv()
 from authlib.integrations.flask_client import OAuth
 import requests
 
-# ==================== CREATE APP ONCE ====================
+# ==================== CREATE APP ====================
 app = Flask(__name__)
 
 # ==================== APP CONFIGURATION ====================
@@ -50,7 +49,6 @@ app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
-    # PostgreSQL on Render
     from urllib.parse import urlparse
     uri = urlparse(DATABASE_URL)
     if uri.scheme == 'postgres':
@@ -64,7 +62,6 @@ if DATABASE_URL:
     }
     print("✅ Using PostgreSQL (Production)")
 else:
-    # SQLite for local development
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shopmax.db'
     print("✅ Using SQLite (Development)")
 
@@ -87,27 +84,6 @@ google = oauth.register(
         'prompt': 'select_account'
     }
 )
-
-# ==================== MODELS GO HERE ====================
-# PASTE ALL YOUR DATABASE MODELS HERE (User, Product, Order, etc.)
-
-# ==================== CREATE TABLES ====================
-with app.app_context():
-    try:
-        db.create_all()
-        print("✅ Database tables created/verified!")
-        
-        from sqlalchemy import inspect
-        inspector = inspect(db.engine)
-        tables = inspector.get_table_names()
-        print(f"📊 Tables: {tables}")
-        
-    except Exception as e:
-        print(f"⚠️ Database error: {e}")
-        traceback.print_exc()
-        
-
-
 
 # ==================== DATABASE MODELS ====================
 
@@ -136,48 +112,24 @@ class User(db.Model):
     seller_rating = db.Column(db.Float, default=0.0)
     is_active = db.Column(db.Boolean, default=True)
 
-    # ============ ADD THESE PROPERTIES RIGHT HERE ============
     @property
     def is_new_seller(self):
-        """Check if seller is new (never subscribed before)"""
-        # A seller is new if:
-        # 1. They are a seller
-        # 2. They have no subscription tier (None or empty string)
-        # 3. They have no subscription expiry
         if self.user_type != 'seller':
             return False
-        
-        # Check if they have any subscription
-        has_subscription = (self.subscription_tier is not None and 
-                           self.subscription_tier != '' and 
-                           self.subscription_tier != 'basic' and 
-                           self.subscription_tier != 'premium' and
-                           self.subscription_tier != 'starter')
-        
-        # Also check if they have an expiry date
-        has_expiry = self.subscription_expiry is not None
-        
-        # They are new if they have NO subscription tier AND NO expiry
         return (self.subscription_tier is None or self.subscription_tier == '') and self.subscription_expiry is None
     
     @property
     def has_active_subscription(self):
-        """Check if seller has an active subscription"""
         if self.user_type != 'seller':
             return True
-        
-        # Check if they have a subscription tier and expiry that's not expired
         if self.subscription_tier and self.subscription_expiry:
             return self.subscription_expiry > datetime.utcnow()
-        
         return False
     
     @property
     def current_subscription(self):
-        """Get current subscription details"""
         if self.user_type != 'seller':
             return None
-        
         if self.subscription_tier and self.subscription_expiry and self.subscription_expiry > datetime.utcnow():
             return {
                 'plan': self.subscription_tier,
@@ -185,9 +137,7 @@ class User(db.Model):
                 'is_active': True
             }
         return None
-    # ============ END OF PROPERTIES ============
 
-    # Relationships - FIX THESE
     products = db.relationship('Product', backref='seller', lazy=True)
     orders = db.relationship('Order', backref='user', foreign_keys='Order.user_id', lazy=True)
     order_items = db.relationship('OrderItem', backref='seller', foreign_keys='OrderItem.seller_id', lazy=True)
@@ -218,7 +168,6 @@ class Product(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
     order_items = db.relationship('OrderItem', backref='product', lazy=True)
     wishlists = db.relationship('Wishlist', backref='product', lazy=True)
     carts = db.relationship('Cart', backref='product', lazy=True)
@@ -237,7 +186,7 @@ class Order(db.Model):
     delivery_address = db.Column(db.Text)
     payment_method = db.Column(db.String(50))
     payment_status = db.Column(db.String(20), default='pending')
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # This should be fine
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     tracking_number = db.Column(db.String(50), unique=True, nullable=True)
@@ -249,7 +198,6 @@ class Order(db.Model):
     current_location = db.Column(db.String(200), nullable=True)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
     order_items = db.relationship('OrderItem', backref='order', lazy=True)
 
 class OrderItem(db.Model):
@@ -314,7 +262,6 @@ class DeliveryPerson(db.Model):
     name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
     photo = db.Column(db.String(200), nullable=True)
-   
     vehicle_type = db.Column(db.String(50), default='motorcycle')
     vehicle_number = db.Column(db.String(50))
     current_location = db.Column(db.String(200), nullable=True)
@@ -339,13 +286,13 @@ class DeliveryTracking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
     delivery_person_id = db.Column(db.Integer, db.ForeignKey('delivery_persons.id'), nullable=True)
-    latitude = db.Column(db.Float, nullable=True)  # Store actual GPS coordinates
+    latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
-    location_name = db.Column(db.String(200), nullable=True)  # Human-readable address
+    location_name = db.Column(db.String(200), nullable=True)
     status = db.Column(db.String(50), nullable=False)
     battery_level = db.Column(db.Integer, nullable=True)
-    speed = db.Column(db.Float, nullable=True)  # Speed in km/h
-    accuracy = db.Column(db.Float, nullable=True)  # GPS accuracy in meters
+    speed = db.Column(db.Float, nullable=True)
+    accuracy = db.Column(db.Float, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     order = db.relationship('Order', backref=db.backref('tracking_points', lazy=True))
@@ -382,9 +329,6 @@ class UCUEmail(db.Model):
     faculty = db.Column(db.String(100), nullable=True)
     staff_title = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    def __repr__(self):
-        return f'<UCUEmail {self.email}>'
 
 class NINVerification(db.Model):
     __tablename__ = 'nin_verifications'
@@ -394,8 +338,6 @@ class NINVerification(db.Model):
     date_of_birth = db.Column(db.String(20))
     is_valid = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-
 
 class DeliveryProof(db.Model):
     __tablename__ = 'delivery_proofs'
@@ -416,7 +358,7 @@ class DeliveryCheckpoint(db.Model):
     __tablename__ = 'delivery_checkpoints'
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
-    checkpoint_type = db.Column(db.String(50), nullable=False)  # warehouse, pickup, transit, destination
+    checkpoint_type = db.Column(db.String(50), nullable=False)
     location = db.Column(db.String(200), nullable=True)
     estimated_arrival = db.Column(db.DateTime, nullable=True)
     actual_arrival = db.Column(db.DateTime, nullable=True)
@@ -425,16 +367,15 @@ class DeliveryCheckpoint(db.Model):
     
     order = db.relationship('Order', backref=db.backref('checkpoints', lazy=True))
 
-
 class Issue(db.Model):
     __tablename__ = 'issues'
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    issue_type = db.Column(db.String(50), nullable=False)  # 'damaged', 'wrong_item', 'missing', 'late', 'other'
+    issue_type = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(20), default='pending')  # 'pending', 'in_progress', 'resolved', 'closed'
-    priority = db.Column(db.String(20), default='medium')  # 'low', 'medium', 'high', 'urgent'
+    status = db.Column(db.String(20), default='pending')
+    priority = db.Column(db.String(20), default='medium')
     action_taken = db.Column(db.Text, nullable=True)
     resolution_notes = db.Column(db.Text, nullable=True)
     admin_response = db.Column(db.Text, nullable=True)
@@ -444,27 +385,9 @@ class Issue(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationships
     order = db.relationship('Order', backref=db.backref('issues', lazy=True))
     user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('reported_issues', lazy=True))
     responder = db.relationship('User', foreign_keys=[responded_by], backref=db.backref('responded_issues', lazy=True))
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'order_id': self.order_id,
-            'issue_type': self.issue_type,
-            'description': self.description,
-            'status': self.status,
-            'priority': self.priority,
-            'action_taken': self.action_taken,
-            'resolution_notes': self.resolution_notes,
-            'admin_response': self.admin_response,
-            'responder_name': self.responder.fullname if self.responder else None,
-            'responded_at': self.responded_at.strftime('%d %b %Y %H:%M') if self.responded_at else None,
-            'created_at': self.created_at.strftime('%d %b %Y %H:%M'),
-            'order_total': self.order.total_amount if self.order else 0
-        }
 
 class IssueMessage(db.Model):
     __tablename__ = 'issue_messages'
@@ -475,22 +398,17 @@ class IssueMessage(db.Model):
     is_admin_reply = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationships
     issue = db.relationship('Issue', backref=db.backref('messages', lazy=True))
     sender = db.relationship('User', foreign_keys=[sender_id], backref=db.backref('issue_messages', lazy=True))
-
-
-# ==================== CHAT MODELS ====================
-# Add these after your existing models (around line 300-400)
 
 class Conversation(db.Model):
     __tablename__ = 'conversations'
     id = db.Column(db.Integer, primary_key=True)
     participant1_id = db.Column(db.Integer, nullable=False)
-    participant1_type = db.Column(db.String(20), nullable=False)  # 'buyer', 'seller', 'admin'
+    participant1_type = db.Column(db.String(20), nullable=False)
     participant2_id = db.Column(db.Integer, nullable=False)
     participant2_type = db.Column(db.String(20), nullable=False)
-    conversation_type = db.Column(db.String(20), nullable=False)  # 'buyer-seller', 'seller-admin', 'buyer-admin'
+    conversation_type = db.Column(db.String(20), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=True)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=True)
     last_message_id = db.Column(db.Integer, nullable=True)
@@ -499,8 +417,6 @@ class Conversation(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     
-    
-    # Relationships
     messages = db.relationship('Message', backref='conversation', lazy=True, cascade='all, delete-orphan')
     product = db.relationship('Product', backref='conversations')
     order = db.relationship('Order', backref='conversations')
@@ -510,10 +426,10 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     conversation_id = db.Column(db.Integer, db.ForeignKey('conversations.id'), nullable=False)
     sender_id = db.Column(db.Integer, nullable=False)
-    sender_type = db.Column(db.String(20), nullable=False)  # 'buyer', 'seller', 'admin'
+    sender_type = db.Column(db.String(20), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    message_type = db.Column(db.String(20), default='text')  # 'text', 'image', 'file'
-    attachments = db.Column(db.Text, nullable=True)  # JSON string of attachments
+    message_type = db.Column(db.String(20), default='text')
+    attachments = db.Column(db.Text, nullable=True)
     is_read = db.Column(db.Boolean, default=False)
     is_delivered = db.Column(db.Boolean, default=False)
     is_edited = db.Column(db.Boolean, default=False)
@@ -546,8 +462,22 @@ class MessageReadReceipt(db.Model):
     
     message = db.relationship('Message', backref='read_receipts')
 
+# ==================== CREATE TABLES ====================
+with app.app_context():
+    try:
+        db.create_all()
+        print("✅ Database tables created/verified!")
+        
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
+        print(f"📊 Tables: {tables}")
+        
+    except Exception as e:
+        print(f"⚠️ Database error: {e}")
+        traceback.print_exc()
 
-
+# ==================== TEMPORARY SETUP ROUTE ====================
 @app.route('/create-tables')
 def create_tables():
     """Force create tables"""
