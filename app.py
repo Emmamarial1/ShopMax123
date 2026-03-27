@@ -729,110 +729,6 @@ def get_wishlist_ids(user_id):
 
 
 
-@app.route('/seller/products/add', methods=['GET', 'POST'])
-@login_required
-def add_product():
-    """Add a new product"""
-    user = get_current_user()
-    
-    if user.user_type != 'seller':
-        flash('Access denied. Seller account required.', 'danger')
-        return redirect(url_for('products'))
-    
-    # Check subscription and product limits
-    if not has_active_subscription(user):
-        flash('Please subscribe to a plan to add products.', 'info')
-        return redirect(url_for('seller_subscription'))
-    
-    # Get current product count
-    current_products = Product.query.filter_by(seller_id=user.id, is_active=True).count()
-    
-    # Define product limits per plan
-    plan_limits = {
-        'starter': 4,
-        'basic': 25,
-        'premium': 100
-    }
-    
-    max_products = plan_limits.get(user.subscription_tier, 0)
-    
-    if current_products >= max_products:
-        flash(f'You have reached your plan limit of {max_products} products. Please upgrade to add more.', 'warning')
-        return redirect(url_for('seller_subscription'))
-    
-    if request.method == 'POST':
-        try:
-            name = request.form.get('name', '').strip()
-            description = request.form.get('description', '').strip()
-            price = request.form.get('price', '').strip()
-            category = request.form.get('category', '').strip()
-            stock = request.form.get('stock', '1').strip()
-            brand = request.form.get('brand', '').strip()
-            condition = request.form.get('condition', 'new')
-            
-            if not all([name, description, price, category]):
-                flash('Please fill in all required fields: Name, Description, Price, and Category.', 'danger')
-                return render_template('add_product.html')
-            
-            # Handle image upload
-            image_filename = None
-            image_file = request.files.get('image')
-            
-            if image_file and image_file.filename:
-                if allowed_file(image_file.filename):
-                    # Ensure upload folder exists
-                    ensure_upload_folder()
-                    
-                    # Create secure filename with timestamp
-                    filename = secure_filename(image_file.filename)
-                    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S_')
-                    image_filename = timestamp + filename
-                    
-                    # Save the file
-                    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
-                    image_file.save(image_path)
-                    
-                    # Verify file was saved
-                    if not os.path.exists(image_path):
-                        flash('Error saving image file', 'danger')
-                        return render_template('add_product.html')
-                else:
-                    flash('Please upload JPG, PNG, or GIF images only.', 'danger')
-                    return render_template('add_product.html')
-            
-            # Create product
-            new_product = Product(
-                name=name,
-                description=description,
-                price=float(price),
-                category=category,
-                stock=int(stock) if stock else 1,
-                image=image_filename,
-                brand=brand if brand else None,
-                condition=condition,
-                seller_id=user.id,
-                is_active=True
-            )
-            
-            db.session.add(new_product)
-            db.session.commit()
-            
-            flash('🎉 Product added successfully!', 'success')
-            return redirect(url_for('manage_products'))
-            
-        except ValueError as e:
-            flash('Please enter valid price and stock values.', 'danger')
-            return render_template('add_product.html')
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error adding product: {e}")
-            traceback.print_exc()
-            flash('Error adding product. Please try again.', 'danger')
-            return render_template('add_product.html')
-    
-    return render_template('add_product.html')
-
-
 
 
 
@@ -882,12 +778,6 @@ def debug_upload_folder():
     """
     
     return html
-
-
-
-
-
-
 
 
 
