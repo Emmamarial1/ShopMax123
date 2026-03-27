@@ -127,10 +127,7 @@ migrate = Migrate(app, db)
 # FORCE TABLE CREATION
 with app.app_context():
     try:
-        # Import all models to ensure they're registered
-        from app import User, Product, Order, OrderItem, Cart, Wishlist, Review, Conversation, Message
-        
-        # Create all tables (this will skip existing ones)
+        # Create all tables (no need to import models - SQLAlchemy already knows them)
         db.create_all()
         print("✅ Database tables created/verified!")
         
