@@ -678,6 +678,60 @@ def get_order_status_display(status):
     return status_map.get(status, status.replace('_', ' ').title())
 
 
+
+
+
+@app.route('/create-admin-user')
+def create_admin_user():
+    """Create admin user for testing"""
+    try:
+        # Check if admin exists
+        admin = User.query.filter_by(email='admin@shopmax.com').first()
+        if not admin:
+            admin = User(
+                fullname='ShopMax Admin',
+                email='admin@shopmax.com',
+                password=generate_password_hash('admin123'),
+                user_type='admin',
+                is_active=True
+            )
+            db.session.add(admin)
+            db.session.commit()
+            return "✅ Admin user created!<br>Email: admin@shopmax.com<br>Password: admin123<br><a href='/login'>Go to Login</a>"
+        else:
+            return "Admin already exists!<br>Email: admin@shopmax.com<br>Password: admin123<br><a href='/login'>Go to Login</a>"
+    except Exception as e:
+        return f"❌ Error: {e}"
+
+
+
+
+@app.route('/create-test-user')
+def create_test_user():
+    """Create test buyer user"""
+    try:
+        user = User.query.filter_by(email='test@example.com').first()
+        if not user:
+            user = User(
+                fullname='Test Buyer',
+                email='test@example.com',
+                password=generate_password_hash('test123'),
+                user_type='buyer',
+                is_active=True
+            )
+            db.session.add(user)
+            db.session.commit()
+            return "✅ Test user created!<br>Email: test@example.com<br>Password: test123<br><a href='/login'>Go to Login</a>"
+        else:
+            return "Test user already exists!<br>Email: test@example.com<br>Password: test123<br><a href='/login'>Go to Login</a>"
+    except Exception as e:
+        return f"❌ Error: {e}"
+
+
+
+
+
+
 # ==================== CHAT HELPER FUNCTIONS ====================
 
 def get_user_conversations(user_id, user_type, page=1, limit=20):
