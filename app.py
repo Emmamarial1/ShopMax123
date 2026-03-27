@@ -92,7 +92,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max file size
 
 # ==================== DATABASE CONFIGURATION (MUST BE BEFORE db.create_all) ====================
-
 import os
 from urllib.parse import urlparse
 
@@ -110,6 +109,7 @@ if DATABASE_URL:
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
         'pool_size': 5,
         'pool_recycle': 300,
+        'connect_args': {'sslmode': 'require'}, 
         'pool_pre_ping': True
     }
     print("✅ Using PostgreSQL database (Production)")
