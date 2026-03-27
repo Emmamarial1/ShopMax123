@@ -705,6 +705,60 @@ def create_admin_user():
 
 
 
+# ==================== FIX ADMIN USER ====================
+@app.route('/fix-admin')
+def fix_admin():
+    """Fix admin user with correct credentials"""
+    try:
+        # Delete old admin if exists
+        old_admin = User.query.filter_by(email='admin@shopmax.com').first()
+        if old_admin:
+            db.session.delete(old_admin)
+            db.session.commit()
+        
+        # Check if user with our email exists
+        user = User.query.filter_by(email='shopmax4321@gmail.com').first()
+        if user:
+            user.user_type = 'admin'
+            user.password = generate_password_hash('ShopMax1234')
+            user.fullname = 'ShopMax Admin'
+            db.session.commit()
+            return """
+            <h1>✅ Admin Updated!</h1>
+            <p>Email: shopmax4321@gmail.com</p>
+            <p>Password: ShopMax1234</p>
+            <a href="/login">Login Now</a>
+            """
+        else:
+            # Create new admin
+            admin = User(
+                fullname='ShopMax Admin',
+                email='shopmax4321@gmail.com',
+                password=generate_password_hash('ShopMax1234'),
+                user_type='admin',
+                is_active=True
+            )
+            db.session.add(admin)
+            db.session.commit()
+            return """
+            <h1>✅ Admin Created!</h1>
+            <p>Email: shopmax4321@gmail.com</p>
+            <p>Password: ShopMax1234</p>
+            <a href="/login">Login Now</a>
+            """
+    except Exception as e:
+        return f"<h1>Error: {e}</h1>"
+
+
+
+@app.route('/ping')
+def ping():
+    """Simple test route to check if app is running"""
+    return "✅ ShopMax is running! Visit /fix-admin to create admin user."
+
+
+
+
 
 @app.route('/fix-admin-user')
 def fix_admin_user():
