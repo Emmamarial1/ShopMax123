@@ -975,14 +975,6 @@ def create_admin_user():
 
 
 
-<!-- Correct way to display product images -->
-<img src="{{ url_for('static', filename='uploads/' + product.image) }}" 
-     alt="{{ product.name }}"
-     onerror="this.src='{{ url_for('static', filename='images/default-product.png') }}'">
-
-
-
-
 
 # Add this at the bottom of your app.py, right before if __name__ == '__main__':
 def ensure_all_folders():
