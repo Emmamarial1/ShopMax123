@@ -7656,6 +7656,233 @@ def debug_issue_messages(issue_id):
 
 
 
+@app.route('/api/messages/conversations/<int:conversation_id>/messages', methods=['GET'])
+@login_required
+def api_get_conversation_messages(conversation_id):
+    """Get messages for a specific conversation"""
+    try:
+        user_id = session['user_id']
+        
+        # Verify user is part of conversation
+        conversation = Conversation.query.get(conversation_id)
+        if not conversation:
+            return jsonify({'success': False, 'error': 'Conversation not found'}), 404
+        
+        if not (conversation.participant1_id == user_id or conversation.participant2_id == user_id):
+            return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+        
+        # Get messages
+        messages = Message.query.filter_by(
+            conversation_id=conversation_id,
+            is_deleted=False
+        ).order_by(Message.created_at.asc()).all()
+        
+        result = []
+        for msg in messages:
+            # Get sender details
+            sender = User.query.get(msg.sender_id)
+            
+            result.append({
+                'id': msg.id,
+                'conversation_id': msg.conversation_id,
+                'sender_id': msg.sender_id,
+                'sender_type': msg.sender_type,
+                'sender_name': sender.fullname or sender.business_name if sender else 'Unknown',
+                'content': msg.content,
+                'message_type': msg.message_type,
+                'attachments': json.loads(msg.attachments) if msg.attachments else [],
+                'is_read': msg.is_read,
+                'is_delivered': msg.is_delivered,
+                'is_edited': msg.is_edited,
+                'created_at': msg.created_at.isoformat() if msg.created_at else None
+            })
+        
+        # Mark messages as read
+        unread_messages = Message.query.filter(
+            Message.conversation_id == conversation_id,
+            Message.sender_id != user_id,
+            Message.is_read == False
+        ).all()
+        
+        for msg in unread_messages:
+            msg.is_read = True
+        
+        if unread_messages:
+            db.session.commit()
+        
+        return jsonify({'success': True, 'data': result})
+    except Exception as e:
+        print(f"Error in api_get_conversation_messages: {e}")
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+
+@app.route('/api/messages/conversations/<int:conversation_id>/read', methods=['PUT'])
+@login_required
+def api_mark_conversation_read(conversation_id):
+    """Mark conversation as read"""
+    try:
+        user_id = session['user_id']
+        mark_conversation_as_read(conversation_id, user_id)
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error marking conversation as read: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/messages/conversations', methods=['GET'])
+@login_required
+def api_get_conversations():
+    """Get all conversations for current user"""
+    try:
+        user_id = session['user_id']
+        user_type = session['user_type']
+        
+        conversations = get_user_conversations(user_id, user_type)
+        
+        return jsonify({'success': True, 'data': conversations})
+    except Exception as e:
+        print(f"Error in api_get_conversations: {e}")
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+@app.route('/api/messages/send', methods=['POST'])
+@login_required
+def api_send_message():
+    """Send a new message"""
+    try:
+        data = request.get_json()
+        user_id = session['user_id']
+        user_type = session['user_type']
+        
+        conversation_id = data.get('conversation_id')
+        content = data.get('content', '').strip()
+        
+        if not conversation_id or not content:
+            return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+        
+        # Create message
+        message = Message(
+            conversation_id=conversation_id,
+            sender_id=user_id,
+            sender_type=user_type,
+            content=content,
+            message_type='text',
+            created_at=datetime.utcnow()
+        )
+        db.session.add(message)
+        
+        # Update conversation
+        conversation = Conversation.query.get(conversation_id)
+        if conversation:
+            conversation.last_message_id = message.id
+            conversation.last_message_at = datetime.utcnow()
+            conversation.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({'success': True, 'data': message.to_dict()})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error sending message: {e}")
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+
+
+
+
+@app.route('/api/messages/start-admin-chat', methods=['POST'])
+@login_required
+def api_start_admin_chat():
+    """Start a chat with admin"""
+    try:
+        data = request.get_json()
+        user_id = session['user_id']
+        user_type = session['user_type']
+        
+        # Find an admin
+        admin = User.query.filter_by(user_type='admin').first()
+        if not admin:
+            return jsonify({'success': False, 'error': 'No admin available'}), 404
+        
+        # Check if conversation already exists
+        existing = Conversation.query.filter(
+            db.or_(
+                db.and_(
+                    Conversation.participant1_id == user_id,
+                    Conversation.participant1_type == user_type,
+                    Conversation.participant2_id == admin.id,
+                    Conversation.participant2_type == 'admin'
+                ),
+                db.and_(
+                    Conversation.participant1_id == admin.id,
+                    Conversation.participant1_type == 'admin',
+                    Conversation.participant2_id == user_id,
+                    Conversation.participant2_type == user_type
+                )
+            )
+        ).first()
+        
+        if existing:
+            conversation_id = existing.id
+        else:
+            # Create new conversation
+            conversation = Conversation(
+                participant1_id=user_id,
+                participant1_type=user_type,
+                participant2_id=admin.id,
+                participant2_type='admin',
+                conversation_type=f'{user_type}-admin',
+                created_at=datetime.utcnow()
+            )
+            db.session.add(conversation)
+            db.session.flush()
+            conversation_id = conversation.id
+        
+        # Send initial message
+        initial_message = data.get('initial_message', 'Hello, I need assistance.')
+        if initial_message:
+            message = Message(
+                conversation_id=conversation_id,
+                sender_id=user_id,
+                sender_type=user_type,
+                content=initial_message,
+                created_at=datetime.utcnow()
+            )
+            db.session.add(message)
+            
+            # Update conversation
+            conv = Conversation.query.get(conversation_id)
+            conv.last_message_id = message.id
+            conv.last_message_at = datetime.utcnow()
+            conv.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'conversation_id': conversation_id
+        })
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error starting admin chat: {e}")
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+
+
+
+
+
 @app.route('/add-test-message/<int:issue_id>')
 @admin_required
 def add_test_message(issue_id):
