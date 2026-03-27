@@ -729,6 +729,135 @@ def get_wishlist_ids(user_id):
 
 
 
+
+@app.route('/debug/upload-folder')
+@admin_required
+def debug_upload_folder():
+    """Check upload folder status"""
+    import os
+    
+    upload_folder = app.config['UPLOAD_FOLDER']
+    uploads_path = os.path.join(os.getcwd(), upload_folder)
+    
+    html = f"""
+    <html>
+    <head><title>Upload Folder Debug</title></head>
+    <body style="font-family: Arial; padding: 20px;">
+        <h1>📁 Upload Folder Debug</h1>
+        <p><strong>Configured folder:</strong> {upload_folder}</p>
+        <p><strong>Full path:</strong> {uploads_path}</p>
+        <p><strong>Folder exists:</strong> {'✅ Yes' if os.path.exists(uploads_path) else '❌ No'}</p>
+        <p><strong>Folder writable:</strong> {'✅ Yes' if os.access(uploads_path, os.W_OK) else '❌ No'}</p>
+        
+        <h3>Files in upload folder:</h3>
+        <ul>
+    """
+    
+    if os.path.exists(uploads_path):
+        files = os.listdir(uploads_path)
+        if files:
+            for file in files:
+                file_path = os.path.join(uploads_path, file)
+                file_size = os.path.getsize(file_path)
+                modified = datetime.fromtimestamp(os.path.getmtime(file_path))
+                html += f"<li>{file} - {file_size} bytes - modified: {modified.strftime('%Y-%m-%d %H:%M')}</li>"
+        else:
+            html += "<li>No files found in upload folder</li>"
+    else:
+        html += "<li style='color:red'>Upload folder does not exist!</li>"
+    
+    html += """
+        </ul>
+        <p><a href="/admin/dashboard">Back to Admin</a></p>
+    </body>
+    </html>
+    """
+    
+    return html
+
+
+
+
+@app.route('/seller/products/add', methods=['GET', 'POST'])
+@login_required
+def add_product():
+    user = get_current_user()
+    
+    if request.method == 'POST':
+        try:
+            # ... other code ...
+            
+            # IMAGE UPLOAD - FIXED VERSION
+            image_file = request.files.get('image')
+            image_filename = None
+            
+            if image_file and image_file.filename:
+                if allowed_file(image_file.filename):
+                    # Ensure upload folder exists
+                    ensure_upload_folder()
+                    
+                    # Create secure filename with timestamp to avoid conflicts
+                    filename = secure_filename(image_file.filename)
+                    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S_')
+                    image_filename = timestamp + filename
+                    
+                    # Full path
+                    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
+                    
+                    # Save the file
+                    image_file.save(image_path)
+                    
+                    # Verify file was saved
+                    if os.path.exists(image_path):
+                        print(f"✅ Image saved: {image_path} ({os.path.getsize(image_path)} bytes)")
+                    else:
+                        print(f"❌ Failed to save image: {image_path}")
+                        flash('Error saving image file', 'danger')
+                        return render_template('add_product.html')
+                else:
+                    flash('Please upload JPG, PNG, or GIF images only.', 'danger')
+                    return render_template('add_product.html')
+            
+            # Create product with image filename
+            new_product = Product(
+                name=name,
+                description=description,
+                price=float(price),
+                category=category,
+                stock=int(stock) if stock else 1,
+                image=image_filename,  # Store only filename, not full path
+                brand=brand if brand else None,
+                condition=condition,
+                seller_id=user.id,
+                is_active=True
+            )
+            
+            db.session.add(new_product)
+            db.session.commit()
+            
+            print(f"✅ Product added: ID {new_product.id}, Image: {image_filename}")
+            flash('🎉 Product added successfully!', 'success')
+            return redirect(url_for('manage_products'))
+            
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Error adding product: {e}")
+            traceback.print_exc()
+            flash('Error adding product. Please try again.', 'danger')
+            return render_template('add_product.html')
+    
+    return render_template('add_product.html')
+
+
+
+
+
+
+
+
+
+
+
 # Add this helper function to your app.py
 def get_order_status_display(status):
     """Convert database status to user-friendly display text"""
@@ -744,6 +873,79 @@ def get_order_status_display(status):
         'cancelled': 'Cancelled'
     }
     return status_map.get(status, status.replace('_', ' ').title())
+
+
+
+@app.route('/seller/products/add', methods=['GET', 'POST'])
+@login_required
+def add_product():
+    user = get_current_user()
+    
+    if request.method == 'POST':
+        try:
+            # ... other code ...
+            
+            # IMAGE UPLOAD - FIXED VERSION
+            image_file = request.files.get('image')
+            image_filename = None
+            
+            if image_file and image_file.filename:
+                if allowed_file(image_file.filename):
+                    # Ensure upload folder exists
+                    ensure_upload_folder()
+                    
+                    # Create secure filename with timestamp to avoid conflicts
+                    filename = secure_filename(image_file.filename)
+                    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S_')
+                    image_filename = timestamp + filename
+                    
+                    # Full path
+                    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
+                    
+                    # Save the file
+                    image_file.save(image_path)
+                    
+                    # Verify file was saved
+                    if os.path.exists(image_path):
+                        print(f"✅ Image saved: {image_path} ({os.path.getsize(image_path)} bytes)")
+                    else:
+                        print(f"❌ Failed to save image: {image_path}")
+                        flash('Error saving image file', 'danger')
+                        return render_template('add_product.html')
+                else:
+                    flash('Please upload JPG, PNG, or GIF images only.', 'danger')
+                    return render_template('add_product.html')
+            
+            # Create product with image filename
+            new_product = Product(
+                name=name,
+                description=description,
+                price=float(price),
+                category=category,
+                stock=int(stock) if stock else 1,
+                image=image_filename,  # Store only filename, not full path
+                brand=brand if brand else None,
+                condition=condition,
+                seller_id=user.id,
+                is_active=True
+            )
+            
+            db.session.add(new_product)
+            db.session.commit()
+            
+            print(f"✅ Product added: ID {new_product.id}, Image: {image_filename}")
+            flash('🎉 Product added successfully!', 'success')
+            return redirect(url_for('manage_products'))
+            
+        except Exception as e:
+            db.session.rollback()
+            print(f"❌ Error adding product: {e}")
+            traceback.print_exc()
+            flash('Error adding product. Please try again.', 'danger')
+            return render_template('add_product.html')
+    
+    return render_template('add_product.html')
+
 
 
 
@@ -770,6 +972,66 @@ def create_admin_user():
             return "Admin already exists!<br>Email: admin@shopmax.com<br>Password: admin123<br><a href='/login'>Go to Login</a>"
     except Exception as e:
         return f"❌ Error: {e}"
+
+
+
+<!-- Correct way to display product images -->
+<img src="{{ url_for('static', filename='uploads/' + product.image) }}" 
+     alt="{{ product.name }}"
+     onerror="this.src='{{ url_for('static', filename='images/default-product.png') }}'">
+
+
+
+
+
+# Add this at the bottom of your app.py, right before if __name__ == '__main__':
+def ensure_all_folders():
+    """Ensure all required folders exist"""
+    folders = [
+        'static',
+        'static/uploads',
+        'static/uploads/products',
+        'static/uploads/payments',
+        'static/uploads/temp'
+    ]
+    
+    for folder in folders:
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+            print(f"✅ Created folder: {folder}")
+        else:
+            print(f"📁 Folder exists: {folder}")
+    
+    # Set proper permissions (on Unix-like systems)
+    try:
+        os.chmod('static/uploads', 0o755)
+    except:
+        pass
+
+# Call this before app.run
+ensure_all_folders()
+
+
+
+
+@app.route('/debug/check-product-images')
+@admin_required
+def check_product_images():
+    """Check what's stored in database"""
+    products = Product.query.all()
+    
+    result = []
+    for p in products:
+        result.append({
+            'id': p.id,
+            'name': p.name,
+            'image_db': p.image,
+            'image_type': type(p.image).__name__
+        })
+    
+    return jsonify(result)
+
+
 
 
 
