@@ -119,20 +119,48 @@ else:
     print("✅ Using SQLite database (Development)")
 
 # ==================== DATABASE INITIALIZATION ====================
-# Initialize SQLAlchemy AFTER database URL is set
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Create tables AFTER db is initialized
+# Create tables with debugging
 with app.app_context():
     try:
+        # Print which database we're using
+        print(f"🔍 Database URL: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
+        
+        # Check if tables exist
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        existing_tables = inspector.get_table_names()
+        print(f"📊 Existing tables: {existing_tables}")
+        
+        # Create tables
         db.create_all()
-        print("✅ Database tables created/verified successfully!")
+        
+        # Verify tables were created
+        inspector = inspect(db.engine)
+        new_tables = inspector.get_table_names()
+        print(f"✅ Tables after create_all: {new_tables}")
+        
     except Exception as e:
-        print(f"⚠️ Database table creation error: {e}")
+        print(f"⚠️ Database error: {e}")
+        import traceback
+        traceback.print_exc()
 
-# ==================== GOOGLE OAUTH CONFIGURATION ====================
-# ... rest of your code ...
+with app.app_context():
+    try:
+        # Import all models to ensure they're registered
+        from app import User, Product, Order, OrderItem, Cart, Wishlist, Review
+        
+        # Create all tables (will skip existing ones)
+        db.create_all()
+        print("✅ Database tables checked/created")
+        
+        # Check if User table has data (optional)
+        if User.query.count() == 0:
+            print("⚠️ No users found. Create an admin user.")
+    except Exception as e:
+        print(f"⚠️ Database error: {e}")
 
 
 
