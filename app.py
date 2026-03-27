@@ -490,6 +490,74 @@ def create_tables():
 
 
 
+
+@app.route('/debug/check-tables')
+def debug_check_tables():
+    """Check if all tables exist"""
+    try:
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
+        
+        # Check for messaging tables
+        has_conversations = 'conversations' in tables
+        has_messages = 'messages' in tables
+        has_read_receipts = 'message_read_receipts' in tables
+        
+        return f"""
+        <html>
+        <body style="font-family: Arial; padding: 40px;">
+            <h1>Database Tables Check</h1>
+            <p><strong>All Tables:</strong> {', '.join(tables)}</p>
+            <hr>
+            <h3>Messaging Tables:</h3>
+            <p>✅ Conversations table: {'Exists' if has_conversations else 'MISSING!'}</p>
+            <p>✅ Messages table: {'Exists' if has_messages else 'MISSING!'}</p>
+            <p>✅ Read Receipts table: {'Exists' if has_read_receipts else 'MISSING!'}</p>
+            
+            <div style="margin-top: 20px;">
+                <a href="/create-missing-tables" class="btn">Create Missing Tables</a>
+                <a href="/admin/dashboard" class="btn">Back to Admin</a>
+            </div>
+        </body>
+        </html>
+        """
+    except Exception as e:
+        return f"<h1>Error: {e}</h1>"
+
+
+
+
+
+
+@app.route('/create-missing-tables')
+def create_missing_tables():
+    """Create missing messaging tables"""
+    try:
+        # Create all tables if missing
+        db.create_all()
+        
+        # Verify tables exist
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
+        
+        return f"""
+        <html>
+        <body style="font-family: Arial; padding: 40px;">
+            <h1 style="color: green;">✅ Tables Created!</h1>
+            <p>All tables have been created/verified.</p>
+            <p><strong>Tables:</strong> {', '.join(tables)}</p>
+            <a href="/chat">Go to Chat</a> | <a href="/admin/dashboard">Admin Dashboard</a>
+        </body>
+        </html>
+        """
+    except Exception as e:
+        return f"<h1>Error: {e}</h1>"
+
+
+
+
 # ==================== PRODUCTION SETTINGS ====================
 
 # For Render.com - ensure upload folder exists
