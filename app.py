@@ -31,7 +31,6 @@ app = Flask(__name__)
 
 # App Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-here')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shopmax.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Email Configuration
@@ -49,14 +48,11 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max file size
 
 # ==================== GOOGLE OAUTH CONFIGURATION ====================
-# Your Google OAuth credentials from .env file
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
 
-# Initialize OAuth
 oauth = OAuth(app)
 
-# Configure Google OAuth
 google = oauth.register(
     name='google',
     client_id=GOOGLE_CLIENT_ID,
@@ -64,43 +60,17 @@ google = oauth.register(
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
         'scope': 'openid email profile',
-        'prompt': 'select_account'  # Force account selection
+        'prompt': 'select_account'
     }
 )
 
-
-
-# ==================== APP CONFIGURATION ====================
-app = Flask(__name__)
-
-# App Configuration
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-here')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Email Configuration
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'your-app@gmail.com')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'your-app-password')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME', 'your-app@gmail.com')
-
-# Upload Configuration
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max file size
-
-# ==================== DATABASE CONFIGURATION (MUST BE BEFORE db.create_all) ====================
+# ==================== DATABASE CONFIGURATION ====================
 import os
 from urllib.parse import urlparse
 
-# Database configuration - Check for PostgreSQL FIRST
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
-    # Production (Render.com PostgreSQL)
-    # Fix for Render's PostgreSQL URL format
     uri = urlparse(DATABASE_URL)
     if uri.scheme == 'postgres':
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
@@ -114,11 +84,8 @@ if DATABASE_URL:
     }
     print("✅ Using PostgreSQL database (Production)")
 else:
-    # Local development (SQLite)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shopmax.db'
     print("✅ Using SQLite database (Development)")
-
-
 
 # ==================== DATABASE INITIALIZATION ====================
 db = SQLAlchemy(app)
@@ -127,11 +94,9 @@ migrate = Migrate(app, db)
 # FORCE TABLE CREATION
 with app.app_context():
     try:
-        # Create all tables (no need to import models - SQLAlchemy already knows them)
         db.create_all()
         print("✅ Database tables created/verified!")
         
-        # Verify tables exist
         from sqlalchemy import inspect
         inspector = inspect(db.engine)
         tables = inspector.get_table_names()
@@ -152,7 +117,7 @@ def create_tables():
     except Exception as e:
         return f"❌ Error: {e}"
 
-# ==================== SOCKET.IO INITIALIZATION ====================
+
 # Add Socket.IO right here after db initialization
 from flask_cors import CORS
 
