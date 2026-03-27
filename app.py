@@ -105,6 +105,7 @@ with app.app_context():
     except Exception as e:
         print(f"⚠️ Database error: {e}")
         traceback.print_exc()
+        
 
 
 
