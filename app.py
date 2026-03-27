@@ -690,7 +690,7 @@ def create_admin_user():
         if not admin:
             admin = User(
                 fullname='ShopMax Admin',
-                email='shopmax.com',
+                email='shopmax4321@gmail.com',
                 password=generate_password_hash('ShopMax1234'),
                 user_type='admin',
                 is_active=True
