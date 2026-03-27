@@ -3322,6 +3322,297 @@ def change_password():
 
 
 
+
+@app.route('/populate-200-ucu-emails')
+def populate_200_ucu_emails():
+    """Populate 200+ UCU student and staff emails"""
+    try:
+        # Generate 200 student emails (B and A series)
+        students = []
+        
+        # B-series students (B20000 - B20199) - 200 students
+        for i in range(20000, 20200):
+            student_num = f"B{i}"
+            name = generate_student_name(i)
+            dept = get_department(i)
+            year = (i % 4) + 1
+            faculty = get_faculty(dept)
+            students.append({
+                'email': f"{student_num}@students.ucu.ac.ug",
+                'full_name': name,
+                'student_number': student_num,
+                'department': dept,
+                'year_of_study': year,
+                'faculty': faculty
+            })
+        
+        # Add some A-series students as well
+        for i in range(20000, 20050):
+            student_num = f"A{i}"
+            name = generate_student_name(i + 500)
+            dept = get_department(i + 100)
+            year = (i % 4) + 1
+            faculty = get_faculty(dept)
+            students.append({
+                'email': f"{student_num}@students.ucu.ac.ug",
+                'full_name': name,
+                'student_number': student_num,
+                'department': dept,
+                'year_of_study': year,
+                'faculty': faculty
+            })
+        
+        # Staff emails (50 staff members)
+        staff = [
+            {"email": "okello@ucu.ac.ug", "name": "Dr. Peter Okello", "dept": "Computer Science", "title": "Senior Lecturer"},
+            {"email": "nakato@ucu.ac.ug", "name": "Prof. Grace Nakato", "dept": "Law", "title": "Professor"},
+            {"email": "ssenyonjo@ucu.ac.ug", "name": "Dr. James Ssenyonjo", "dept": "Business", "title": "Associate Professor"},
+            {"email": "nabatanzi@ucu.ac.ug", "name": "Ms. Sarah Nabatanzi", "dept": "Education", "title": "Lecturer"},
+            {"email": "kato@ucu.ac.ug", "name": "Mr. David Kato", "dept": "Engineering", "title": "Senior Lecturer"},
+            {"email": "namugenyi@ucu.ac.ug", "name": "Dr. Maria Namugenyi", "dept": "Medicine", "title": "Lecturer"},
+            {"email": "mukasa@ucu.ac.ug", "name": "Prof. Robert Mukasa", "dept": "Computer Science", "title": "Professor"},
+            {"email": "akello@ucu.ac.ug", "name": "Dr. Beatrice Akello", "dept": "Business", "title": "Senior Lecturer"},
+            {"email": "tumusiime@ucu.ac.ug", "name": "Mr. Andrew Tumusiime", "dept": "Law", "title": "Lecturer"},
+            {"email": "nakimuli@ucu.ac.ug", "name": "Ms. Florence Nakimuli", "dept": "Education", "title": "Senior Lecturer"},
+            {"email": "ssenoga@ucu.ac.ug", "name": "Dr. John Ssenoga", "dept": "Engineering", "title": "Associate Professor"},
+            {"email": "namutebi@ucu.ac.ug", "name": "Prof. Ruth Namutebi", "dept": "Medicine", "title": "Professor"},
+            {"email": "wasswa@ucu.ac.ug", "name": "Dr. Henry Wasswa", "dept": "Computer Science", "title": "Lecturer"},
+            {"email": "nakayingo@ucu.ac.ug", "name": "Ms. Grace Nakayingo", "dept": "Business", "title": "Senior Lecturer"},
+            {"email": "muhumuza@ucu.ac.ug", "name": "Mr. Robert Muhumuza", "dept": "Law", "title": "Associate Professor"},
+            {"email": "nalubega@ucu.ac.ug", "name": "Dr. Catherine Nalubega", "dept": "Education", "title": "Senior Lecturer"},
+            {"email": "ssekandi@ucu.ac.ug", "name": "Prof. Joseph Ssekandi", "dept": "Engineering", "title": "Professor"},
+            {"email": "nakazibwe@ucu.ac.ug", "name": "Dr. Grace Nakazibwe", "dept": "Medicine", "title": "Consultant"},
+            {"email": "lule@ucu.ac.ug", "name": "Mr. John Lule", "dept": "Computer Science", "title": "Lecturer"},
+            {"email": "mirembe@ucu.ac.ug", "name": "Ms. Sarah Mirembe", "dept": "Business", "title": "Assistant Lecturer"},
+        ]
+        
+        added_count = 0
+        skipped_count = 0
+        
+        # Add students
+        for student in students:
+            existing = UCUEmail.query.filter_by(email=student['email']).first()
+            if not existing:
+                ucu_email = UCUEmail(
+                    email=student['email'],
+                    full_name=student['full_name'],
+                    user_type='student',
+                    student_number=student['student_number'],
+                    department=student['department'],
+                    year_of_study=student['year_of_study'],
+                    faculty=student['faculty'],
+                    is_active=True
+                )
+                db.session.add(ucu_email)
+                added_count += 1
+        
+        # Add staff
+        for staff_member in staff:
+            existing = UCUEmail.query.filter_by(email=staff_member['email']).first()
+            if not existing:
+                ucu_email = UCUEmail(
+                    email=staff_member['email'],
+                    full_name=staff_member['name'],
+                    user_type='staff',
+                    department=staff_member['dept'],
+                    staff_title=staff_member['title'],
+                    faculty=f"Faculty of {staff_member['dept']}",
+                    is_active=True
+                )
+                db.session.add(ucu_email)
+                added_count += 1
+        
+        db.session.commit()
+        
+        total = UCUEmail.query.count()
+        
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>UCU Emails Added</title>
+            <style>
+                body {{ font-family: Arial; padding: 40px; background: #f5f5f5; }}
+                .card {{ background: white; border-radius: 16px; padding: 30px; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }}
+                .success {{ color: #10b981; font-size: 24px; }}
+                .stats {{ background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0; }}
+                .btn {{ display: inline-block; padding: 10px 20px; background: #ff6b00; color: white; text-decoration: none; border-radius: 6px; margin: 5px; }}
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <h1 class="success">✅ UCU Database Populated!</h1>
+                <div class="stats">
+                    <p><strong>Added:</strong> {added_count} new UCU emails</p>
+                    <p><strong>Skipped:</strong> {skipped_count} existing emails</p>
+                    <p><strong>Total UCU Emails Now:</strong> {total}</p>
+                </div>
+                <h3>Sample Emails for Testing:</h3>
+                <ul>
+                    <li><strong>Student:</strong> B20000@students.ucu.ac.ug</li>
+                    <li><strong>Student:</strong> B20100@students.ucu.ac.ug</li>
+                    <li><strong>Student:</strong> A20000@students.ucu.ac.ug</li>
+                    <li><strong>Staff:</strong> okello@ucu.ac.ug</li>
+                    <li><strong>Staff:</strong> nakato@ucu.ac.ug</li>
+                </ul>
+                <div>
+                    <a href="/register" class="btn">Go to Register</a>
+                    <a href="/view-ucu-emails" class="btn" style="background: #000080;">View All Emails</a>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+    except Exception as e:
+        db.session.rollback()
+        return f"<h1>Error: {e}</h1>"
+
+# Helper functions for generating names
+def generate_student_name(index):
+    """Generate realistic student names"""
+    first_names = [
+        'John', 'Peter', 'James', 'Robert', 'Michael', 'David', 'Joseph', 'Thomas', 'Charles', 'William',
+        'Mary', 'Jane', 'Sarah', 'Grace', 'Alice', 'Patricia', 'Linda', 'Barbara', 'Elizabeth', 'Jennifer',
+        'Francis', 'Edward', 'George', 'Patrick', 'Paul', 'Andrew', 'Mark', 'Luke', 'Matthew', 'Simon',
+        'Catherine', 'Margaret', 'Rose', 'Ruth', 'Esther', 'Judith', 'Rebecca', 'Rachel', 'Dorothy', 'Ann'
+    ]
+    
+    last_names = [
+        'Okello', 'Mukasa', 'Ssali', 'Kato', 'Wasswa', 'Ssenyonga', 'Muwanga', 'Lwanga', 'Mugisha', 'Ssekandi',
+        'Nabatanzi', 'Nakato', 'Namugenyi', 'Achieng', 'Nakamya', 'Namutebi', 'Nalule', 'Nambozo', 'Nakibuuka', 'Amongin',
+        'Tumusiime', 'Ssemakula', 'Mutebi', 'Ssebulime', 'Mutyaba', 'Nankinga', 'Kyomugisha', 'Nalwoga', 'Nantongo', 'Nakimuli'
+    ]
+    
+    first = first_names[index % len(first_names)]
+    last = last_names[index % len(last_names)]
+    return f"{first} {last}"
+
+def get_department(index):
+    """Get department based on index"""
+    departments = [
+        'Computer Science', 'Business Administration', 'Law', 'Medicine', 'Engineering', 
+        'Education', 'Social Sciences', 'Economics', 'Pharmacy', 'Nursing', 
+        'Mass Communication', 'Psychology', 'Accounting', 'Finance', 'Marketing',
+        'Information Technology', 'Civil Engineering', 'Electrical Engineering', 'Mechanical Engineering', 'Architecture'
+    ]
+    return departments[index % len(departments)]
+
+def get_faculty(dept):
+    """Get faculty based on department"""
+    faculties = {
+        'Computer Science': 'Faculty of Science and Technology',
+        'Information Technology': 'Faculty of Science and Technology',
+        'Engineering': 'Faculty of Engineering',
+        'Civil Engineering': 'Faculty of Engineering',
+        'Electrical Engineering': 'Faculty of Engineering',
+        'Mechanical Engineering': 'Faculty of Engineering',
+        'Architecture': 'Faculty of Engineering',
+        'Business Administration': 'Faculty of Business',
+        'Accounting': 'Faculty of Business',
+        'Finance': 'Faculty of Business',
+        'Marketing': 'Faculty of Business',
+        'Law': 'Faculty of Law',
+        'Medicine': 'Faculty of Health Sciences',
+        'Pharmacy': 'Faculty of Health Sciences',
+        'Nursing': 'Faculty of Health Sciences',
+        'Education': 'Faculty of Education',
+        'Social Sciences': 'Faculty of Social Sciences',
+        'Economics': 'Faculty of Economics',
+        'Mass Communication': 'Faculty of Humanities',
+        'Psychology': 'Faculty of Social Sciences'
+    }
+    return faculties.get(dept, 'Faculty of Arts and Sciences')
+
+
+
+
+
+@app.route('/view-ucu-emails')
+def view_ucu_emails():
+    """View all UCU emails in database with pagination"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = 50
+        
+        pagination = UCUEmail.query.order_by(UCUEmail.email).paginate(page=page, per_page=per_page, error_out=False)
+        emails = pagination.items
+        total = UCUEmail.query.count()
+        
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>UCU Emails Database</title>
+            <style>
+                body {{ font-family: Arial; padding: 20px; background: #f5f5f5; }}
+                .container {{ max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; padding: 20px; }}
+                table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+                th {{ background: #000080; color: white; padding: 10px; text-align: left; }}
+                td {{ padding: 8px; border-bottom: 1px solid #ddd; }}
+                .badge {{ padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; }}
+                .badge-student {{ background: #e3f2fd; color: #1565c0; }}
+                .badge-staff {{ background: #fff3e0; color: #ff6b00; }}
+                .pagination {{ margin-top: 20px; display: flex; gap: 5px; justify-content: center; }}
+                .page-btn {{ padding: 5px 10px; border: 1px solid #ddd; background: white; cursor: pointer; }}
+                .page-btn.active {{ background: #ff6b00; color: white; border-color: #ff6b00; }}
+                .btn {{ display: inline-block; padding: 10px 20px; background: #ff6b00; color: white; text-decoration: none; border-radius: 6px; margin: 10px 0; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📧 UCU Emails Database</h1>
+                <p>Total: <strong>{total}</strong> registered UCU emails</p>
+                <a href="/populate-200-ucu-emails" class="btn">➕ Add 200+ More Emails</a>
+                <a href="/register" class="btn" style="background: #000080;">🔙 Go to Register</a>
+                
+                <table>
+                    <thead>
+                        <tr><th>Email</th><th>Full Name</th><th>Type</th><th>Department</th><th>Year/Title</th></tr>
+                    </thead>
+                    <tbody>
+        """
+        
+        for email in emails:
+            badge_class = "badge-student" if email.user_type == 'student' else "badge-staff"
+            year_or_title = f"Year {email.year_of_study}" if email.user_type == 'student' else email.staff_title or 'Staff'
+            html += f"""
+                <tr>
+                    <td><strong>{email.email}</strong></td>
+                    <td>{email.full_name}</td>
+                    <td><span class="badge {badge_class}">{email.user_type.upper()}</span></td>
+                    <td>{email.department or 'N/A'}</td>
+                    <td>{year_or_title or 'N/A'}</td>
+                </tr>
+            """
+        
+        html += """
+                    </tbody>
+                </table>
+        """
+        
+        # Pagination
+        if pagination.pages > 1:
+            html += '<div class="pagination">'
+            for p in range(1, pagination.pages + 1):
+                active = 'active' if p == page else ''
+                html += f'<a href="?page={p}" class="page-btn {active}">{p}</a>'
+            html += '</div>'
+        
+        html += """
+            </div>
+        </body>
+        </html>
+        """
+        
+        return html
+        
+    except Exception as e:
+        return f"<h1>Error: {e}</h1>"
+
+
+
+
 @app.route('/seller/subscription-fees')
 @login_required
 def subscription_fees():
