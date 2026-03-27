@@ -143,6 +143,14 @@ with app.app_context():
         traceback.print_exc()
 
 
+@app.route('/create-tables')
+def create_tables():
+    """Temporary route to create database tables"""
+    try:
+        db.create_all()
+        return "✅ Database tables created successfully! <a href='/'>Go Home</a>"
+    except Exception as e:
+        return f"❌ Error: {e}"
 
 # ==================== SOCKET.IO INITIALIZATION ====================
 # Add Socket.IO right here after db initialization
