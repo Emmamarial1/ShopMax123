@@ -3038,6 +3038,279 @@ def fix_subscription_logic():
 
 
 
+@app.route('/populate-100-nins')
+def populate_100_nins():
+    """Populate 100+ NINs for seller registration"""
+    try:
+        # Generate 100 realistic NINs
+        nins_list = []
+        
+        # Male NINs (CM prefix)
+        male_names = [
+            "John Doe", "Peter Okello", "James Mukasa", "Robert Ssali", "Michael Kato",
+            "David Wasswa", "Joseph Ssenyonga", "Thomas Muwanga", "Charles Lwanga", "William Mugisha",
+            "Francis Ssekandi", "Edward Tumusiime", "George Ssemakula", "Patrick Mutebi", "Paul Ssebulime",
+            "Andrew Mutyaba", "Mark Nankinga", "Luke Kyomugisha", "Matthew Nalwoga", "Simon Nantongo",
+            "Okello John", "Mukasa David", "Ssali James", "Kato Robert", "Wasswa Henry",
+            "Ssenyonga Peter", "Muwanga Isaac", "Lwanga Charles", "Mugisha Kenneth", "Ssekandi Ronald",
+            "Tumusiime Andrew", "Ssemakula Davis", "Mutebi Frank", "Ssebulime Paul", "Mutyaba Tom",
+            "Nankinga Lillian", "Kyomugisha Nina", "Nalwoga Mary", "Nantongo Grace", "Nakimuli Florence"
+        ]
+        
+        female_names = [
+            "Jane Smith", "Mary Williams", "Sarah Taylor", "Grace Nakato", "Alice Nambi",
+            "Patricia Achieng", "Linda Nakamya", "Barbara Namutebi", "Elizabeth Nalule", "Jennifer Nambozo",
+            "Catherine Nakibuuka", "Margaret Amongin", "Ruth Nakayingo", "Esther Nalubega", "Judith Nansamba",
+            "Rebecca Nankinga", "Rachel Kyomugisha", "Dorothy Nalwoga", "Ann Nantongo", "Rose Nakimuli",
+            "Nabatanzi Sarah", "Nakato Grace", "Namugenyi Maria", "Achieng Brenda", "Nakamya Patience",
+            "Namutebi Ruth", "Nalule Phiona", "Nambozo Edith", "Nakibuuka Irene", "Amongin Loyce",
+            "Nakayingo Grace", "Nalubega Catherine", "Nansamba Linda", "Nankinga Lillian", "Kyomugisha Nina",
+            "Nalwoga Mary", "Nantongo Grace", "Nakimuli Florence", "Nambi Alice", "Akello Esther"
+        ]
+        
+        # Create 50 male NINs
+        for i, name in enumerate(male_names[:50]):
+            nin = f"CM{i+1:03d}{i+100:03d}AB"
+            if len(nin) > 14:
+                nin = f"CM{i+1:03d}{i+50:03d}AB"
+            nins_list.append({
+                "nin": nin[:14],
+                "full_name": name,
+                "dob": f"{1980 + (i % 20)}-{(i % 12)+1:02d}-{(i % 28)+1:02d}"
+            })
+        
+        # Create 50 female NINs
+        for i, name in enumerate(female_names[:50]):
+            nin = f"CF{i+1:03d}{i+200:03d}CD"
+            if len(nin) > 14:
+                nin = f"CF{i+1:03d}{i+50:03d}CD"
+            nins_list.append({
+                "nin": nin[:14],
+                "full_name": name,
+                "dob": f"{1980 + (i % 20)}-{(i % 12)+1:02d}-{(i % 28)+1:02d}"
+            })
+        
+        # Add some specific easy-to-remember NINs
+        easy_nins = [
+            {"nin": "CM123456789AB", "full_name": "John Doe", "dob": "1995-05-15"},
+            {"nin": "CF987654321CD", "full_name": "Jane Smith", "dob": "1998-08-22"},
+            {"nin": "CM456789123EF", "full_name": "Robert Johnson", "dob": "1992-11-30"},
+            {"nin": "CF321654987GH", "full_name": "Mary Williams", "dob": "1996-03-18"},
+            {"nin": "CM789123456IJ", "full_name": "David Brown", "dob": "1994-07-25"},
+            {"nin": "CF147258369KL", "full_name": "Sarah Taylor", "dob": "1997-09-12"},
+            {"nin": "CM369258147MN", "full_name": "Michael Anderson", "dob": "1993-12-05"},
+            {"nin": "CF951753456OP", "full_name": "Elizabeth Thomas", "dob": "1999-01-28"},
+            {"nin": "CM111222333AB", "full_name": "James Wilson", "dob": "1991-04-10"},
+            {"nin": "CF222333444CD", "full_name": "Patricia Moore", "dob": "1995-08-15"},
+            {"nin": "CM333444555EF", "full_name": "Christopher Lee", "dob": "1994-12-20"},
+            {"nin": "CF444555666GH", "full_name": "Linda Martinez", "dob": "1997-06-03"},
+            {"nin": "CM555666777IJ", "full_name": "Daniel Rodriguez", "dob": "1996-09-18"},
+            {"nin": "CF666777888KL", "full_name": "Susan Williams", "dob": "1998-11-22"},
+            {"nin": "CM777888999MN", "full_name": "Matthew Brown", "dob": "1993-02-14"},
+            {"nin": "CF888999000OP", "full_name": "Nancy Davis", "dob": "1999-07-30"},
+        ]
+        
+        # Add easy NINs to the list
+        nins_list.extend(easy_nins)
+        
+        added = 0
+        skipped = 0
+        
+        for nin_data in nins_list:
+            existing = NINVerification.query.filter_by(nin=nin_data["nin"]).first()
+            if not existing:
+                nin = NINVerification(
+                    nin=nin_data["nin"],
+                    full_name=nin_data["full_name"],
+                    date_of_birth=nin_data["dob"],
+                    is_valid=True
+                )
+                db.session.add(nin)
+                added += 1
+            else:
+                skipped += 1
+        
+        db.session.commit()
+        
+        total = NINVerification.query.count()
+        
+        # Get sample NINs for display
+        sample_nins = NINVerification.query.limit(15).all()
+        
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>100+ NINs Added</title>
+            <style>
+                body {{ font-family: Arial; padding: 40px; background: #f5f5f5; }}
+                .card {{ background: white; border-radius: 16px; padding: 30px; max-width: 1000px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }}
+                .success {{ color: #10b981; font-size: 28px; }}
+                .stats {{ background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; }}
+                .stat-number {{ font-size: 32px; font-weight: bold; color: #ff6b00; }}
+                table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+                th {{ background: #000080; color: white; padding: 12px; text-align: left; }}
+                td {{ padding: 10px; border-bottom: 1px solid #ddd; }}
+                .nin-code {{ font-family: monospace; font-weight: bold; color: #ff6b00; font-size: 1.1rem; }}
+                .btn {{ display: inline-block; padding: 12px 24px; background: #ff6b00; color: white; text-decoration: none; border-radius: 8px; margin: 10px 5px; font-weight: bold; }}
+                .btn-secondary {{ background: #000080; }}
+                .btn-secondary:hover {{ background: #000066; }}
+                .btn:hover {{ transform: translateY(-2px); }}
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <h1 class="success">✅ NIN Database Populated!</h1>
+                <div class="stats">
+                    <table style="background: transparent; margin: 0;">
+                        <tr>
+                            <td style="border: none; text-align: center;"><span class="stat-number">{added}</span><br>New NINs Added</td>
+                            <td style="border: none; text-align: center;"><span class="stat-number">{skipped}</span><br>Skipped (Already Exist)</td>
+                            <td style="border: none; text-align: center;"><span class="stat-number">{total}</span><br>Total NINs Available</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <h3>📋 Sample NINs for Seller Registration:</h3>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr><th>NIN Number</th><th>Full Name</th><th>Date of Birth</th> </tr>
+                        </thead>
+                        <tbody>
+        """
+        
+        for nin in sample_nins:
+            html += f"""
+                         <tr>
+                            <td class="nin-code">{nin.nin}</td>
+                            <td>{nin.full_name}</td>
+                            <td>{nin.date_of_birth or 'N/A'}</td>
+                         </tr>
+            """
+        
+        html += f"""
+                        </tbody>
+                    </table>
+                </div>
+                
+                <p style="margin-top: 15px; color: #666;"><em>... and {total - 15} more NINs available</em></p>
+                
+                <div style="margin-top: 30px;">
+                    <a href="/register" class="btn">📝 Register as Seller</a>
+                    <a href="/view-all-nins" class="btn btn-secondary">👁️ View All {total} NINs</a>
+                    <a href="/admin/dashboard" class="btn btn-secondary">🔙 Admin Dashboard</a>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #fff3e0; border-radius: 8px;">
+                    <strong>💡 Quick Test NINs:</strong><br>
+                    <code>CM123456789AB</code> - John Doe<br>
+                    <code>CF987654321CD</code> - Jane Smith<br>
+                    <code>CM111222333AB</code> - James Wilson<br>
+                    <code>CM001001001AB</code> - Peter Okello
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return html
+        
+    except Exception as e:
+        db.session.rollback()
+        return f"<h1>Error: {e}</h1>"
+
+
+
+
+
+
+@app.route('/view-all-nins')
+def view_all_nins():
+    """View all NINs in database"""
+    try:
+        nins = NINVerification.query.order_by(NINVerification.id).all()
+        
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>All NINs - ShopMax</title>
+            <style>
+                body {{ font-family: Arial; padding: 20px; background: #f5f5f5; }}
+                .container {{ max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; padding: 20px; }}
+                table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+                th {{ background: #000080; color: white; padding: 10px; position: sticky; top: 0; }}
+                td {{ padding: 8px; border-bottom: 1px solid #ddd; }}
+                .nin-code {{ font-family: monospace; font-weight: bold; color: #ff6b00; }}
+                .btn {{ display: inline-block; padding: 10px 20px; background: #ff6b00; color: white; text-decoration: none; border-radius: 6px; margin: 10px 5px; }}
+                .search {{ margin: 20px 0; padding: 10px; width: 300px; border: 1px solid #ddd; border-radius: 5px; }}
+                .header {{ display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>📋 NIN Database ({len(nins)} NINs)</h1>
+                    <div>
+                        <a href="/populate-100-nins" class="btn">➕ Add More NINs</a>
+                        <a href="/register" class="btn" style="background: #000080;">🔙 Back to Register</a>
+                    </div>
+                </div>
+                
+                <input type="text" id="search" class="search" placeholder="Search by NIN or Name..." onkeyup="searchNINs()">
+                
+                <div style="overflow-x: auto; max-height: 500px;">
+                    <table id="ninTable">
+                        <thead>
+                            <tr><th>#</th><th>NIN Number</th><th>Full Name</th><th>Date of Birth</th><th>Status</th> </tr>
+                        </thead>
+                        <tbody>
+        """
+        
+        for i, nin in enumerate(nins, 1):
+            html += f"""
+                         <tr>
+                            <td>{i}</td>
+                            <td class="nin-code">{nin.nin}</td>
+                            <td>{nin.full_name}</td>
+                            <td>{nin.date_of_birth or 'N/A'}</td>
+                            <td>✅ Valid</td>
+                         </tr>
+            """
+        
+        html += """
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <script>
+                function searchNINs() {
+                    let input = document.getElementById('search').value.toLowerCase();
+                    let rows = document.querySelectorAll('#ninTable tbody tr');
+                    rows.forEach(row => {
+                        let nin = row.cells[1].textContent.toLowerCase();
+                        let name = row.cells[2].textContent.toLowerCase();
+                        if (nin.includes(input) || name.includes(input)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                }
+            </script>
+        </body>
+        </html>
+        """
+        
+        return html
+        
+    except Exception as e:
+        return f"<h1>Error: {e}</h1>"
+
+
+
 
 
 @app.route('/generate_report')
