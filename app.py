@@ -706,6 +706,80 @@ def create_admin_user():
 
 
 
+@app.route('/fix-admin-user')
+def fix_admin_user():
+    """Delete existing admin and create correct one"""
+    try:
+        # Delete existing admin if exists
+        existing_admin = User.query.filter_by(email='admin@shopmax.com').first()
+        if existing_admin:
+            db.session.delete(existing_admin)
+            db.session.commit()
+            print("✅ Deleted old admin")
+        
+        # Create new admin with correct credentials
+        admin = User(
+            fullname='ShopMax Admin',
+            email='shopmax4321@gmail.com',
+            password=generate_password_hash('ShopMax1234'),
+            user_type='admin',
+            is_active=True
+        )
+        db.session.add(admin)
+        db.session.commit()
+        
+        return """
+        <html>
+        <head><title>Admin Fixed</title></head>
+        <body style="font-family: Arial; padding: 40px;">
+            <h1 style="color: green;">✅ Admin User Fixed!</h1>
+            <p><strong>Email:</strong> shopmax4321@gmail.com</p>
+            <p><strong>Password:</strong> ShopMax1234</p>
+            <p><a href="/login" style="background: #ff6b00; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Login Now</a></p>
+        </body>
+        </html>
+        """
+    except Exception as e:
+        return f"❌ Error: {e}"
+
+
+
+
+
+
+@app.route('/create-original-admin')
+def create_original_admin():
+    """Create admin with original credentials"""
+    try:
+        # Check if user already exists with this email
+        existing = User.query.filter_by(email='shopmax4321@gmail.com').first()
+        if existing:
+            # Update existing user to admin
+            existing.user_type = 'admin'
+            existing.password = generate_password_hash('ShopMax1234')
+            existing.fullname = 'ShopMax Admin'
+            db.session.commit()
+            return "✅ Updated existing user to admin!<br>Email: shopmax4321@gmail.com<br>Password: ShopMax1234"
+        else:
+            # Create new admin
+            admin = User(
+                fullname='ShopMax Admin',
+                email='shopmax4321@gmail.com',
+                password=generate_password_hash('ShopMax1234'),
+                user_type='admin',
+                is_active=True
+            )
+            db.session.add(admin)
+            db.session.commit()
+            return "✅ Admin created!<br>Email: shopmax4321@gmail.com<br>Password: ShopMax1234"
+    except Exception as e:
+        return f"❌ Error: {e}"
+
+
+
+
+
+
 @app.route('/create-test-user')
 def create_test_user():
     """Create test buyer user"""
