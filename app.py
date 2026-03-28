@@ -664,6 +664,101 @@ def debug_product_model():
 
 
 
+@app.route('/debug/cloudinary')
+@admin_required
+def debug_cloudinary():
+    """Check Cloudinary configuration"""
+    import cloudinary
+    
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Cloudinary Debug</title>
+        <style>
+            body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+            .success { color: green; }
+            .error { color: red; }
+            .info { background: #e3f2fd; padding: 10px; margin: 10px 0; border-left: 4px solid #2196f3; }
+            pre { background: white; padding: 15px; overflow-x: auto; }
+        </style>
+    </head>
+    <body>
+        <h1>🔍 Cloudinary Configuration Check</h1>
+    """
+    
+    # Check environment variables
+    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME')
+    api_key = os.environ.get('CLOUDINARY_API_KEY')
+    api_secret = os.environ.get('CLOUDINARY_API_SECRET')
+    
+    html += "<h2>Environment Variables:</h2>"
+    html += f"<p>CLOUDINARY_CLOUD_NAME: {'✅ Set' if cloud_name else '❌ NOT SET'}</p>"
+    html += f"<p>CLOUDINARY_API_KEY: {'✅ Set' if api_key else '❌ NOT SET'}</p>"
+    html += f"<p>CLOUDINARY_API_SECRET: {'✅ Set' if api_secret else '❌ NOT SET'}</p>"
+    
+    if cloud_name and api_key and api_secret:
+        html += '<div class="info">✅ All Cloudinary credentials are set!</div>'
+        
+        # Try to ping Cloudinary
+        try:
+            import cloudinary.api
+            cloudinary.config(
+                cloud_name=cloud_name,
+                api_key=api_key,
+                api_secret=api_secret
+            )
+            
+            # Try to list resources
+            result = cloudinary.api.resources(max_results=1)
+            html += '<div class="success">✅ Successfully connected to Cloudinary API!</div>'
+            html += f"<p>Total resources: {result.get('total_count', 0)}</p>"
+            
+        except Exception as e:
+            html += f'<div class="error">❌ Failed to connect to Cloudinary: {str(e)}</div>'
+    else:
+        html += '<div class="error">❌ Missing Cloudinary credentials! Please add them in Render environment variables.</div>'
+    
+    # Check recent products
+    products = Product.query.order_by(Product.created_at.desc()).limit(5).all()
+    html += "<h2>Recent Products:</h2>"
+    if products:
+        html += "<table border='1' cellpadding='8'>"
+        html += "<tr><th>ID</th><th>Name</th><th>Image URL</th><th>Public ID</th></tr>"
+        for p in products:
+            image_display = p.image[:50] + '...' if p.image and len(p.image) > 50 else p.image
+            html += f"<tr>"
+            html += f"<td>{p.id}</td>"
+            html += f"<td>{p.name}</td>"
+            html += f"<td>{image_display or 'None'}</td>"
+            html += f"<td>{p.image_public_id or 'None'}</td>"
+            html += f"</tr>"
+        html += "</table>"
+    else:
+        html += "<p>No products found.</p>"
+    
+    html += """
+        <h2>Next Steps:</h2>
+        <ul>
+            <li>Make sure Cloudinary credentials are set in Render.com environment variables</li>
+            <li>Try uploading a test image using the form below</li>
+            <li>Check if the image URL is being saved to the database</li>
+        </ul>
+        
+        <h2>Test Upload Form:</h2>
+        <form action="/test-cloudinary-upload" method="POST" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/*" required>
+            <button type="submit">Test Upload</button>
+        </form>
+    </body>
+    </html>
+    """
+    
+    return html
+
+
+
+
 
 
 @app.route('/seller/products/add', methods=['GET', 'POST'])
