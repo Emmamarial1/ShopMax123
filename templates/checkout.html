@@ -32,7 +32,6 @@
         padding: 0 20px;
     }
 
-    /* Breadcrumb */
     .breadcrumb-custom {
         background: var(--white);
         padding: 10px 16px;
@@ -73,7 +72,6 @@
         font-weight: 500;
     }
 
-    /* Page Header */
     .page-header {
         background: var(--primary);
         color: var(--white);
@@ -130,7 +128,6 @@
         border: 1px solid rgba(255,255,255,0.3);
     }
 
-    /* Simple Steps */
     .steps {
         display: flex;
         align-items: center;
@@ -192,14 +189,12 @@
         margin: 0 10px;
     }
 
-    /* Checkout Grid */
     .checkout-grid {
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 20px;
     }
 
-    /* Form Card */
     .form-card {
         background: var(--white);
         border-radius: 12px;
@@ -231,7 +226,6 @@
         padding: 20px;
     }
 
-    /* Form Grid */
     .form-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -284,7 +278,6 @@
         resize: vertical;
     }
 
-    /* Payment Methods - Simple */
     .payment-methods {
         display: flex;
         flex-direction: column;
@@ -335,7 +328,6 @@
         color: var(--primary);
     }
 
-    /* Summary Card */
     .summary-card {
         background: var(--white);
         border-radius: 12px;
@@ -379,6 +371,16 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+
+    .item-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray);
+        font-size: 1rem;
     }
 
     .item-details {
@@ -434,7 +436,6 @@
         color: var(--secondary);
     }
 
-    /* Delivery Note */
     .delivery-note {
         background: #fff3e0;
         border-radius: 8px;
@@ -452,7 +453,6 @@
         font-size: 0.8rem;
     }
 
-    /* Place Order Button */
     .place-order-btn {
         width: 100%;
         padding: 14px;
@@ -467,7 +467,6 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        border: none;
     }
 
     .place-order-btn:hover:not(:disabled) {
@@ -479,7 +478,6 @@
         cursor: not-allowed;
     }
 
-    /* Loading Overlay */
     .loading-overlay {
         display: none;
         position: fixed;
@@ -511,20 +509,16 @@
         to { transform: rotate(360deg); }
     }
 
-    /* Responsive */
     @media (max-width: 992px) {
         .checkout-grid {
             grid-template-columns: 1fr;
         }
-        
         .summary-card {
             position: static;
         }
-        
         .form-grid {
             grid-template-columns: 1fr;
         }
-        
         .form-group.full {
             grid-column: span 1;
         }
@@ -536,11 +530,9 @@
             align-items: flex-start;
             gap: 10px;
         }
-        
         .step-line {
             display: none;
         }
-        
         .step-item {
             width: 100%;
         }
@@ -551,7 +543,6 @@
 {% block content %}
 <div class="checkout-page">
     <div class="container-custom">
-        <!-- Breadcrumb -->
         <div class="breadcrumb-custom">
             <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
             <i class="fas fa-chevron-right"></i>
@@ -562,7 +553,6 @@
             <span class="current">Checkout</span>
         </div>
 
-        <!-- Header -->
         <div class="page-header">
             <div class="header-left">
                 <div class="header-icon">
@@ -578,7 +568,6 @@
             </div>
         </div>
 
-        <!-- Simple Steps -->
         <div class="steps">
             <div class="step-item completed">
                 <div class="step-number"><i class="fas fa-check"></i></div>
@@ -596,12 +585,9 @@
             </div>
         </div>
 
-        <!-- Checkout Grid -->
         <div class="checkout-grid">
-            <!-- Checkout Form -->
             <div>
                 <form id="checkoutForm" method="POST" action="{{ url_for('place_order') }}">
-                    <!-- Contact Info -->
                     <div class="form-card">
                         <div class="card-header">
                             <i class="fas fa-user"></i>
@@ -625,7 +611,6 @@
                         </div>
                     </div>
 
-                    <!-- Delivery Address -->
                     <div class="form-card">
                         <div class="card-header">
                             <i class="fas fa-map-marker-alt"></i>
@@ -645,7 +630,6 @@
                         </div>
                     </div>
 
-                    <!-- Payment Method -->
                     <div class="form-card">
                         <div class="card-header">
                             <i class="fas fa-credit-card"></i>
@@ -668,7 +652,6 @@
                         </div>
                     </div>
 
-                    <!-- Order Notes -->
                     <div class="form-card">
                         <div class="card-header">
                             <i class="fas fa-sticky-note"></i>
@@ -682,7 +665,6 @@
                 </form>
             </div>
 
-            <!-- Order Summary -->
             <div class="summary-card">
                 <div class="card-header">
                     <i class="fas fa-receipt"></i>
@@ -694,11 +676,15 @@
                     <div class="summary-item">
                         <div class="item-image">
                             {% if product.image %}
-                            <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                {% if product.image.startswith('http') %}
+                                    <img src="{{ product.image }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                {% endif %}
                             {% else %}
-                            <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-                                <i class="fas fa-box" style="color:var(--gray);"></i>
-                            </div>
+                                <div class="item-image-placeholder">
+                                    <i class="fas fa-box"></i>
+                                </div>
                             {% endif %}
                         </div>
                         <div class="item-details">
@@ -724,7 +710,6 @@
                     <span class="total-value">UGX {{ "{:,.0f}".format(subtotal) }}</span>
                 </div>
 
-                <!-- Place Order Button -->
                 <button type="submit" form="checkoutForm" class="place-order-btn" id="placeOrderBtn">
                     <i class="fas fa-check-circle"></i> Place Order
                 </button>
@@ -737,30 +722,24 @@
     </div>
 </div>
 
-<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <p style="font-size:0.8rem; color:var(--primary);">Processing...</p>
 </div>
 
 <script>
-// Form validation
 document.getElementById('checkoutForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
     const phone = document.querySelector('input[name="phone"]').value;
     const address = document.getElementById('deliveryAddress').value;
-    
     if (!phone || !phone.match(/^[0-9]{10}$/)) {
         alert('Please enter a valid 10-digit phone number');
         return;
     }
-    
     if (!address.trim()) {
         alert('Please enter your delivery address');
         return;
     }
-    
     document.getElementById('loadingOverlay').classList.add('show');
     this.submit();
 });
