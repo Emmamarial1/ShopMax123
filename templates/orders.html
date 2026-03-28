@@ -39,7 +39,6 @@
         padding: 0 20px;
     }
 
-    /* Breadcrumb */
     .breadcrumb-custom {
         background: var(--white);
         padding: 8px 14px;
@@ -80,7 +79,6 @@
         font-weight: 500;
     }
 
-    /* Page Header */
     .page-header {
         background: var(--primary);
         color: var(--white);
@@ -137,7 +135,6 @@
         border: 1px solid rgba(255,255,255,0.3);
     }
 
-    /* Stats Cards */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -186,7 +183,6 @@
         letter-spacing: 0.3px;
     }
 
-    /* Filter Bar */
     .filter-bar {
         background: var(--white);
         border-radius: 30px;
@@ -255,7 +251,6 @@
         color: var(--primary);
     }
 
-    /* Orders List */
     .orders-list {
         display: flex;
         flex-direction: column;
@@ -275,7 +270,6 @@
         border-color: var(--secondary);
     }
 
-    /* Order Header */
     .order-header {
         background: var(--primary);
         color: var(--white);
@@ -314,7 +308,6 @@
         font-size: 0.65rem;
     }
 
-    /* Status Badges */
     .status-badge {
         display: inline-flex;
         align-items: center;
@@ -325,55 +318,18 @@
         font-weight: 600;
     }
 
-    .status-pending {
-        background: rgba(108, 117, 125, 0.15);
-        color: #6c757d;
-        border: 1px solid #6c757d;
-    }
+    .status-pending { background: rgba(108, 117, 125, 0.15); color: #6c757d; border: 1px solid #6c757d; }
+    .status-confirmed { background: rgba(23, 162, 184, 0.15); color: #17a2b8; border: 1px solid #17a2b8; }
+    .status-processing { background: rgba(13, 110, 253, 0.15); color: #0d6efd; border: 1px solid #0d6efd; }
+    .status-out_for_delivery, .status-shipped, .status-in_transit { background: rgba(255, 107, 0, 0.15); color: var(--secondary-dark); border: 1px solid var(--secondary); }
+    .status-completed { background: rgba(40, 167, 69, 0.25); color: #28a745; border: 2px solid #28a745; font-weight: 700; }
+    .status-cancelled { background: rgba(220, 53, 69, 0.15); color: #dc3545; border: 1px solid #dc3545; }
+    .status-issue_reported { background: rgba(220, 53, 69, 0.15); color: #dc3545; border: 1px solid #dc3545; }
 
-    .status-confirmed {
-        background: rgba(23, 162, 184, 0.15);
-        color: #17a2b8;
-        border: 1px solid #17a2b8;
-    }
-
-    .status-processing {
-        background: rgba(13, 110, 253, 0.15);
-        color: #0d6efd;
-        border: 1px solid #0d6efd;
-    }
-
-    .status-out_for_delivery, .status-shipped, .status-in_transit {
-        background: rgba(255, 107, 0, 0.15);
-        color: var(--secondary-dark);
-        border: 1px solid var(--secondary);
-    }
-
-    .status-completed {
-        background: rgba(40, 167, 69, 0.25);
-        color: #28a745;
-        border: 2px solid #28a745;
-        font-weight: 700;
-    }
-
-    .status-cancelled {
-        background: rgba(220, 53, 69, 0.15);
-        color: #dc3545;
-        border: 1px solid #dc3545;
-    }
-
-    .status-issue_reported {
-        background: rgba(220, 53, 69, 0.15);
-        color: #dc3545;
-        border: 1px solid #dc3545;
-    }
-
-    /* Order Body */
     .order-body {
         padding: 16px;
     }
 
-    /* Buyer/Seller Info */
     .party-info {
         display: flex;
         justify-content: space-between;
@@ -401,7 +357,6 @@
         color: var(--primary);
     }
 
-    /* Order Items */
     .order-items {
         margin-bottom: 12px;
     }
@@ -498,7 +453,6 @@
         color: var(--secondary);
     }
 
-    /* Order Footer */
     .order-footer {
         display: flex;
         justify-content: space-between;
@@ -527,7 +481,6 @@
         font-size: 1rem;
     }
 
-    /* Action Buttons */
     .order-actions {
         display: flex;
         gap: 6px;
@@ -588,18 +541,6 @@
         color: var(--white);
     }
 
-    .btn-report {
-        background: var(--white);
-        color: var(--danger);
-        border: 1px solid var(--danger);
-    }
-
-    .btn-report:hover {
-        background: var(--danger);
-        color: var(--white);
-    }
-
-    /* Empty State */
     .empty-state {
         text-align: center;
         padding: 60px 20px;
@@ -666,39 +607,6 @@
         transform: translateY(-2px);
     }
 
-    /* Loading Overlay */
-    .loading-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255,255,255,0.9);
-        z-index: 99999;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-    }
-
-    .loading-overlay.show {
-        display: flex;
-    }
-
-    .spinner {
-        width: 30px;
-        height: 30px;
-        border: 2px solid var(--border);
-        border-top-color: var(--secondary);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-
-    /* Delivery Confirmation Modal with Issue Reporting */
     .modal {
         position: fixed;
         top: 0;
@@ -736,14 +644,8 @@
     }
 
     @keyframes modalSlideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .modal-card {
@@ -827,7 +729,6 @@
         text-align: left;
     }
 
-    /* Issue Section in Modal */
     .modal-issue-section {
         margin-top: 15px;
         padding-top: 15px;
@@ -841,14 +742,8 @@
     }
 
     @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .issue-title {
@@ -895,10 +790,6 @@
         background: var(--secondary);
         color: var(--white);
         border-color: var(--secondary);
-    }
-
-    .issue-type-btn i {
-        font-size: 0.6rem;
     }
 
     .issue-textarea {
@@ -1006,17 +897,45 @@
         color: var(--secondary-dark);
     }
 
-    /* Responsive */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.9);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 2px solid var(--border);
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
     @media (max-width: 992px) {
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
         }
-        
         .filter-bar {
             flex-direction: column;
             align-items: stretch;
         }
-        
         .filter-search input {
             width: 100%;
         }
@@ -1027,40 +946,32 @@
             flex-direction: column;
             align-items: flex-start;
         }
-        
         .order-id-section {
             width: 100%;
             justify-content: space-between;
         }
-        
         .order-footer {
             flex-direction: column;
             align-items: flex-start;
         }
-        
         .order-actions {
             width: 100%;
             justify-content: flex-start;
         }
-        
         .order-item {
             flex-direction: column;
             align-items: flex-start;
         }
-        
         .item-price {
             text-align: left;
             width: 100%;
         }
-        
         .empty-actions {
             flex-direction: column;
         }
-        
         .modal-container {
             max-width: 95%;
         }
-        
         .issue-options {
             justify-content: center;
         }
@@ -1070,11 +981,9 @@
         .stats-grid {
             grid-template-columns: 1fr;
         }
-        
         .order-actions {
             flex-direction: column;
         }
-        
         .action-btn {
             width: 100%;
             justify-content: center;
@@ -1084,7 +993,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- Delivery Confirmation Modal with Issue Reporting -->
 <div id="deliveryConfirmModal" class="modal">
     <div class="modal-overlay"></div>
     <div class="modal-container">
@@ -1101,11 +1009,8 @@
                 </div>
                 <p class="delivery-message">Has your order been delivered successfully?</p>
                 
-                <div class="order-preview" id="confirmOrderPreview">
-                    <!-- Will be populated dynamically -->
-                </div>
+                <div class="order-preview" id="confirmOrderPreview"></div>
                 
-                <!-- Issue Report Section -->
                 <div class="toggle-issue-link" onclick="toggleIssueSection()">
                     <i class="fas fa-exclamation-triangle"></i>
                     <span>Report a problem with this delivery</span>
@@ -1162,7 +1067,6 @@
 
 <div class="orders-page">
     <div class="container-custom">
-        <!-- Breadcrumb -->
         <div class="breadcrumb-custom">
             <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
             <i class="fas fa-chevron-right"></i>
@@ -1177,7 +1081,6 @@
             </span>
         </div>
 
-        <!-- Page Header -->
         <div class="page-header">
             <div class="header-left">
                 <div class="header-icon">
@@ -1206,7 +1109,6 @@
             </div>
         </div>
 
-        <!-- Stats Cards -->
         <div class="stats-grid">
             {% set pending_count = orders|selectattr("status", "equalto", "pending")|list|length %}
             {% set confirmed_count = orders|selectattr("status", "equalto", "confirmed")|list|length %}
@@ -1216,47 +1118,23 @@
             {% set cancelled_count = orders|selectattr("status", "equalto", "cancelled")|list|length %}
             
             <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ pending_count }}</h3>
-                    <p>Pending</p>
-                </div>
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-info"><h3>{{ pending_count }}</h3><p>Pending</p></div>
             </div>
-
             <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ confirmed_count }}</h3>
-                    <p>Confirmed</p>
-                </div>
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info"><h3>{{ confirmed_count }}</h3><p>Confirmed</p></div>
             </div>
-
             <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-motorcycle"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ out_for_delivery_count }}</h3>
-                    <p>On the Way</p>
-                </div>
+                <div class="stat-icon"><i class="fas fa-motorcycle"></i></div>
+                <div class="stat-info"><h3>{{ out_for_delivery_count }}</h3><p>On the Way</p></div>
             </div>
-
             <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-check-double"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ completed_count }}</h3>
-                    <p>Completed</p>
-                </div>
+                <div class="stat-icon"><i class="fas fa-check-double"></i></div>
+                <div class="stat-info"><h3>{{ completed_count }}</h3><p>Completed</p></div>
             </div>
         </div>
 
-        <!-- Filter Bar -->
         <div class="filter-bar">
             <div class="filter-tabs">
                 <button class="filter-tab active" data-filter="all" onclick="filterOrders('all')">All</button>
@@ -1273,12 +1151,10 @@
             </div>
         </div>
 
-        <!-- Orders List -->
         {% if orders and orders|length > 0 %}
         <div class="orders-list" id="ordersList">
             {% for order in orders %}
             <div class="order-card" data-status="{{ order.status }}" data-order-id="{{ order.id }}">
-                <!-- Order Header -->
                 <div class="order-header">
                     <div class="order-id-section">
                         <span class="order-number">#{{ order.id }}</span>
@@ -1288,21 +1164,11 @@
                         </span>
                     </div>
                     <div class="status-badge status-{{ order.status }}">
-                        <i class="fas 
-                            {% if order.status == 'pending' %}fa-clock
-                            {% elif order.status == 'confirmed' %}fa-check-circle
-                            {% elif order.status == 'processing' %}fa-sync-alt
-                            {% elif order.status in ['out_for_delivery', 'shipped', 'in_transit'] %}fa-motorcycle
-                            {% elif order.status == 'completed' %}fa-check-double
-                            {% elif order.status == 'cancelled' %}fa-times-circle
-                            {% elif order.status == 'issue_reported' %}fa-exclamation-triangle
-                            {% else %}fa-box{% endif %}">
-                        </i>
+                        <i class="fas {% if order.status == 'pending' %}fa-clock{% elif order.status == 'confirmed' %}fa-check-circle{% elif order.status == 'processing' %}fa-sync-alt{% elif order.status in ['out_for_delivery', 'shipped', 'in_transit'] %}fa-motorcycle{% elif order.status == 'completed' %}fa-check-double{% elif order.status == 'cancelled' %}fa-times-circle{% elif order.status == 'issue_reported' %}fa-exclamation-triangle{% else %}fa-box{% endif %}"></i>
                         {{ order.status|replace('_', ' ')|title }}
                     </div>
                 </div>
 
-                <!-- Order Body -->
                 <div class="order-body">
                     <div class="party-info">
                         {% if session.user_type == 'seller' %}
@@ -1341,17 +1207,20 @@
                         {% endif %}
                     </div>
 
-                    <!-- Order Items -->
                     <div class="order-items">
                         {% for item in order.order_items[:2] %}
                         <div class="order-item">
                             <div class="item-image">
                                 {% if item.product and item.product.image %}
-                                <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                    {% if item.product.image.startswith('http') %}
+                                        <img src="{{ item.product.image }}" alt="{{ item.product.name }}">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                    {% endif %}
                                 {% else %}
-                                <div class="item-image-placeholder">
-                                    <i class="fas fa-box"></i>
-                                </div>
+                                    <div class="item-image-placeholder">
+                                        <i class="fas fa-box"></i>
+                                    </div>
                                 {% endif %}
                             </div>
                             <div class="item-details">
@@ -1377,11 +1246,15 @@
                             <div class="order-item">
                                 <div class="item-image">
                                     {% if item.product and item.product.image %}
-                                    <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                        {% if item.product.image.startswith('http') %}
+                                            <img src="{{ item.product.image }}" alt="{{ item.product.name }}">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                        {% endif %}
                                     {% else %}
-                                    <div class="item-image-placeholder">
-                                        <i class="fas fa-box"></i>
-                                    </div>
+                                        <div class="item-image-placeholder">
+                                            <i class="fas fa-box"></i>
+                                        </div>
                                     {% endif %}
                                 </div>
                                 <div class="item-details">
@@ -1401,7 +1274,6 @@
                     </div>
                 </div>
 
-                <!-- Order Footer -->
                 <div class="order-footer">
                     <div class="order-total">
                         <span class="total-label">Total:</span>
@@ -1484,7 +1356,6 @@
     </div>
 </div>
 
-<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <p style="font-size: 0.8rem; color: var(--primary);">Processing...</p>
@@ -1494,14 +1365,9 @@
 let currentOrderId = null;
 let issueSectionVisible = false;
 
-// Modal functions
-function openModal() {
-    document.getElementById('deliveryConfirmModal').classList.add('show');
-}
-
+function openModal() { document.getElementById('deliveryConfirmModal').classList.add('show'); }
 function closeModal() {
     document.getElementById('deliveryConfirmModal').classList.remove('show');
-    // Reset issue section
     issueSectionVisible = false;
     document.getElementById('modalIssueSection').classList.remove('show');
     document.getElementById('toggleIssueIcon').className = 'fas fa-chevron-down';
@@ -1511,7 +1377,6 @@ function closeModal() {
     document.querySelectorAll('.issue-type-btn').forEach(btn => btn.classList.remove('active'));
 }
 
-// Toggle issue section
 function toggleIssueSection() {
     const issueSection = document.getElementById('modalIssueSection');
     const icon = document.getElementById('toggleIssueIcon');
@@ -1537,58 +1402,35 @@ function toggleIssueSection() {
     }
 }
 
-// Select issue type
 function selectIssueType(button, issueType) {
     document.querySelectorAll('.issue-type-btn').forEach(btn => btn.classList.remove('active'));
     button.classList.add('active');
-    
     const textarea = document.getElementById('issueDescription');
     const currentText = textarea.value;
-    
     if (!currentText || currentText === '') {
         textarea.value = `Issue: ${issueType}\n\n`;
     } else if (!currentText.toLowerCase().includes(issueType.toLowerCase())) {
         textarea.value = `Issue: ${issueType}\n\n${currentText}`;
     }
-    
     textarea.focus();
 }
 
-// Submit issue report
 async function submitIssue() {
     const description = document.getElementById('issueDescription').value.trim();
-    
-    if (!description) {
-        alert('Please describe the issue before submitting.');
-        return;
-    }
-    
+    if (!description) { alert('Please describe the issue before submitting.'); return; }
     if (!currentOrderId) return;
-    
-    document.getElementById('loadingOverlay').classList.add('show');
-    
+    showLoading(true);
     try {
         const response = await fetch(`/order/${currentOrderId}/delivery-confirmation`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=issue&issue_description=${encodeURIComponent(description)}`
         });
-        
-        if (response.redirected) {
-            window.location.href = response.url;
-        } else {
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error submitting issue report. Please try again.');
-        document.getElementById('loadingOverlay').classList.remove('show');
-    }
+        if (response.redirected) { window.location.href = response.url; }
+        else { location.reload(); }
+    } catch (error) { console.error('Error:', error); alert('Error submitting issue report.'); showLoading(false); }
 }
 
-// Show delivery modal
 async function showDeliveryModal(orderId) {
     currentOrderId = orderId;
     issueSectionVisible = false;
@@ -1598,131 +1440,70 @@ async function showDeliveryModal(orderId) {
     document.getElementById('submitIssueBtn').style.display = 'none';
     document.getElementById('issueDescription').value = '';
     document.querySelectorAll('.issue-type-btn').forEach(btn => btn.classList.remove('active'));
-    
     try {
         const response = await fetch(`/api/orders/${orderId}/summary`);
         const data = await response.json();
-        
         if (data.success) {
             const previewDiv = document.getElementById('confirmOrderPreview');
-            
             let itemsHtml = '';
             if (data.items && data.items.length > 0) {
                 const item = data.items[0];
-                itemsHtml = `
-                    <div style="padding: 5px;">
-                        <strong>${escapeHtml(item.name)}</strong> x${item.quantity}<br>
-                        <span style="color: var(--secondary);">UGX ${item.price.toLocaleString()}</span>
-                    </div>
-                `;
-                
-                if (data.items.length > 1) {
-                    itemsHtml += `<p style="font-size:0.7rem; color:var(--gray);">+${data.items.length - 1} more item(s)</p>`;
-                }
+                itemsHtml = `<div style="padding:5px;"><strong>${escapeHtml(item.name)}</strong> x${item.quantity}<br><span style="color:var(--secondary);">UGX ${item.price.toLocaleString()}</span></div>`;
+                if (data.items.length > 1) itemsHtml += `<p style="font-size:0.7rem; color:var(--gray);">+${data.items.length - 1} more item(s)</p>`;
             }
-            
             previewDiv.innerHTML = itemsHtml || '<p>Loading...</p>';
             openModal();
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error loading order details');
-    }
+    } catch (error) { console.error('Error:', error); alert('Error loading order details'); }
 }
 
-// Confirm delivery
 async function confirmDelivery() {
     if (!currentOrderId) return;
-    
-    document.getElementById('loadingOverlay').classList.add('show');
-    
+    showLoading(true);
     try {
         const response = await fetch(`/order/${currentOrderId}/delivery-confirmation`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'action=confirm'
         });
-        
-        if (response.redirected) {
-            window.location.href = response.url;
-        } else {
-            location.reload();
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error confirming delivery');
-        document.getElementById('loadingOverlay').classList.remove('show');
-    }
+        if (response.redirected) { window.location.href = response.url; }
+        else { location.reload(); }
+    } catch (error) { console.error('Error:', error); alert('Error confirming delivery'); showLoading(false); }
 }
 
-// Cancel order
 async function cancelOrder(orderId) {
     if (!confirm('Are you sure you want to cancel this order?')) return;
-    
-    document.getElementById('loadingOverlay').classList.add('show');
-    
+    showLoading(true);
     try {
-        const response = await fetch('/api/order/cancel', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ order_id: orderId })
-        });
-        
+        const response = await fetch('/api/order/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order_id: orderId }) });
         const data = await response.json();
-        
-        if (data.success) {
-            alert('Order cancelled successfully');
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            alert(data.message || 'Error cancelling order');
-            document.getElementById('loadingOverlay').classList.remove('show');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error cancelling order');
-        document.getElementById('loadingOverlay').classList.remove('show');
-    }
+        if (data.success) { alert('Order cancelled successfully'); setTimeout(() => location.reload(), 1000); }
+        else { alert(data.message || 'Error cancelling order'); showLoading(false); }
+    } catch (error) { console.error('Error:', error); alert('Error cancelling order'); showLoading(false); }
 }
 
-// Filter orders
 function filterOrders(status) {
     const cards = document.querySelectorAll('.order-card');
     const tabs = document.querySelectorAll('.filter-tab');
-    
-    tabs.forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.filter === status);
-    });
-    
+    tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.filter === status));
     cards.forEach(card => {
-        if (status === 'all') {
-            card.style.display = '';
-        } else if (status === 'out_for_delivery') {
+        if (status === 'all') card.style.display = '';
+        else if (status === 'out_for_delivery') {
             const orderStatus = card.dataset.status;
             card.style.display = (orderStatus === 'out_for_delivery' || orderStatus === 'shipped' || orderStatus === 'in_transit') ? '' : 'none';
-        } else {
-            card.style.display = card.dataset.status === status ? '' : 'none';
-        }
+        } else card.style.display = card.dataset.status === status ? '' : 'none';
     });
 }
 
-// Search orders
 function searchOrders() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
     const cards = document.querySelectorAll('.order-card');
-    
-    cards.forEach(card => {
-        const text = card.textContent.toLowerCase();
-        card.style.display = text.includes(searchTerm) ? '' : 'none';
-    });
+    cards.forEach(card => card.style.display = card.textContent.toLowerCase().includes(searchTerm) ? '' : 'none');
 }
 
-// Toggle more items
 function toggleItems(orderId) {
     const hiddenDiv = document.getElementById(`hidden-items-${orderId}`);
     const moreBtn = hiddenDiv.previousElementSibling;
-    
     if (hiddenDiv.style.display === 'none') {
         hiddenDiv.style.display = 'block';
         moreBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Show less';
@@ -1732,42 +1513,21 @@ function toggleItems(orderId) {
     }
 }
 
-// Escape HTML
-function escapeHtml(unsafe) {
-    if (!unsafe) return unsafe;
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
+function escapeHtml(unsafe) { if (!unsafe) return unsafe; return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
-// Seller actions
-function acceptOrder(orderId) {
-    alert('Accept order feature coming soon');
-}
+function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('show', show); }
 
-function rejectOrder(orderId) {
-    alert('Reject order feature coming soon');
-}
+function acceptOrder(orderId) { alert('Accept order feature coming soon'); }
+function rejectOrder(orderId) { alert('Reject order feature coming soon'); }
+function processOrder(orderId) { alert('Process order feature coming soon'); }
+function shipOrder(orderId) { alert('Ship order feature coming soon'); }
 
-function processOrder(orderId) {
-    alert('Process order feature coming soon');
-}
-
-function shipOrder(orderId) {
-    alert('Ship order feature coming soon');
-}
-
-// Initialize
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const status = urlParams.get('status');
     if (status) filterOrders(status);
 });
 
-// Make functions global
 window.filterOrders = filterOrders;
 window.searchOrders = searchOrders;
 window.toggleItems = toggleItems;
