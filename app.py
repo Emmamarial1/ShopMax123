@@ -1155,6 +1155,61 @@ def debug_check_read_endpoint():
 
 
 
+@app.route('/debug/my-conversations')
+@login_required
+def debug_my_conversations():
+    """Show all conversations for current user"""
+    user = get_current_user()
+    
+    conversations = Conversation.query.filter(
+        db.or_(
+            Conversation.participant1_id == user.id,
+            Conversation.participant2_id == user.id
+        )
+    ).all()
+    
+    html = f"""
+    <html>
+    <head><title>My Conversations</title></head>
+    <body style="font-family: monospace; padding: 20px;">
+        <h1>My Conversations (User ID: {user.id}, Type: {user.user_type})</h1>
+        <p>Total: {len(conversations)}</p>
+        <table border="1" cellpadding="8">
+            <tr>
+                <th>ID</th>
+                <th>Participant 1</th>
+                <th>Participant 2</th>
+                <th>Created</th>
+                <th>Action</th>
+            </tr>
+    """
+    
+    for conv in conversations:
+        p1 = User.query.get(conv.participant1_id)
+        p2 = User.query.get(conv.participant2_id)
+        p1_name = p1.fullname if p1 else f"ID:{conv.participant1_id}"
+        p2_name = p2.fullname if p2 else f"ID:{conv.participant2_id}"
+        
+        html += f"""
+            <tr>
+                <td>{conv.id}</td>
+                <td>{p1_name} ({conv.participant1_type})</td>
+                <td>{p2_name} ({conv.participant2_type})</td>
+                <td>{conv.created_at}</td>
+                <td><a href="/chat?conversation_id={conv.id}">Open</a></td>
+            </tr>
+        """
+    
+    html += """
+        </table>
+        <p><a href="/admin/messages">Back to Messages</a></p>
+    </body>
+    </html>
+    """
+    return html
+
+
+
 
 
 
@@ -1164,14 +1219,21 @@ def api_mark_conversation_read(conversation_id):
     """Mark all messages in conversation as read"""
     try:
         user_id = session['user_id']
+        user = get_current_user()
+        
+        print(f"📝 Mark read - User: {user_id}, Conversation: {conversation_id}")
         
         # Get the conversation
         conv = Conversation.query.get(conversation_id)
         if not conv:
+            print(f"❌ Conversation {conversation_id} not found")
             return jsonify({'success': False, 'error': 'Conversation not found'}), 404
+        
+        print(f"   Participants: {conv.participant1_id} vs {conv.participant2_id}")
         
         # Check if user is in this conversation
         if conv.participant1_id != user_id and conv.participant2_id != user_id:
+            print(f"❌ User {user_id} not authorized for conversation {conversation_id}")
             return jsonify({'success': False, 'error': 'Unauthorized'}), 403
         
         # Find all unread messages from the other user
@@ -1181,11 +1243,15 @@ def api_mark_conversation_read(conversation_id):
             Message.is_read == False
         ).all()
         
+        print(f"   Found {len(unread_messages)} unread messages")
+        
         # Mark them as read
         for msg in unread_messages:
             msg.is_read = True
         
         db.session.commit()
+        
+        print(f"✅ Marked {len(unread_messages)} messages as read")
         
         return jsonify({
             'success': True,
@@ -1195,9 +1261,12 @@ def api_mark_conversation_read(conversation_id):
         
     except Exception as e:
         db.session.rollback()
-        print(f"Error in mark read: {e}")
+        print(f"❌ Error in mark read: {e}")
+        import traceback
         traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
 
 
 
