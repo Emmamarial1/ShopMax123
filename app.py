@@ -1111,47 +1111,91 @@ def debug_check_message_routes():
 
 
 
+
+@app.route('/debug/check-read-endpoint')
+def debug_check_read_endpoint():
+    """Check if read endpoint exists and is accessible"""
+    try:
+        # Try to find a conversation
+        conv = Conversation.query.first()
+        if not conv:
+            return "No conversations found. Create one first."
+        
+        # Test if we can read it
+        return f"""
+        <html>
+        <body>
+            <h1>Read Endpoint Test</h1>
+            <p>Conversation found: ID {conv.id}</p>
+            <button onclick="testRead()">Test Read Endpoint</button>
+            <div id="result"></div>
+            
+            <script>
+            async function testRead() {{
+                const convId = {conv.id};
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = 'Testing...';
+                
+                try {{
+                    const response = await fetch(`/api/messages/conversations/${{convId}}/read`, {{
+                        method: 'PUT'
+                    }});
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<pre>${{JSON.stringify(data, null, 2)}}</pre>`;
+                }} catch (error) {{
+                    resultDiv.innerHTML = 'Error: ' + error.message;
+                }}
+            }}
+            </script>
+        </body>
+        </html>
+        """
+    except Exception as e:
+        return f"Error: {e}"
+
+
+
+
+
+
 @app.route('/api/messages/conversations/<int:conversation_id>/read', methods=['PUT'])
 @login_required
-def api_mark_conversation_read_debug(conversation_id):
-    """Debug version of mark as read"""
+def api_mark_conversation_read(conversation_id):
+    """Mark all messages in conversation as read"""
     try:
-        print(f"📝 Marking conversation {conversation_id} as read")
-        
         user_id = session['user_id']
-        print(f"   User ID: {user_id}")
         
-        # Verify user is in conversation
+        # Get the conversation
         conv = Conversation.query.get(conversation_id)
-        print(f"   Conversation found: {conv is not None}")
-        
         if not conv:
             return jsonify({'success': False, 'error': 'Conversation not found'}), 404
-            
-        if not (conv.participant1_id == user_id or conv.participant2_id == user_id):
-            print(f"   Unauthorized: user {user_id} not in conversation")
+        
+        # Check if user is in this conversation
+        if conv.participant1_id != user_id and conv.participant2_id != user_id:
             return jsonify({'success': False, 'error': 'Unauthorized'}), 403
         
-        # Mark unread messages as read
-        unread = Message.query.filter(
+        # Find all unread messages from the other user
+        unread_messages = Message.query.filter(
             Message.conversation_id == conversation_id,
             Message.sender_id != user_id,
             Message.is_read == False
         ).all()
         
-        print(f"   Found {len(unread)} unread messages")
-        
-        for msg in unread:
+        # Mark them as read
+        for msg in unread_messages:
             msg.is_read = True
         
         db.session.commit()
-        print(f"   ✅ Marked {len(unread)} messages as read")
         
-        return jsonify({'success': True, 'count': len(unread)})
+        return jsonify({
+            'success': True,
+            'count': len(unread_messages),
+            'message': f'Marked {len(unread_messages)} messages as read'
+        })
         
     except Exception as e:
-        print(f"❌ Error in mark read: {e}")
-        import traceback
+        db.session.rollback()
+        print(f"Error in mark read: {e}")
         traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
