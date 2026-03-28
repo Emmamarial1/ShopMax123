@@ -5286,75 +5286,7 @@ def api_get_conversation_messages(conversation_id):
 
 
 
-@app.route('/api/messages/send', methods=['POST'])
-@login_required
-def api_send_message():
-    """Send a new message"""
-    try:
-        data = request.get_json()
-        user_id = session['user_id']
-        user_type = session['user_type']
-        
-        conversation_id = data.get('conversation_id')
-        content = data.get('content', '').strip()
-        attachments = data.get('attachments', [])
-        message_type = data.get('message_type', 'text')
-        
-        if not conversation_id:
-            return jsonify({'success': False, 'error': 'Conversation ID required'}), 400
-        
-        if not content and not attachments:
-            return jsonify({'success': False, 'error': 'Message content cannot be empty'}), 400
-        
-        # Verify user is part of conversation
-        conversation = Conversation.query.get(conversation_id)
-        if not conversation:
-            return jsonify({'success': False, 'error': 'Conversation not found'}), 404
-        
-        if not (conversation.participant1_id == user_id or conversation.participant2_id == user_id):
-            return jsonify({'success': False, 'error': 'Unauthorized'}), 403
-        
-        # Create message
-        message = Message(
-            conversation_id=conversation_id,
-            sender_id=user_id,
-            sender_type=user_type,
-            content=content,
-            message_type=message_type,
-            attachments=json.dumps(attachments) if attachments else None,
-            created_at=datetime.utcnow()
-        )
-        db.session.add(message)
-        
-        # Update conversation
-        conversation.updated_at = datetime.utcnow()
-        
-        db.session.commit()
-        
-        # Get sender details for response
-        sender = User.query.get(user_id)
-        
-        return jsonify({
-            'success': True,
-            'data': {
-                'id': message.id,
-                'conversation_id': message.conversation_id,
-                'sender_id': message.sender_id,
-                'sender_type': message.sender_type,
-                'sender_name': sender.fullname or sender.business_name if sender else 'Unknown',
-                'content': message.content,
-                'message_type': message.message_type,
-                'attachments': json.loads(message.attachments) if message.attachments else [],
-                'is_read': message.is_read,
-                'is_delivered': message.is_delivered,
-                'created_at': message.created_at.isoformat() if message.created_at else None
-            }
-        }), 201
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error in api_send_message: {e}")
-        traceback.print_exc()
-        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 @app.route('/api/messages/start-conversation', methods=['POST'])
 @login_required
