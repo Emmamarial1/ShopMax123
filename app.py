@@ -5406,71 +5406,7 @@ def api_get_conversations():
         traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/api/messages/conversations/<int:conversation_id>/messages')
-@login_required
-def api_get_conversation_messages(conversation_id):
-    """Get messages for a specific conversation"""
-    try:
-        user_id = session['user_id']
-        
-        # Verify user is part of conversation
-        conversation = Conversation.query.get(conversation_id)
-        if not conversation:
-            return jsonify({'success': False, 'error': 'Conversation not found'}), 404
-        
-        if not (conversation.participant1_id == user_id or conversation.participant2_id == user_id):
-            return jsonify({'success': False, 'error': 'Unauthorized'}), 403
-        
-        # Get messages
-        messages = Message.query.filter_by(
-            conversation_id=conversation_id,
-            is_deleted=False
-        ).order_by(Message.created_at.asc()).all()
-        
-        result = []
-        for msg in messages:
-            # Get sender details
-            sender = None
-            if msg.sender_type == 'buyer':
-                sender = User.query.get(msg.sender_id)
-            elif msg.sender_type == 'seller':
-                sender = User.query.get(msg.sender_id)
-            elif msg.sender_type == 'admin':
-                sender = User.query.get(msg.sender_id)
-            
-            result.append({
-                'id': msg.id,
-                'conversation_id': msg.conversation_id,
-                'sender_id': msg.sender_id,
-                'sender_type': msg.sender_type,
-                'sender_name': sender.fullname or sender.business_name if sender else 'Unknown',
-                'content': msg.content,
-                'message_type': msg.message_type,
-                'attachments': json.loads(msg.attachments) if msg.attachments else [],
-                'is_read': msg.is_read,
-                'is_delivered': msg.is_delivered,
-                'is_edited': msg.is_edited,
-                'created_at': msg.created_at.isoformat() if msg.created_at else None
-            })
-        
-        # Mark messages as read
-        unread_messages = Message.query.filter(
-            Message.conversation_id == conversation_id,
-            Message.sender_id != user_id,
-            Message.is_read == False
-        ).all()
-        
-        for msg in unread_messages:
-            msg.is_read = True
-        
-        if unread_messages:
-            db.session.commit()
-        
-        return jsonify({'success': True, 'data': result})
-    except Exception as e:
-        print(f"Error in api_get_conversation_messages: {e}")
-        traceback.print_exc()
-        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 @app.route('/api/messages/send', methods=['POST'])
 @login_required
