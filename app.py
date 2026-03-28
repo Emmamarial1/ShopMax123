@@ -1111,6 +1111,148 @@ def debug_check_message_routes():
 
 
 
+@app.route('/api/messages/conversations/<int:conversation_id>/read', methods=['PUT'])
+@login_required
+def api_mark_conversation_read_debug(conversation_id):
+    """Debug version of mark as read"""
+    try:
+        print(f"📝 Marking conversation {conversation_id} as read")
+        
+        user_id = session['user_id']
+        print(f"   User ID: {user_id}")
+        
+        # Verify user is in conversation
+        conv = Conversation.query.get(conversation_id)
+        print(f"   Conversation found: {conv is not None}")
+        
+        if not conv:
+            return jsonify({'success': False, 'error': 'Conversation not found'}), 404
+            
+        if not (conv.participant1_id == user_id or conv.participant2_id == user_id):
+            print(f"   Unauthorized: user {user_id} not in conversation")
+            return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+        
+        # Mark unread messages as read
+        unread = Message.query.filter(
+            Message.conversation_id == conversation_id,
+            Message.sender_id != user_id,
+            Message.is_read == False
+        ).all()
+        
+        print(f"   Found {len(unread)} unread messages")
+        
+        for msg in unread:
+            msg.is_read = True
+        
+        db.session.commit()
+        print(f"   ✅ Marked {len(unread)} messages as read")
+        
+        return jsonify({'success': True, 'count': len(unread)})
+        
+    except Exception as e:
+        print(f"❌ Error in mark read: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+
+
+@app.route('/api/messages/send', methods=['POST'])
+@login_required
+def api_send_message_debug(conversation_id):
+    """Debug version of send message"""
+    try:
+        data = request.get_json()
+        print(f"📝 Send message request: {data}")
+        
+        user_id = session['user_id']
+        user_type = session['user_type']
+        
+        conversation_id = data.get('conversation_id')
+        content = data.get('content', '').strip()
+        
+        print(f"   User: {user_id} ({user_type})")
+        print(f"   Conversation: {conversation_id}")
+        print(f"   Content: {content[:50]}...")
+        
+        if not content:
+            return jsonify({'success': False, 'error': 'Message cannot be empty'}), 400
+        
+        if not conversation_id:
+            return jsonify({'success': False, 'error': 'Conversation ID required'}), 400
+        
+        # Verify user is in conversation
+        conv = Conversation.query.get(conversation_id)
+        if not conv:
+            return jsonify({'success': False, 'error': 'Conversation not found'}), 404
+        
+        if not (conv.participant1_id == user_id or conv.participant2_id == user_id):
+            return jsonify({'success': False, 'error': 'Unauthorized'}), 403
+        
+        # Create message
+        message = Message(
+            conversation_id=conversation_id,
+            sender_id=user_id,
+            sender_type=user_type,
+            content=content,
+            message_type='text',
+            created_at=datetime.utcnow(),
+            is_read=False,
+            is_delivered=False
+        )
+        db.session.add(message)
+        
+        # Update conversation
+        conv.last_message_id = message.id
+        conv.last_message_at = datetime.utcnow()
+        conv.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        print(f"   ✅ Message created with ID: {message.id}")
+        
+        # Get sender name
+        sender = User.query.get(user_id)
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'id': message.id,
+                'sender_id': message.sender_id,
+                'sender_name': sender.fullname if sender else 'You',
+                'sender_type': message.sender_type,
+                'content': message.content,
+                'is_read': message.is_read,
+                'created_at': message.created_at.isoformat()
+            }
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"❌ Error sending message: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+
+
+
+
+@app.route('/api/test')
+def test_api():
+    """Simple test endpoint"""
+    return jsonify({
+        'success': True,
+        'message': 'API is working!',
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
+
+
+
+
 
 # ==================== CHAT HELPER FUNCTIONS ====================
 
