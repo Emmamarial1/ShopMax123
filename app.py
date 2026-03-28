@@ -18,6 +18,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import traceback
 
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -44,6 +48,8 @@ UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
+
+
 
 # ==================== DATABASE CONFIGURATION ====================
 DATABASE_URL = os.environ.get('DATABASE_URL')
@@ -84,6 +90,46 @@ google = oauth.register(
         'prompt': 'select_account'
     }
 )
+
+
+
+# ==================== CLOUDINARY CONFIGURATION ====================
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.environ.get('CLOUDINARY_API_KEY'),
+    api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
+    secure=True
+)
+
+# Helper function to upload image to Cloudinary
+def upload_to_cloudinary(file, folder='shopmax_products'):
+    """Upload image to Cloudinary and return URL and public_id"""
+    try:
+        upload_result = cloudinary.uploader.upload(
+            file,
+            folder=folder,
+            transformation=[
+                {'width': 800, 'height': 800, 'crop': 'limit'},
+                {'quality': 'auto'}
+            ]
+        )
+        return upload_result['secure_url'], upload_result['public_id']
+    except Exception as e:
+        print(f"Cloudinary upload error: {e}")
+        return None, None
+
+def delete_from_cloudinary(public_id):
+    """Delete image from Cloudinary"""
+    try:
+        if public_id:
+            cloudinary.uploader.destroy(public_id)
+            return True
+    except Exception as e:
+        print(f"Cloudinary delete error: {e}")
+    return False
+
+
 
 # ==================== DATABASE MODELS ====================
 
@@ -153,7 +199,8 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(50), nullable=False)
     stock = db.Column(db.Integer, default=0)
-    image = db.Column(db.String(200))
+    image = db.Column(db.String(500))  # This will store Cloudinary URL
+    image_public_id = db.Column(db.String(200))  # ADD THIS NEW FIELD
     is_active = db.Column(db.Boolean, default=True)
     brand = db.Column(db.String(50), nullable=True)
     condition = db.Column(db.String(20), default='new', nullable=True)
@@ -807,8 +854,6 @@ def get_order_status_display(status):
 
 
 
-
-
 @app.route('/create-admin-user')
 def create_admin_user():
     """Create admin user for testing"""
@@ -1349,6 +1394,88 @@ def test_api():
         'message': 'API is working!',
         'timestamp': datetime.utcnow().isoformat()
     })
+
+
+
+
+@app.route('/seller/products/<int:product_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_product(product_id):
+    user = get_current_user()
+    
+    if user.user_type != 'seller' or not has_active_subscription(user):
+        flash('Please subscribe to a plan to edit products.', 'info')
+        return redirect(url_for('seller_subscription'))
+    
+    product = Product.query.get_or_404(product_id)
+    
+    if product.seller_id != user.id:
+        flash('You can only edit your own products.', 'danger')
+        return redirect(url_for('manage_products'))
+    
+    if request.method == 'POST':
+        try:
+            name = request.form.get('name', '').strip()
+            description = request.form.get('description', '').strip()
+            price = request.form.get('price', '').strip()
+            category = request.form.get('category', '').strip()
+            stock = request.form.get('stock', '1').strip()
+            brand = request.form.get('brand', '').strip()
+            condition = request.form.get('condition', 'new')
+            
+            if not all([name, description, price, category]):
+                flash('Please fill in all required fields: Name, Description, Price, and Category.', 'danger')
+                return render_template('edit_product.html', product=product)
+            
+            # Handle image upload to Cloudinary (UPDATED)
+            image_file = request.files.get('image')
+            
+            if image_file and image_file.filename:
+                if allowed_file(image_file.filename):
+                    # Delete old Cloudinary image if exists
+                    if product.image_public_id:
+                        delete_from_cloudinary(product.image_public_id)
+                        print(f"✅ Deleted old Cloudinary image: {product.image_public_id}")
+                    
+                    # Upload new image to Cloudinary
+                    image_url, image_public_id = upload_to_cloudinary(image_file)
+                    if not image_url:
+                        flash('Error uploading image. Please try again.', 'danger')
+                        return render_template('edit_product.html', product=product)
+                    
+                    # Update with new Cloudinary URL
+                    product.image = image_url
+                    product.image_public_id = image_public_id
+                else:
+                    flash('Please upload JPG, PNG, or GIF images only.', 'danger')
+                    return render_template('edit_product.html', product=product)
+            
+            # Update product details
+            product.name = name
+            product.description = description
+            product.price = float(price)
+            product.category = category
+            product.stock = int(stock) if stock else 1
+            product.brand = brand if brand else None
+            product.condition = condition
+            product.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            
+            flash('✅ Product updated successfully!', 'success')
+            return redirect(url_for('manage_products'))
+            
+        except ValueError as e:
+            flash('Please enter valid price and stock values.', 'danger')
+            return render_template('edit_product.html', product=product)
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error updating product: {e}")
+            traceback.print_exc()
+            flash('Error updating product. Please try again.', 'danger')
+            return render_template('edit_product.html', product=product)
+    
+    return render_template('edit_product.html', product=product)
 
 
 
@@ -2008,6 +2135,196 @@ def force_new_seller_status():
     </body>
     </html>
     """
+
+
+
+
+@app.route('/seller/products/add', methods=['GET', 'POST'])
+@login_required
+def add_product():
+    user = get_current_user()
+    
+    if user.user_type != 'seller':
+        flash('Access denied. Seller account required.', 'danger')
+        return redirect(url_for('products'))
+    
+    # Check subscription and product limits
+    if not has_active_subscription(user):
+        flash('Please subscribe to a plan to add products.', 'info')
+        return redirect(url_for('seller_subscription'))
+    
+    # Get current product count
+    current_products = Product.query.filter_by(seller_id=user.id, is_active=True).count()
+    
+    # Define product limits per plan
+    plan_limits = {
+        'starter': 4,
+        'basic': 25,
+        'premium': 100
+    }
+    
+    max_products = plan_limits.get(user.subscription_tier, 0)
+    
+    if current_products >= max_products:
+        flash(f'You have reached your plan limit of {max_products} products. Please upgrade to add more.', 'warning')
+        return redirect(url_for('seller_subscription'))
+    
+    if request.method == 'POST':
+        try:
+            name = request.form.get('name', '').strip()
+            description = request.form.get('description', '').strip()
+            price = request.form.get('price', '').strip()
+            category = request.form.get('category', '').strip()
+            stock = request.form.get('stock', '1').strip()
+            brand = request.form.get('brand', '').strip()
+            condition = request.form.get('condition', 'new')
+            
+            if not all([name, description, price, category]):
+                flash('Please fill in all required fields: Name, Description, Price, and Category.', 'danger')
+                return render_template('add_product.html')
+            
+            # Handle image upload to Cloudinary (UPDATED)
+            image_url = None
+            image_public_id = None
+            
+            if 'image' in request.files:
+                image_file = request.files['image']
+                if image_file and image_file.filename:
+                    if allowed_file(image_file.filename):
+                        # Upload to Cloudinary instead of local storage
+                        image_url, image_public_id = upload_to_cloudinary(image_file)
+                        if not image_url:
+                            flash('Error uploading image. Please try again.', 'danger')
+                            return render_template('add_product.html')
+                    else:
+                        flash('Please upload JPG, PNG, or GIF images only.', 'danger')
+                        return render_template('add_product.html')
+            
+            # Create product with Cloudinary URL
+            new_product = Product(
+                name=name,
+                description=description,
+                price=float(price),
+                category=category,
+                stock=int(stock) if stock else 1,
+                image=image_url,  # Store Cloudinary URL
+                image_public_id=image_public_id,  # Store for deletion
+                brand=brand if brand else None,
+                condition=condition,
+                seller_id=user.id,
+                is_active=True
+            )
+            
+            db.session.add(new_product)
+            db.session.commit()
+            
+            flash('🎉 Product added successfully!', 'success')
+            return redirect(url_for('manage_products'))
+            
+        except ValueError as e:
+            flash('Please enter valid price and stock values.', 'danger')
+            return render_template('add_product.html')
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error adding product: {e}")
+            traceback.print_exc()
+            flash('Error adding product. Please try again.', 'danger')
+            return render_template('add_product.html')
+    
+    return render_template('add_product.html')
+
+
+
+
+
+@app.route('/seller/products/<int:product_id>/delete', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    user = get_current_user()
+    
+    product = Product.query.get_or_404(product_id)
+    
+    if product.seller_id != user.id:
+        flash('You can only delete your own products.', 'danger')
+        return redirect(url_for('manage_products'))
+    
+    try:
+        # Delete from Cloudinary if it has a public_id
+        if product.image_public_id:
+            delete_from_cloudinary(product.image_public_id)
+            print(f"✅ Deleted from Cloudinary: {product.image_public_id}")
+        
+        # Also clean up local files if any (for backward compatibility)
+        if product.image and not product.image.startswith('http'):
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], product.image)
+            if os.path.exists(image_path):
+                os.remove(image_path)
+                print(f"✅ Deleted local image: {image_path}")
+        
+        # Delete the product from database
+        db.session.delete(product)
+        db.session.commit()
+        
+        flash('Product deleted successfully!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting product: {e}")
+        traceback.print_exc()
+        flash('Error deleting product. Please try again.', 'danger')
+    
+    return redirect(url_for('manage_products'))
+
+
+
+
+
+
+
+@app.route('/api/admin/products/<int:product_id>/delete', methods=['POST'])
+@admin_required
+def admin_delete_product(product_id):
+    """Delete product permanently"""
+    try:
+        product = Product.query.get_or_404(product_id)
+        
+        # Delete from Cloudinary if it has a public_id
+        if product.image_public_id:
+            delete_from_cloudinary(product.image_public_id)
+            print(f"✅ Deleted from Cloudinary: {product.image_public_id}")
+        
+        # Also clean up local files if any (for backward compatibility)
+        if product.image and not product.image.startswith('http'):
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], product.image)
+            if os.path.exists(image_path):
+                os.remove(image_path)
+                print(f"✅ Deleted local image: {image_path}")
+        
+        # Delete order items associated with this product first
+        OrderItem.query.filter_by(product_id=product_id).delete()
+        
+        # Delete wishlist items
+        Wishlist.query.filter_by(product_id=product_id).delete()
+        
+        # Delete cart items
+        Cart.query.filter_by(product_id=product_id).delete()
+        
+        # Delete reviews
+        Review.query.filter_by(product_id=product_id).delete()
+        
+        # Delete the product
+        db.session.delete(product)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Product deleted successfully'})
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting product: {e}")
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 
 
 
@@ -2814,6 +3131,10 @@ def verify_payments():
     # This would show all pending payments for admin approval
     # Implementation depends on your admin panel structure
     pass
+
+
+
+
 
 
 
@@ -4727,52 +5048,6 @@ def admin_toggle_product(product_id):
 
 
 
-@app.route('/api/admin/products/<int:product_id>/delete', methods=['POST'])
-@admin_required
-def admin_delete_product(product_id):
-    """Delete product permanently"""
-    try:
-        product = Product.query.get_or_404(product_id)
-        
-        # Delete product image if exists
-        if product.image:
-            image_path = os.path.join(app.config['UPLOAD_FOLDER'], product.image)
-            if os.path.exists(image_path):
-                os.remove(image_path)
-        
-        # Delete order items associated with this product first
-        OrderItem.query.filter_by(product_id=product_id).delete()
-        
-        # Delete wishlist items
-        Wishlist.query.filter_by(product_id=product_id).delete()
-        
-        # Delete cart items
-        Cart.query.filter_by(product_id=product_id).delete()
-        
-        # Delete reviews
-        Review.query.filter_by(product_id=product_id).delete()
-        
-        # Delete the product
-        db.session.delete(product)
-        db.session.commit()
-        
-        return jsonify({'success': True, 'message': 'Product deleted successfully'})
-        
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error deleting product: {e}")
-        traceback.print_exc()
-        return jsonify({'success': False, 'message': str(e)}), 500   
-
-
-
-
-
-
-
-
-
-
 
 @app.route('/api/admin/products/export', methods=['GET'])
 @admin_required
@@ -6085,95 +6360,7 @@ def fix_all_sellers():
 
 
 
-# Update the add_product route to check product limits
-@app.route('/seller/products/add', methods=['GET', 'POST'])
-@login_required
-def add_product():
-    user = get_current_user()
-    
-    if user.user_type != 'seller':
-        flash('Access denied. Seller account required.', 'danger')
-        return redirect(url_for('products'))
-    
-    # Check subscription and product limits
-    if not has_active_subscription(user):
-        flash('Please subscribe to a plan to add products.', 'info')
-        return redirect(url_for('seller_subscription'))
-    
-    # Get current product count
-    current_products = Product.query.filter_by(seller_id=user.id, is_active=True).count()
-    
-    # Define product limits per plan
-    plan_limits = {
-        'starter': 4,
-        'basic': 25,
-        'premium': 100
-    }
-    
-    max_products = plan_limits.get(user.subscription_tier, 0)
-    
-    if current_products >= max_products:
-        flash(f'You have reached your plan limit of {max_products} products. Please upgrade to add more.', 'warning')
-        return redirect(url_for('seller_subscription'))
-    
-    if request.method == 'POST':
-        # ... rest of your add_product code ...
-        try:
-            name = request.form.get('name', '').strip()
-            description = request.form.get('description', '').strip()
-            price = request.form.get('price', '').strip()
-            category = request.form.get('category', '').strip()
-            stock = request.form.get('stock', '1').strip()
-            brand = request.form.get('brand', '').strip()
-            condition = request.form.get('condition', 'new')
-            
-            if not all([name, description, price, category]):
-                flash('Please fill in all required fields: Name, Description, Price, and Category.', 'danger')
-                return render_template('add_product.html')
-            
-            image_file = request.files.get('image')
-            image_filename = None
-            
-            if image_file and image_file.filename:
-                if allowed_file(image_file.filename):
-                    ensure_upload_folder()
-                    filename = secure_filename(image_file.filename)
-                    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S_')
-                    image_filename = timestamp + filename
-                    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
-                    image_file.save(image_path)
-                else:
-                    flash('Please upload JPG, PNG, or GIF images only.', 'danger')
-                    return render_template('add_product.html')
-            
-            new_product = Product(
-                name=name,
-                description=description,
-                price=float(price),
-                category=category,
-                stock=int(stock) if stock else 1,
-                image=image_filename,
-                brand=brand if brand else None,
-                condition=condition,
-                seller_id=user.id,
-                is_active=True
-            )
-            
-            db.session.add(new_product)
-            db.session.commit()
-            
-            flash('🎉 Product added successfully!', 'success')
-            return redirect(url_for('manage_products'))
-            
-        except ValueError as e:
-            flash('Please enter valid price and stock values.', 'danger')
-            return render_template('add_product.html')
-        except Exception as e:
-            db.session.rollback()
-            flash('Error adding product. Please try again.', 'danger')
-            return render_template('add_product.html')
-    
-    return render_template('add_product.html')
+
 
 
 # ==================== UCU DATABASE FUNCTIONS ====================
@@ -14923,79 +15110,6 @@ def debug_products():
 
 
 
-@app.route('/seller/products/<int:product_id>/edit', methods=['GET', 'POST'])
-@login_required
-def edit_product(product_id):
-    user = get_current_user()
-    
-    if user.user_type != 'seller' or not has_active_subscription(user):
-        flash('Please subscribe to a plan to edit products.', 'info')
-        return redirect(url_for('seller_subscription'))
-    
-    product = Product.query.get_or_404(product_id)
-    
-    if product.seller_id != user.id:
-        flash('You can only edit your own products.', 'danger')
-        return redirect(url_for('manage_products'))
-    
-    if request.method == 'POST':
-        try:
-            name = request.form.get('name', '').strip()
-            description = request.form.get('description', '').strip()
-            price = request.form.get('price', '').strip()
-            category = request.form.get('category', '').strip()
-            stock = request.form.get('stock', '1').strip()
-            brand = request.form.get('brand', '').strip()
-            condition = request.form.get('condition', 'new')
-            
-            if not all([name, description, price, category]):
-                flash('Please fill in all required fields: Name, Description, Price, and Category.', 'danger')
-                return render_template('edit_product.html', product=product)
-            
-            image_file = request.files.get('image')
-            
-            if image_file and image_file.filename:
-                if allowed_file(image_file.filename):
-                    ensure_upload_folder()
-                    filename = secure_filename(image_file.filename)
-                    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S_')
-                    image_filename = timestamp + filename
-                    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
-                    image_file.save(image_path)
-                    
-                    if product.image:
-                        old_image_path = os.path.join(app.config['UPLOAD_FOLDER'], product.image)
-                        if os.path.exists(old_image_path):
-                            os.remove(old_image_path)
-                    
-                    product.image = image_filename
-                else:
-                    flash('Please upload JPG, PNG, or GIF images only.', 'danger')
-                    return render_template('edit_product.html', product=product)
-            
-            product.name = name
-            product.description = description
-            product.price = float(price)
-            product.category = category
-            product.stock = int(stock) if stock else 1
-            product.brand = brand if brand else None
-            product.condition = condition
-            product.updated_at = datetime.utcnow()
-            
-            db.session.commit()
-            
-            flash('✅ Product updated successfully!', 'success')
-            return redirect(url_for('manage_products'))
-            
-        except ValueError as e:
-            flash('Please enter valid price and stock values.', 'danger')
-            return render_template('edit_product.html', product=product)
-        except Exception as e:
-            db.session.rollback()
-            flash('Error updating product. Please try again.', 'danger')
-            return render_template('edit_product.html', product=product)
-    
-    return render_template('edit_product.html', product=product)
 
 @app.route('/seller/products/<int:product_id>/toggle')
 @login_required
@@ -15021,33 +15135,7 @@ def toggle_product(product_id):
     
     return redirect(url_for('manage_products'))
 
-@app.route('/seller/products/<int:product_id>/delete', methods=['POST'])
-@login_required
-def delete_product(product_id):
-    user = get_current_user()
-    
-    product = Product.query.get_or_404(product_id)
-    
-    if product.seller_id != user.id:
-        flash('You can only delete your own products.', 'danger')
-        return redirect(url_for('manage_products'))
-    
-    try:
-        if product.image:
-            image_path = os.path.join(app.config['UPLOAD_FOLDER'], product.image)
-            if os.path.exists(image_path):
-                os.remove(image_path)
-        
-        db.session.delete(product)
-        db.session.commit()
-        
-        flash('Product deleted successfully!', 'success')
-        
-    except Exception as e:
-        db.session.rollback()
-        flash('Error deleting product. Please try again.', 'danger')
-    
-    return redirect(url_for('manage_products'))
+
 
 
 
