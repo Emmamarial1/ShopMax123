@@ -730,6 +730,11 @@ def migrate_existing_images():
 
 
 
+
+
+
+
+
 @app.route('/seller/products/add', methods=['GET', 'POST'])
 @login_required
 def add_product():
@@ -14124,6 +14129,298 @@ def update_order_status(order_id):
 
 
 
+
+
+# ==================== CLOUDINARY DEBUG ROUTES ====================
+
+@app.route('/debug/cloudinary')
+@admin_required
+def debug_cloudinary():
+    """Check Cloudinary configuration"""
+    import cloudinary
+    
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Cloudinary Debug</title>
+        <style>
+            body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+            .success { color: green; font-weight: bold; }
+            .error { color: red; font-weight: bold; }
+            .info { background: #e3f2fd; padding: 10px; margin: 10px 0; border-left: 4px solid #2196f3; }
+            pre { background: white; padding: 15px; overflow-x: auto; border-radius: 5px; }
+            table { border-collapse: collapse; width: 100%; background: white; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background: #000080; color: white; }
+        </style>
+    </head>
+    <body>
+        <h1>🔍 Cloudinary Configuration Check</h1>
+    """
+    
+    # Check environment variables
+    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME')
+    api_key = os.environ.get('CLOUDINARY_API_KEY')
+    api_secret = os.environ.get('CLOUDINARY_API_SECRET')
+    
+    html += "<h2>Environment Variables:</h2>"
+    html += f"<p>CLOUDINARY_CLOUD_NAME: {'✅ Set' if cloud_name else '❌ NOT SET'}</p>"
+    html += f"<p>CLOUDINARY_API_KEY: {'✅ Set' if api_key else '❌ NOT SET'}</p>"
+    html += f"<p>CLOUDINARY_API_SECRET: {'✅ Set' if api_secret else '❌ NOT SET'}</p>"
+    
+    if cloud_name and api_key and api_secret:
+        html += '<div class="info">✅ All Cloudinary credentials are set!</div>'
+        
+        # Try to ping Cloudinary
+        try:
+            cloudinary.config(
+                cloud_name=cloud_name,
+                api_key=api_key,
+                api_secret=api_secret
+            )
+            
+            # Try to list resources
+            result = cloudinary.api.resources(max_results=1)
+            html += '<div class="success">✅ Successfully connected to Cloudinary API!</div>'
+            html += f"<p>Total resources in Cloudinary: {result.get('total_count', 0)}</p>"
+            
+        except Exception as e:
+            html += f'<div class="error">❌ Failed to connect to Cloudinary: {str(e)}</div>'
+    else:
+        html += '<div class="error">❌ Missing Cloudinary credentials! Please add them in Render environment variables.</div>'
+    
+    # Check recent products
+    products = Product.query.order_by(Product.created_at.desc()).limit(10).all()
+    html += "<h2>Recent Products:</h2>"
+    if products:
+        html += "<table>"
+        html += "<tr><th>ID</th><th>Name</th><th>Image URL</th><th>Public ID</th><th>Status</th></tr>"
+        for p in products:
+            status = "✅ Good" if p.image and p.image.startswith('http') else "⚠️ Local/None"
+            image_display = p.image[:50] + '...' if p.image and len(p.image) > 50 else (p.image or 'None')
+            html += f"<tr>"
+            html += f"<td>{p.id}</td>"
+            html += f"<td>{p.name}</td>"
+            html += f"<td>{image_display}</td>"
+            html += f"<td>{p.image_public_id or 'None'}</td>"
+            html += f"<td>{status}</td>"
+            html += f"</tr>"
+        html += "</table>"
+    else:
+        html += "<p>No products found.</p>"
+    
+    html += """
+        <h2>Next Steps:</h2>
+        <ul>
+            <li>If credentials are missing: Add them in Render.com environment variables</li>
+            <li>If connected: Try uploading a test image below</li>
+            <li>After uploads work: Run the migration route to fix existing products</li>
+        </ul>
+        
+        <h2>Test Upload Form:</h2>
+        <form action="/test-cloudinary-upload" method="POST" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/*" required>
+            <button type="submit" style="background:#ff6b00; color:white; padding:10px 20px; border:none; cursor:pointer;">Test Upload</button>
+        </form>
+        
+        <p><a href="/fix-product-images-urgent">Fix Product Images (Set Placeholders)</a></p>
+        <p><a href="/migrate-to-cloudinary">Migrate Existing Images to Cloudinary</a></p>
+    </body>
+    </html>
+    """
+    
+    return html
+
+
+@app.route('/test-cloudinary-upload', methods=['GET', 'POST'])
+@admin_required
+def test_cloudinary_upload():
+    """Simple test route to verify Cloudinary upload"""
+    if request.method == 'POST':
+        if 'image' not in request.files:
+            return "No file uploaded"
+        
+        file = request.files['image']
+        if file.filename == '':
+            return "No file selected"
+        
+        if file and allowed_file(file.filename):
+            try:
+                # Upload to Cloudinary
+                upload_result = cloudinary.uploader.upload(
+                    file,
+                    folder='shopmax_test',
+                    transformation={'width': 500, 'height': 500, 'crop': 'limit'}
+                )
+                
+                image_url = upload_result.get('secure_url')
+                public_id = upload_result.get('public_id')
+                
+                return f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Upload Success</title>
+                    <style>
+                        body {{ font-family: Arial; padding: 40px; text-align: center; }}
+                        .success {{ color: green; }}
+                        img {{ max-width: 400px; border: 1px solid #ccc; margin: 20px; }}
+                    </style>
+                </head>
+                <body>
+                    <h1 class="success">✅ Upload Successful!</h1>
+                    <p><strong>URL:</strong> <a href="{image_url}" target="_blank">{image_url}</a></p>
+                    <p><strong>Public ID:</strong> {public_id}</p>
+                    <img src="{image_url}" alt="Uploaded Image">
+                    <br>
+                    <a href="/debug/cloudinary">Back to Debug</a>
+                </body>
+                </html>
+                """
+                
+            except Exception as e:
+                return f"""
+                <h1 style="color: red;">❌ Upload Failed</h1>
+                <p>Error: {str(e)}</p>
+                <pre>{traceback.format_exc()}</pre>
+                <a href="/debug/cloudinary">Try Again</a>
+                """
+        else:
+            return "Invalid file type. Please upload JPG, PNG, or GIF."
+    
+    return redirect(url_for('debug_cloudinary'))
+
+
+@app.route('/fix-product-images-urgent')
+@admin_required
+def fix_product_images_urgent():
+    """Emergency fix for product images - sets placeholder images"""
+    try:
+        products = Product.query.all()
+        fixed = 0
+        
+        for product in products:
+            # Check if image is missing or broken
+            if not product.image or not product.image.startswith('http'):
+                # Set a placeholder image based on category
+                placeholders = {
+                    'mens_clothing': 'https://picsum.photos/id/26/400/400',
+                    'womens_clothing': 'https://picsum.photos/id/26/400/400',
+                    'electronics': 'https://picsum.photos/id/0/400/400',
+                    'laptops': 'https://picsum.photos/id/0/400/400',
+                    'textbooks': 'https://picsum.photos/id/24/400/400',
+                    'default': 'https://picsum.photos/id/20/400/400'
+                }
+                
+                placeholder = placeholders.get(product.category, placeholders['default'])
+                product.image = placeholder
+                product.image_public_id = 'placeholder'
+                fixed += 1
+                print(f"✅ Fixed product {product.id}: {product.name}")
+        
+        db.session.commit()
+        
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Images Fixed</title>
+            <style>
+                body {{ font-family: Arial; padding: 40px; text-align: center; background: #f0f9ff; }}
+                .success {{ color: #10b981; font-size: 24px; }}
+                .box {{ background: white; padding: 30px; border-radius: 12px; max-width: 500px; margin: 0 auto; }}
+                .btn {{ display: inline-block; padding: 12px 24px; background: #ff6b00; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px; }}
+            </style>
+        </head>
+        <body>
+            <div class="box">
+                <h1 class="success">✅ Fixed {fixed} Products!</h1>
+                <p>Products now have placeholder images.</p>
+                <a href="/" class="btn">Go to Homepage</a>
+                <a href="/debug/cloudinary" class="btn" style="background: #000080;">Back to Debug</a>
+            </div>
+        </body>
+        </html>
+        """
+        
+    except Exception as e:
+        db.session.rollback()
+        return f"<h1>Error: {str(e)}</h1>"
+
+
+@app.route('/migrate-to-cloudinary')
+@admin_required
+def migrate_to_cloudinary():
+    """Upload existing product images to Cloudinary"""
+    try:
+        products = Product.query.filter(
+            Product.image.isnot(None),
+            Product.image_public_id.is_(None)
+        ).all()
+        
+        fixed = 0
+        failed = 0
+        
+        for product in products:
+            # Check if it's a local file (not a URL)
+            if product.image and not product.image.startswith('http'):
+                # Try to find the local file
+                local_paths = [
+                    os.path.join('static/uploads', product.image),
+                    os.path.join('static/uploads/products', product.image),
+                    product.image
+                ]
+                
+                image_uploaded = False
+                for path in local_paths:
+                    if os.path.exists(path):
+                        try:
+                            with open(path, 'rb') as f:
+                                url, public_id = upload_to_cloudinary(f)
+                                if url:
+                                    product.image = url
+                                    product.image_public_id = public_id
+                                    fixed += 1
+                                    image_uploaded = True
+                                    print(f"✅ Migrated: {product.name}")
+                                    break
+                        except Exception as e:
+                            print(f"❌ Error with {product.name}: {e}")
+                
+                if not image_uploaded:
+                    # Set placeholder if file not found
+                    product.image = 'https://picsum.photos/id/20/400/400'
+                    product.image_public_id = 'placeholder'
+                    failed += 1
+        
+        db.session.commit()
+        
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Migration Complete</title>
+            <style>
+                body {{ font-family: Arial; padding: 40px; text-align: center; }}
+                .success {{ color: green; }}
+            </style>
+        </head>
+        <body>
+            <h1 class="success">✅ Migration Complete!</h1>
+            <p>Migrated to Cloudinary: {fixed} products</p>
+            <p>Set as placeholders: {failed} products</p>
+            <p>Total processed: {len(products)} products</p>
+            <a href="/debug/cloudinary">Check Cloudinary Status</a>
+            <br><br>
+            <a href="/">Go to Homepage</a>
+        </body>
+        </html>
+        """
+        
+    except Exception as e:
+        db.session.rollback()
+        return f"<h1>Error: {str(e)}</h1>"
 
 
 
