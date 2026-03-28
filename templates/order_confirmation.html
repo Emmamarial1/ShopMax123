@@ -32,7 +32,6 @@
         padding: 0 20px;
     }
 
-    /* Breadcrumb */
     .breadcrumb-custom {
         background: var(--white);
         padding: 10px 16px;
@@ -73,7 +72,6 @@
         font-weight: 500;
     }
 
-    /* Page Header */
     .page-header {
         background: var(--primary);
         color: var(--white);
@@ -130,7 +128,6 @@
         border: 1px solid rgba(255,255,255,0.3);
     }
 
-    /* Success Card */
     .success-card {
         background: var(--white);
         border-radius: 12px;
@@ -186,7 +183,6 @@
         font-weight: 700;
     }
 
-    /* Order Cards */
     .order-card {
         background: var(--white);
         border-radius: 12px;
@@ -228,7 +224,6 @@
         padding: 16px;
     }
 
-    /* Info Grid */
     .info-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -270,7 +265,6 @@
         margin: 0;
     }
 
-    /* Items Table */
     .items-table {
         width: 100%;
         border-collapse: collapse;
@@ -314,6 +308,20 @@
         object-fit: cover;
     }
 
+    .product-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--gray-light);
+    }
+
+    .product-image-placeholder i {
+        font-size: 1rem;
+        color: var(--gray);
+    }
+
     .product-details .product-name {
         font-weight: 600;
         color: var(--primary);
@@ -347,7 +355,6 @@
         font-weight: 600;
     }
 
-    /* Summary Box */
     .summary-box {
         background: #fff3e0;
         border-radius: 8px;
@@ -381,7 +388,6 @@
         color: var(--secondary);
     }
 
-    /* Simple Timeline */
     .timeline {
         display: flex;
         align-items: center;
@@ -440,7 +446,6 @@
         margin-top: 2px;
     }
 
-    /* Next Steps */
     .next-steps {
         background: var(--gray-light);
         border-radius: 8px;
@@ -488,7 +493,23 @@
         font-weight: 500;
     }
 
-    /* Action Buttons */
+    .payment-note {
+        background: #fff3e0;
+        border-radius: 8px;
+        padding: 10px;
+        margin: 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--secondary);
+        font-size: 0.7rem;
+        color: var(--secondary);
+    }
+
+    .payment-note i {
+        font-size: 0.8rem;
+    }
+
     .action-buttons {
         display: flex;
         gap: 10px;
@@ -542,25 +563,6 @@
         color: var(--white);
     }
 
-    /* Payment Note */
-    .payment-note {
-        background: #fff3e0;
-        border-radius: 8px;
-        padding: 10px;
-        margin: 15px 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid var(--secondary);
-        font-size: 0.7rem;
-        color: var(--secondary);
-    }
-
-    .payment-note i {
-        font-size: 0.8rem;
-    }
-
-    /* Recommended Products */
     .recommended-section {
         margin-top: 20px;
     }
@@ -647,7 +649,6 @@
         font-size: 0.7rem;
     }
 
-    /* Loading Overlay */
     .loading-overlay {
         display: none;
         position: fixed;
@@ -679,12 +680,10 @@
         to { transform: rotate(360deg); }
     }
 
-    /* Responsive */
     @media (max-width: 992px) {
         .info-grid {
             grid-template-columns: repeat(2, 1fr);
         }
-        
         .recommended-grid {
             grid-template-columns: repeat(3, 1fr);
         }
@@ -694,26 +693,21 @@
         .info-grid {
             grid-template-columns: 1fr;
         }
-        
         .items-table {
             display: block;
             overflow-x: auto;
         }
-        
         .timeline {
             flex-direction: column;
             gap: 10px;
         }
-        
         .action-buttons {
             flex-direction: column;
         }
-        
         .action-btn {
             width: 100%;
             justify-content: center;
         }
-        
         .recommended-grid {
             grid-template-columns: repeat(2, 1fr);
         }
@@ -724,7 +718,6 @@
 {% block content %}
 <div class="confirmation-page">
     <div class="container-custom">
-        <!-- Breadcrumb -->
         <div class="breadcrumb-custom">
             <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
             <i class="fas fa-chevron-right"></i>
@@ -735,7 +728,6 @@
             <span class="current">Order Confirmation</span>
         </div>
 
-        <!-- Page Header -->
         <div class="page-header">
             <div class="header-left">
                 <div class="header-icon">
@@ -751,7 +743,6 @@
             </div>
         </div>
 
-        <!-- Success Card -->
         <div class="success-card">
             <div class="success-header">
                 <div class="success-icon">
@@ -765,7 +756,6 @@
             </div>
         </div>
 
-        <!-- Order Details Card -->
         <div class="order-card">
             <div class="card-header">
                 <i class="fas fa-receipt"></i>
@@ -773,32 +763,23 @@
                 <span class="status-badge">{{ order.status|upper }}</span>
             </div>
             <div class="card-body">
-                <!-- Info Grid -->
                 <div class="info-grid">
                     <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-calendar"></i>
-                        </div>
+                        <div class="info-icon"><i class="fas fa-calendar"></i></div>
                         <div class="info-content">
                             <h4>Date</h4>
                             <p>{{ order.created_at.strftime('%d %b %Y') }}</p>
                         </div>
                     </div>
-
                     <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-credit-card"></i>
-                        </div>
+                        <div class="info-icon"><i class="fas fa-credit-card"></i></div>
                         <div class="info-content">
                             <h4>Payment</h4>
                             <p>Cash on Delivery</p>
                         </div>
                     </div>
-
                     <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
+                        <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
                         <div class="info-content">
                             <h4>Delivery</h4>
                             <p>{{ order.delivery_address|truncate(20) }}</p>
@@ -806,15 +787,9 @@
                     </div>
                 </div>
 
-                <!-- Items Table -->
                 <table class="items-table">
                     <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Price</th>
-                            <th>Qty</th>
-                            <th>Total</th>
-                        </tr>
+                        <tr><th>Item</th><th>Price</th><th>Qty</th><th>Total</th></tr>
                     </thead>
                     <tbody>
                         {% for item in order_items %}
@@ -823,11 +798,15 @@
                                 <div class="product-info-cell">
                                     <div class="product-image">
                                         {% if item.product and item.product.image %}
-                                        <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                            {% if item.product.image.startswith('http') %}
+                                                <img src="{{ item.product.image }}" alt="{{ item.product.name }}">
+                                            {% else %}
+                                                <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                            {% endif %}
                                         {% else %}
-                                        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-                                            <i class="fas fa-box" style="color:var(--gray);"></i>
-                                        </div>
+                                            <div class="product-image-placeholder">
+                                                <i class="fas fa-box"></i>
+                                            </div>
                                         {% endif %}
                                     </div>
                                     <div class="product-details">
@@ -846,7 +825,6 @@
                     </tbody>
                 </table>
 
-                <!-- Summary -->
                 <div class="summary-box">
                     <div class="summary-row">
                         <span>Subtotal</span>
@@ -858,7 +836,6 @@
                     </div>
                 </div>
 
-                <!-- Payment Note -->
                 <div class="payment-note">
                     <i class="fas fa-money-bill-wave"></i>
                     <span>💡 You'll pay the rider <strong>UGX {{ "{:,.0f}".format(order.total_amount) }}</strong> in cash when they deliver your items.</span>
@@ -866,7 +843,6 @@
             </div>
         </div>
 
-        <!-- Order Timeline -->
         <div class="order-card">
             <div class="card-header">
                 <i class="fas fa-clock"></i>
@@ -879,35 +855,29 @@
                         <div class="timeline-label">Placed</div>
                         <div class="timeline-time">{{ order.created_at.strftime('%H:%M') }}</div>
                     </div>
-
                     <div class="timeline-point {% if order.status != 'pending' %}completed{% else %}active{% endif %}">
                         <div class="timeline-dot"><i class="fas fa-check-circle"></i></div>
                         <div class="timeline-label">Confirmed</div>
                     </div>
-
                     <div class="timeline-point {% if order.status in ['processing', 'out_for_delivery'] %}active{% endif %}">
                         <div class="timeline-dot"><i class="fas fa-cog"></i></div>
                         <div class="timeline-label">Processing</div>
                     </div>
-
                     <div class="timeline-point {% if order.status in ['out_for_delivery'] %}active{% endif %}">
                         <div class="timeline-dot"><i class="fas fa-truck"></i></div>
                         <div class="timeline-label">On Way</div>
                     </div>
-
                     <div class="timeline-point {% if order.status in ['delivered', 'completed'] %}completed{% endif %}">
                         <div class="timeline-dot"><i class="fas fa-home"></i></div>
                         <div class="timeline-label">Delivered</div>
                     </div>
                 </div>
 
-                <!-- Delivery Note -->
                 <div class="payment-note">
                     <i class="fas fa-motorcycle"></i>
                     <span>Your order will be delivered by a ShopMax boda rider. Have cash ready for payment.</span>
                 </div>
 
-                <!-- Next Steps -->
                 <div class="next-steps">
                     <h4><i class="fas fa-info-circle"></i> What's Next?</h4>
                     <ul>
@@ -921,7 +891,6 @@
             </div>
         </div>
 
-        <!-- Action Buttons -->
         <div class="action-buttons">
             <a href="{{ url_for('orders') }}" class="action-btn btn-primary">
                 <i class="fas fa-box"></i> Track Order
@@ -936,7 +905,6 @@
             {% endif %}
         </div>
 
-        <!-- Recommended Products -->
         {% if recommended_products %}
         <div class="recommended-section">
             <div class="section-header">
@@ -948,11 +916,15 @@
                 <a href="{{ url_for('product_detail', product_id=product.id) }}" class="recommended-card">
                     <div class="recommended-image">
                         {% if product.image %}
-                        <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                            {% if product.image.startswith('http') %}
+                                <img src="{{ product.image }}" alt="{{ product.name }}">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                            {% endif %}
                         {% else %}
-                        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-                            <i class="fas fa-box" style="color:var(--gray);"></i>
-                        </div>
+                            <div class="product-image-placeholder">
+                                <i class="fas fa-box"></i>
+                            </div>
                         {% endif %}
                     </div>
                     <div class="recommended-details">
@@ -967,28 +939,22 @@
     </div>
 </div>
 
-<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <p style="font-size:0.8rem; color:var(--primary);">Processing...</p>
 </div>
 
 <script>
-// Cancel order
 async function cancelOrder(orderId) {
     if (!confirm('Cancel this order?')) return;
-    
     showLoading(true);
-    
     try {
         const response = await fetch('/api/order/cancel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ order_id: orderId })
         });
-        
         const data = await response.json();
-        
         if (data.success) {
             alert('Order cancelled');
             setTimeout(() => window.location.href = "{{ url_for('orders') }}", 1500);
@@ -1002,7 +968,6 @@ async function cancelOrder(orderId) {
     }
 }
 
-// Show loading
 function showLoading(show) {
     document.getElementById('loadingOverlay').classList.toggle('show', show);
 }
