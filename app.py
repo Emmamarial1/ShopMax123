@@ -1037,6 +1037,78 @@ def create_test_user():
 
 
 
+@app.route('/debug/check-message-routes')
+def debug_check_message_routes():
+    """Check if message routes exist"""
+    routes = []
+    for rule in app.url_map.iter_rules():
+        if 'message' in rule.rule or 'chat' in rule.rule or 'conversation' in rule.rule:
+            routes.append(f"{rule.endpoint}: {rule.rule}")
+    
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Message Routes Check</title>
+        <style>
+            body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+            .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+            .success { color: green; }
+            .missing { color: red; }
+            ul { list-style: none; padding: 0; }
+            li { padding: 5px 0; border-bottom: 1px solid #eee; font-family: monospace; }
+            .required { background: #e8f5e9; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🔍 Message Routes Check</h1>
+            
+            <div class="required">
+                <strong>Required Routes:</strong><br>
+                • /api/messages/conversations (GET)<br>
+                • /api/messages/conversations/&lt;id&gt;/messages (GET)<br>
+                • /api/messages/send (POST)<br>
+                • /api/messages/conversations/&lt;id&gt;/read (PUT)<br>
+                • /api/messages/start-admin-chat (POST)<br>
+                • /api/seller/messages/conversations (GET)<br>
+                • /api/admin/messages/conversations (GET)<br>
+                • /chat (GET)<br>
+            </div>
+            
+            <h2>✅ Found Routes:</h2>
+            <ul>
+    """
+    
+    if not routes:
+        html += "<li class='missing'>❌ No message/chat routes found!</li>"
+    else:
+        for route in sorted(routes):
+            html += f"<li>✅ {route}</li>"
+    
+    # Check specific required routes
+    required = [
+        '/api/messages/conversations',
+        '/api/messages/send',
+        '/chat'
+    ]
+    
+    html += "</ul><h2>📊 Required Route Status:</h2><ul>"
+    for req in required:
+        found = any(req in r for r in routes)
+        status = "✅ Found" if found else "❌ MISSING"
+        color = "green" if found else "red"
+        html += f"<li style='color:{color}'>{req}: {status}</li>"
+    
+    html += """
+            </ul>
+            <p><a href="/chat">Go to Chat</a> | <a href="/">Home</a></p>
+        </div>
+    </body>
+    </html>
+    """
+    return html
+
 
 
 
