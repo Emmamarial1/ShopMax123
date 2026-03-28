@@ -333,6 +333,9 @@
         background: #f1f4f9;
         border: 1px solid var(--border);
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .product-image img {
@@ -392,7 +395,7 @@
         border: 1px solid var(--secondary);
     }
 
-    /* Price - UGX only */
+    /* Price */
     .current-price {
         font-weight: 600;
         color: var(--secondary);
@@ -852,11 +855,15 @@
                             <div class="product-info">
                                 <div class="product-image">
                                     {% if product.image %}
-                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                        {% if product.image.startswith('http') %}
+                                            <img src="{{ product.image }}" alt="{{ product.name }}">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                        {% endif %}
                                     {% else %}
-                                    <div class="product-image-placeholder">
-                                        <i class="fas fa-box"></i>
-                                    </div>
+                                        <div class="product-image-placeholder">
+                                            <i class="fas fa-box"></i>
+                                        </div>
                                     {% endif %}
                                 </div>
                                 <div class="product-details">
@@ -887,7 +894,7 @@
                                     {{ product.stock }} units
                                 </span>
                                 {% set max_stock = 50 %}
-                                {% set stock_percentage = (product.stock / max_stock * 100) %}
+                                {% set stock_percentage = (product.stock / max_stock * 100) if product.stock > 0 else 0 %}
                                 {% if stock_percentage > 100 %}
                                     {% set stock_percentage = 100 %}
                                 {% endif %}
