@@ -574,6 +574,219 @@ def debug_check_tables():
 
 
 
+@app.route('/debug/product-model')
+@admin_required
+def debug_product_model():
+    """Check product model columns"""
+    try:
+        from sqlalchemy import inspect
+        inspector = inspect(db.engine)
+        columns = inspector.get_columns('products')
+        
+        html = "<h1>📊 Product Table Structure</h1>"
+        html += "<table border='1' cellpadding='8'>"
+        html += "<tr><th>Column</th><th>Type</th><th>Nullable</th></tr>"
+        
+        for col in columns:
+            html += f"<tr><td>{col['name']}</td><td>{col['type']}</td><td>{col['nullable']}</td></tr>"
+        
+        html += "</table>"
+        
+        # Check a sample product
+        product = Product.query.first()
+        if product:
+            html += f"<h3>Sample Product (ID: {product.id})</h3>"
+            html += f"<p>image: {product.image}</p>"
+            html += f"<p>image_public_id: {product.image_public_id}</p>"
+        
+        return html
+    except Exception as e:
+        return f"<h1>Error: {str(e)}</h1>"
+
+
+
+
+
+
+@app.route('/seller/products/add', methods=['GET', 'POST'])
+@login_required
+def add_product():
+    user = get_current_user()
+    
+    if user.user_type != 'seller':
+        flash('Access denied. Seller account required.', 'danger')
+        return redirect(url_for('products'))
+    
+    # Check subscription
+    if not has_active_subscription(user):
+        flash('Please subscribe to a plan to add products.', 'info')
+        return redirect(url_for('seller_subscription'))
+    
+    # Check product limit
+    current_products = Product.query.filter_by(seller_id=user.id, is_active=True).count()
+    plan_limits = {'starter': 4, 'basic': 25, 'premium': 100}
+    max_products = plan_limits.get(user.subscription_tier, 0)
+    
+    if current_products >= max_products:
+        flash(f'You have reached your plan limit of {max_products} products. Please upgrade to add more.', 'warning')
+        return redirect(url_for('seller_subscription'))
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            name = request.form.get('name', '').strip()
+            description = request.form.get('description', '').strip()
+            price = request.form.get('price', '').strip()
+            category = request.form.get('category', '').strip()
+            stock = request.form.get('stock', '1').strip()
+            brand = request.form.get('brand', '').strip()
+            condition = request.form.get('condition', 'new')
+            
+            # Validate required fields
+            if not all([name, description, price, category]):
+                flash('Please fill in all required fields: Name, Description, Price, and Category.', 'danger')
+                return render_template('add_product.html')
+            
+            # Handle image upload
+            image_url = None
+            image_public_id = None
+            
+            if 'image' in request.files:
+                image_file = request.files['image']
+                if image_file and image_file.filename:
+                    if allowed_file(image_file.filename):
+                        # Upload to Cloudinary
+                        upload_result = upload_to_cloudinary(image_file)
+                        if upload_result:
+                            image_url, image_public_id = upload_result
+                            print(f"✅ Image uploaded to Cloudinary: {image_url}")
+                        else:
+                            flash('Error uploading image. Please try again.', 'danger')
+                            return render_template('add_product.html')
+                    else:
+                        flash('Please upload JPG, PNG, or GIF images only.', 'danger')
+                        return render_template('add_product.html')
+            
+            # Create product
+            new_product = Product(
+                name=name,
+                description=description,
+                price=float(price),
+                category=category,
+                stock=int(stock) if stock else 1,
+                image=image_url,  # Cloudinary URL
+                image_public_id=image_public_id,  # Cloudinary public ID
+                brand=brand if brand else None,
+                condition=condition,
+                seller_id=user.id,
+                is_active=True
+            )
+            
+            db.session.add(new_product)
+            db.session.commit()
+            
+            flash('🎉 Product added successfully!', 'success')
+            return redirect(url_for('manage_products'))
+            
+        except ValueError as e:
+            flash('Please enter valid price and stock values.', 'danger')
+            return render_template('add_product.html')
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error adding product: {e}")
+            traceback.print_exc()
+            flash(f'Error adding product: {str(e)}', 'danger')
+            return render_template('add_product.html')
+    
+    return render_template('add_product.html')
+
+
+
+
+@app.route('/seller/products/<int:product_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_product(product_id):
+    user = get_current_user()
+    
+    if user.user_type != 'seller' or not has_active_subscription(user):
+        flash('Please subscribe to a plan to edit products.', 'info')
+        return redirect(url_for('seller_subscription'))
+    
+    product = Product.query.get_or_404(product_id)
+    
+    if product.seller_id != user.id:
+        flash('You can only edit your own products.', 'danger')
+        return redirect(url_for('manage_products'))
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            name = request.form.get('name', '').strip()
+            description = request.form.get('description', '').strip()
+            price = request.form.get('price', '').strip()
+            category = request.form.get('category', '').strip()
+            stock = request.form.get('stock', '1').strip()
+            brand = request.form.get('brand', '').strip()
+            condition = request.form.get('condition', 'new')
+            
+            # Validate required fields
+            if not all([name, description, price, category]):
+                flash('Please fill in all required fields: Name, Description, Price, and Category.', 'danger')
+                return render_template('edit_product.html', product=product)
+            
+            # Handle image upload
+            image_file = request.files.get('image')
+            
+            if image_file and image_file.filename:
+                if allowed_file(image_file.filename):
+                    # Delete old Cloudinary image if exists
+                    if product.image_public_id:
+                        delete_from_cloudinary(product.image_public_id)
+                        print(f"✅ Deleted old Cloudinary image: {product.image_public_id}")
+                    
+                    # Upload new image
+                    upload_result = upload_to_cloudinary(image_file)
+                    if upload_result:
+                        image_url, image_public_id = upload_result
+                        product.image = image_url
+                        product.image_public_id = image_public_id
+                        print(f"✅ Uploaded new image: {image_url}")
+                    else:
+                        flash('Error uploading new image. Please try again.', 'danger')
+                        return render_template('edit_product.html', product=product)
+                else:
+                    flash('Please upload JPG, PNG, or GIF images only.', 'danger')
+                    return render_template('edit_product.html', product=product)
+            
+            # Update product details
+            product.name = name
+            product.description = description
+            product.price = float(price)
+            product.category = category
+            product.stock = int(stock) if stock else 1
+            product.brand = brand if brand else None
+            product.condition = condition
+            product.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            
+            flash('✅ Product updated successfully!', 'success')
+            return redirect(url_for('manage_products'))
+            
+        except ValueError as e:
+            flash('Please enter valid price and stock values.', 'danger')
+            return render_template('edit_product.html', product=product)
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error updating product: {e}")
+            traceback.print_exc()
+            flash(f'Error updating product: {str(e)}', 'danger')
+            return render_template('edit_product.html', product=product)
+    
+    return render_template('edit_product.html', product=product)
+
+
+
 
 
 
@@ -1398,87 +1611,6 @@ def test_api():
 
 
 
-@app.route('/seller/products/<int:product_id>/edit', methods=['GET', 'POST'])
-@login_required
-def edit_product(product_id):
-    user = get_current_user()
-    
-    if user.user_type != 'seller' or not has_active_subscription(user):
-        flash('Please subscribe to a plan to edit products.', 'info')
-        return redirect(url_for('seller_subscription'))
-    
-    product = Product.query.get_or_404(product_id)
-    
-    if product.seller_id != user.id:
-        flash('You can only edit your own products.', 'danger')
-        return redirect(url_for('manage_products'))
-    
-    if request.method == 'POST':
-        try:
-            name = request.form.get('name', '').strip()
-            description = request.form.get('description', '').strip()
-            price = request.form.get('price', '').strip()
-            category = request.form.get('category', '').strip()
-            stock = request.form.get('stock', '1').strip()
-            brand = request.form.get('brand', '').strip()
-            condition = request.form.get('condition', 'new')
-            
-            if not all([name, description, price, category]):
-                flash('Please fill in all required fields: Name, Description, Price, and Category.', 'danger')
-                return render_template('edit_product.html', product=product)
-            
-            # Handle image upload to Cloudinary (UPDATED)
-            image_file = request.files.get('image')
-            
-            if image_file and image_file.filename:
-                if allowed_file(image_file.filename):
-                    # Delete old Cloudinary image if exists
-                    if product.image_public_id:
-                        delete_from_cloudinary(product.image_public_id)
-                        print(f"✅ Deleted old Cloudinary image: {product.image_public_id}")
-                    
-                    # Upload new image to Cloudinary
-                    image_url, image_public_id = upload_to_cloudinary(image_file)
-                    if not image_url:
-                        flash('Error uploading image. Please try again.', 'danger')
-                        return render_template('edit_product.html', product=product)
-                    
-                    # Update with new Cloudinary URL
-                    product.image = image_url
-                    product.image_public_id = image_public_id
-                else:
-                    flash('Please upload JPG, PNG, or GIF images only.', 'danger')
-                    return render_template('edit_product.html', product=product)
-            
-            # Update product details
-            product.name = name
-            product.description = description
-            product.price = float(price)
-            product.category = category
-            product.stock = int(stock) if stock else 1
-            product.brand = brand if brand else None
-            product.condition = condition
-            product.updated_at = datetime.utcnow()
-            
-            db.session.commit()
-            
-            flash('✅ Product updated successfully!', 'success')
-            return redirect(url_for('manage_products'))
-            
-        except ValueError as e:
-            flash('Please enter valid price and stock values.', 'danger')
-            return render_template('edit_product.html', product=product)
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error updating product: {e}")
-            traceback.print_exc()
-            flash('Error updating product. Please try again.', 'danger')
-            return render_template('edit_product.html', product=product)
-    
-    return render_template('edit_product.html', product=product)
-
-
-
 
 
 
@@ -2135,104 +2267,6 @@ def force_new_seller_status():
     </body>
     </html>
     """
-
-
-
-
-@app.route('/seller/products/add', methods=['GET', 'POST'])
-@login_required
-def add_product():
-    user = get_current_user()
-    
-    if user.user_type != 'seller':
-        flash('Access denied. Seller account required.', 'danger')
-        return redirect(url_for('products'))
-    
-    # Check subscription and product limits
-    if not has_active_subscription(user):
-        flash('Please subscribe to a plan to add products.', 'info')
-        return redirect(url_for('seller_subscription'))
-    
-    # Get current product count
-    current_products = Product.query.filter_by(seller_id=user.id, is_active=True).count()
-    
-    # Define product limits per plan
-    plan_limits = {
-        'starter': 4,
-        'basic': 25,
-        'premium': 100
-    }
-    
-    max_products = plan_limits.get(user.subscription_tier, 0)
-    
-    if current_products >= max_products:
-        flash(f'You have reached your plan limit of {max_products} products. Please upgrade to add more.', 'warning')
-        return redirect(url_for('seller_subscription'))
-    
-    if request.method == 'POST':
-        try:
-            name = request.form.get('name', '').strip()
-            description = request.form.get('description', '').strip()
-            price = request.form.get('price', '').strip()
-            category = request.form.get('category', '').strip()
-            stock = request.form.get('stock', '1').strip()
-            brand = request.form.get('brand', '').strip()
-            condition = request.form.get('condition', 'new')
-            
-            if not all([name, description, price, category]):
-                flash('Please fill in all required fields: Name, Description, Price, and Category.', 'danger')
-                return render_template('add_product.html')
-            
-            # Handle image upload to Cloudinary (UPDATED)
-            image_url = None
-            image_public_id = None
-            
-            if 'image' in request.files:
-                image_file = request.files['image']
-                if image_file and image_file.filename:
-                    if allowed_file(image_file.filename):
-                        # Upload to Cloudinary instead of local storage
-                        image_url, image_public_id = upload_to_cloudinary(image_file)
-                        if not image_url:
-                            flash('Error uploading image. Please try again.', 'danger')
-                            return render_template('add_product.html')
-                    else:
-                        flash('Please upload JPG, PNG, or GIF images only.', 'danger')
-                        return render_template('add_product.html')
-            
-            # Create product with Cloudinary URL
-            new_product = Product(
-                name=name,
-                description=description,
-                price=float(price),
-                category=category,
-                stock=int(stock) if stock else 1,
-                image=image_url,  # Store Cloudinary URL
-                image_public_id=image_public_id,  # Store for deletion
-                brand=brand if brand else None,
-                condition=condition,
-                seller_id=user.id,
-                is_active=True
-            )
-            
-            db.session.add(new_product)
-            db.session.commit()
-            
-            flash('🎉 Product added successfully!', 'success')
-            return redirect(url_for('manage_products'))
-            
-        except ValueError as e:
-            flash('Please enter valid price and stock values.', 'danger')
-            return render_template('add_product.html')
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error adding product: {e}")
-            traceback.print_exc()
-            flash('Error adding product. Please try again.', 'danger')
-            return render_template('add_product.html')
-    
-    return render_template('add_product.html')
-
 
 
 
