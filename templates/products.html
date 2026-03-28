@@ -32,7 +32,6 @@
         padding: 0 20px;
     }
 
-    /* Header */
     .page-header {
         background: var(--primary);
         color: var(--white);
@@ -89,7 +88,6 @@
         border: 1px solid rgba(255,255,255,0.3);
     }
 
-    /* Breadcrumb */
     .breadcrumb-custom {
         background: var(--white);
         padding: 10px 16px;
@@ -130,7 +128,35 @@
         font-weight: 500;
     }
 
-    /* Sort Bar - Now full width */
+    .filter-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .filter-pill {
+        padding: 4px 12px;
+        background: var(--gray-light);
+        border: 1px solid var(--border);
+        border-radius: 30px;
+        font-size: 0.7rem;
+        color: var(--gray);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .filter-pill:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+    }
+
+    .filter-pill.active {
+        background: var(--secondary);
+        color: var(--white);
+        border-color: var(--secondary);
+    }
+
     .sort-bar {
         background: var(--white);
         border-radius: 30px;
@@ -178,7 +204,6 @@
         cursor: pointer;
     }
 
-    /* Products Grid - 6 columns for more products */
     .products-grid {
         display: grid;
         grid-template-columns: repeat(6, 1fr);
@@ -186,7 +211,6 @@
         margin-bottom: 30px;
     }
 
-    /* Product Card - Slightly smaller for 6 columns */
     .product-card {
         background: var(--white);
         border-radius: 12px;
@@ -429,92 +453,6 @@
         background: var(--secondary-dark);
     }
 
-    /* Cart Added Animation */
-    .btn-cart.added {
-        background: var(--success);
-        pointer-events: none;
-    }
-
-    /* Toast Notifications */
-    .toast-container {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 9999;
-    }
-
-    .toast {
-        background: var(--white);
-        border-radius: 8px;
-        padding: 12px 16px;
-        margin-bottom: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        border-left: 4px solid var(--success);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        min-width: 250px;
-        animation: slideIn 0.3s ease;
-        font-size: 0.8rem;
-    }
-
-    .toast.success {
-        border-left-color: var(--success);
-    }
-
-    .toast.info {
-        border-left-color: var(--secondary);
-    }
-
-    .toast.error {
-        border-left-color: var(--danger);
-    }
-
-    .toast i {
-        font-size: 1rem;
-    }
-
-    .toast.success i {
-        color: var(--success);
-    }
-
-    .toast.info i {
-        color: var(--secondary);
-    }
-
-    .toast.error i {
-        color: var(--danger);
-    }
-
-    .toast-message {
-        flex: 1;
-        color: var(--primary);
-    }
-
-    .toast-close {
-        background: none;
-        border: none;
-        color: var(--gray);
-        cursor: pointer;
-        font-size: 0.8rem;
-        padding: 0 5px;
-    }
-
-    .toast-close:hover {
-        color: var(--danger);
-    }
-
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-
-    /* Empty State */
     .empty-state {
         text-align: center;
         padding: 60px 20px;
@@ -561,7 +499,6 @@
         transform: translateY(-2px);
     }
 
-    /* Pagination */
     .pagination {
         display: flex;
         justify-content: center;
@@ -598,69 +535,45 @@
         border-color: var(--secondary);
     }
 
-    /* Loading Overlay */
-    .loading-overlay {
-        display: none;
+    .toast-container {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255,255,255,0.9);
-        z-index: 99999;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    .toast {
+        background: var(--white);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border-left: 4px solid var(--success);
+        display: flex;
         align-items: center;
-        justify-content: center;
-        flex-direction: column;
+        gap: 10px;
+        min-width: 250px;
+        animation: slideIn 0.3s ease;
+        font-size: 0.8rem;
     }
 
-    .loading-overlay.show {
-        display: flex;
+    .toast.success {
+        border-left-color: var(--success);
     }
 
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid var(--border);
-        border-top-color: var(--secondary);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
+    .toast.info {
+        border-left-color: var(--secondary);
     }
 
-    @keyframes spin {
-        to { transform: rotate(360deg); }
+    .toast.error {
+        border-left-color: var(--danger);
     }
 
-    /* Category Filter Pills - Optional if you want to keep some filtering */
-    .filter-pills {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 15px;
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
 
-    .filter-pill {
-        padding: 4px 12px;
-        background: var(--gray-light);
-        border: 1px solid var(--border);
-        border-radius: 30px;
-        font-size: 0.7rem;
-        color: var(--gray);
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-
-    .filter-pill:hover {
-        border-color: var(--secondary);
-        color: var(--secondary);
-    }
-
-    .filter-pill.active {
-        background: var(--secondary);
-        color: var(--white);
-        border-color: var(--secondary);
-    }
-
-    /* Responsive */
     @media (max-width: 1400px) {
         .products-grid {
             grid-template-columns: repeat(5, 1fr);
@@ -734,7 +647,7 @@
             {% endif %}
         </div>
 
-        <!-- Optional: Category Filter Pills - Simple and clean -->
+        <!-- Category Filter Pills -->
         <div class="filter-pills">
             <a href="{{ url_for('products') }}" class="filter-pill {% if not category or category == 'all' %}active{% endif %}">All</a>
             <a href="{{ url_for('products', category='textbooks') }}" class="filter-pill {% if category == 'textbooks' %}active{% endif %}">Textbooks</a>
@@ -777,11 +690,15 @@
                 
                 <div class="product-image" onclick="window.location.href='{{ url_for('product_detail', product_id=product.id) }}'">
                     {% if product.image %}
-                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                        {% if product.image.startswith('http') %}
+                            <img src="{{ product.image }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                        {% endif %}
                     {% else %}
-                    <div class="product-image-placeholder">
-                        <i class="fas fa-box"></i>
-                    </div>
+                        <div class="product-image-placeholder">
+                            <i class="fas fa-box"></i>
+                        </div>
                     {% endif %}
                 </div>
                 
@@ -900,17 +817,10 @@
     </div>
 </div>
 
-<!-- Toast Container for Notifications -->
+<!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
-    <p style="font-size:0.8rem; color:var(--primary);">Loading...</p>
-</div>
-
 <script>
-// Toast notification system
 function showToast(message, type = 'success', duration = 3000) {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
@@ -934,18 +844,6 @@ function showToast(message, type = 'success', duration = 3000) {
     }, duration);
 }
 
-// Apply price filter
-function applyPriceFilter() {
-    const minPrice = document.getElementById('minPrice').value;
-    const maxPrice = document.getElementById('maxPrice').value;
-    
-    let url = new URL(window.location.href);
-    if (minPrice) url.searchParams.set('min_price', minPrice);
-    if (maxPrice) url.searchParams.set('max_price', maxPrice);
-    window.location.href = url.toString();
-}
-
-// Add to cart
 async function addToCart(productId, button) {
     {% if not session.user_id %}
         window.location.href = "{{ url_for('login') }}?next={{ url_for('products') }}";
@@ -987,7 +885,6 @@ async function addToCart(productId, button) {
     }
 }
 
-// Toggle wishlist
 async function toggleWishlist(productId) {
     {% if not session.user_id %}
         window.location.href = "{{ url_for('login') }}?next={{ url_for('products') }}";
@@ -1023,7 +920,6 @@ async function toggleWishlist(productId) {
     }
 }
 
-// Update cart count
 function updateCartCount() {
     fetch('/api/cart/count')
         .then(response => response.json())
@@ -1036,17 +932,7 @@ function updateCartCount() {
         .catch(error => console.error('Error updating cart count:', error));
 }
 
-// Show/hide loading
-function showLoading(show) {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) {
-        overlay.classList.toggle('show', show);
-    }
-}
-
-// Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-dismiss old toasts
     setInterval(() => {
         const toasts = document.querySelectorAll('.toast');
         if (toasts.length > 3) {
