@@ -16260,6 +16260,95 @@ def chat_status_public():
 
 
 
+@app.route('/fix-products-table')
+@admin_required
+def fix_products_table():
+    """Add image_public_id column to products table"""
+    import traceback
+    from sqlalchemy import inspect, text
+    
+    try:
+        inspector = inspect(db.engine)
+        columns = [col['name'] for col in inspector.get_columns('products')]
+        
+        if 'image_public_id' not in columns:
+            with db.engine.connect() as conn:
+                conn.execute(text('ALTER TABLE products ADD COLUMN image_public_id VARCHAR(200)'))
+                conn.commit()
+            
+            return """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Fix Complete</title>
+                <style>
+                    body { font-family: Arial; padding: 40px; text-align: center; background: #f0f9ff; }
+                    .success { color: #10b981; font-size: 24px; }
+                    .box { background: white; padding: 30px; border-radius: 12px; max-width: 500px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+                    .btn { display: inline-block; padding: 12px 24px; background: #ff6b00; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px; }
+                </style>
+            </head>
+            <body>
+                <div class="box">
+                    <h1 class="success">✅ Database Fixed!</h1>
+                    <p>The 'image_public_id' column has been added to the products table.</p>
+                    <p>Your site should now work correctly.</p>
+                    <a href="/" class="btn">Go to Homepage</a>
+                </div>
+            </body>
+            </html>
+            """
+        else:
+            return """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Already Fixed</title>
+                <style>
+                    body { font-family: Arial; padding: 40px; text-align: center; background: #f0f9ff; }
+                    .info { color: #3b82f6; font-size: 24px; }
+                    .box { background: white; padding: 30px; border-radius: 12px; max-width: 500px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+                    .btn { display: inline-block; padding: 12px 24px; background: #ff6b00; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px; }
+                </style>
+            </head>
+            <body>
+                <div class="box">
+                    <h1 class="info">ℹ️ Already Fixed</h1>
+                    <p>The column already exists in your database.</p>
+                    <a href="/" class="btn">Go to Homepage</a>
+                </div>
+            </body>
+            </html>
+            """
+            
+    except Exception as e:
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Error</title>
+            <style>
+                body {{ font-family: Arial; padding: 40px; text-align: center; background: #fee2e2; }}
+                .error {{ color: #ef4444; font-size: 24px; }}
+                .box {{ background: white; padding: 30px; border-radius: 12px; max-width: 600px; margin: 0 auto; }}
+                pre {{ background: #f3f4f6; padding: 15px; border-radius: 6px; text-align: left; overflow-x: auto; }}
+            </style>
+        </head>
+        <body>
+            <div class="box">
+                <h1 class="error">❌ Error</h1>
+                <p>Could not add column:</p>
+                <pre>{str(e)}</pre>
+                <a href="/" class="btn" style="background: #ef4444;">Go Back</a>
+            </div>
+        </body>
+        </html>
+        """
+
+
+
+
+
 # ==================== MAIN ENTRY POINT ====================
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
