@@ -538,6 +538,64 @@ def create_tables():
 
 
 
+
+# ==================== AUTH DECORATORS ====================
+
+from functools import wraps
+from flask import session, redirect, url_for, jsonify
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            # Check if it's an API request
+            if request.path.startswith('/api/'):
+                return jsonify({
+                    'success': False,
+                    'error': 'Authentication required'
+                }), 401
+            return redirect(url_for('login', next=request.path))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            if request.path.startswith('/api/'):
+                return jsonify({'success': False, 'error': 'Authentication required'}), 401
+            return redirect(url_for('login'))
+        
+        user = get_current_user()
+        if not user or user.user_type != 'admin':
+            if request.path.startswith('/api/'):
+                return jsonify({'success': False, 'error': 'Admin access required'}), 403
+            flash('Admin access required.', 'danger')
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def seller_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            if request.path.startswith('/api/'):
+                return jsonify({'success': False, 'error': 'Authentication required'}), 401
+            return redirect(url_for('login'))
+        
+        user = get_current_user()
+        if not user or user.user_type != 'seller':
+            if request.path.startswith('/api/'):
+                return jsonify({'success': False, 'error': 'Seller access required'}), 403
+            flash('Seller account required.', 'danger')
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+
+
+
 @app.route('/debug/check-tables')
 def debug_check_tables():
     """Check if all tables exist"""
@@ -868,28 +926,6 @@ def get_current_user():
         return db.session.get(User, session['user_id'])  # Fixed: Updated to modern syntax
     return None
 
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            flash('Please log in to access this page.', 'danger')
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            flash('Please log in to access this page.', 'danger')
-            return redirect(url_for('login'))
-        
-        user = get_current_user()
-        if not user or user.user_type != 'admin':
-            flash('Admin access required.', 'danger')
-            return redirect(url_for('home'))
-        return f(*args, **kwargs)
-    return decorated_function
 
 def is_admin():
     user = get_current_user()
@@ -15680,61 +15716,6 @@ def api_search_messages():
         }), 500
  
 
-
-
-
-
-
-# ============ AUTH DECORATORS ============
-
-from functools import wraps
-from flask import session, redirect, url_for, jsonify
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            # Check if it's an API request
-            if request.path.startswith('/api/'):
-                return jsonify({
-                    'success': False,
-                    'error': 'Authentication required'
-                }), 401
-            return redirect(url_for('login', next=request.path))
-        return f(*args, **kwargs)
-    return decorated_function
-
-def seller_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            if request.path.startswith('/api/'):
-                return jsonify({'success': False, 'error': 'Authentication required'}), 401
-            return redirect(url_for('login'))
-        
-        if session.get('user_type') != 'seller':
-            if request.path.startswith('/api/'):
-                return jsonify({'success': False, 'error': 'Seller access required'}), 403
-            return redirect(url_for('home'))
-            
-        return f(*args, **kwargs)
-    return decorated_function
-
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            if request.path.startswith('/api/'):
-                return jsonify({'success': False, 'error': 'Authentication required'}), 401
-            return redirect(url_for('login'))
-        
-        if session.get('user_type') != 'admin':
-            if request.path.startswith('/api/'):
-                return jsonify({'success': False, 'error': 'Admin access required'}), 403
-            return redirect(url_for('home'))
-            
-        return f(*args, **kwargs)
-    return decorated_function
 
 
 
