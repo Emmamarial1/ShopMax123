@@ -24,7 +24,6 @@
         background: #f8fafc;
     }
 
-    /* Breadcrumb */
     .breadcrumb-custom {
         background: white;
         padding: 10px 16px;
@@ -64,7 +63,6 @@
         font-weight: 500;
     }
 
-    /* Page Header */
     .page-header {
         display: flex;
         justify-content: space-between;
@@ -115,7 +113,6 @@
         color: var(--secondary);
     }
 
-    /* Chat Container */
     .chat-container {
         background: white;
         border-radius: 16px;
@@ -127,7 +124,6 @@
         min-height: 550px;
     }
 
-    /* Conversations List */
     .conversations-list {
         border-right: 1px solid var(--border);
         background: #f8fafc;
@@ -180,7 +176,6 @@
         color: rgba(255,255,255,0.7);
     }
 
-    /* Chat Tabs */
     .chat-tabs {
         display: flex;
         padding: 10px 10px 0;
@@ -347,14 +342,12 @@
         color: #28a745;
     }
 
-    /* Chat Area */
     .chat-area {
         display: flex;
         flex-direction: column;
         height: 100%;
     }
 
-    /* Chat Header */
     .chat-header {
         padding: 12px 15px;
         background: linear-gradient(135deg, var(--primary), var(--primary-dark));
@@ -439,7 +432,6 @@
         border-color: var(--secondary);
     }
 
-    /* Messages Area */
     .messages-area {
         flex: 1;
         padding: 15px;
@@ -547,7 +539,6 @@
         color: #4caf50;
     }
 
-    /* Message Input */
     .message-input-area {
         padding: 12px 15px;
         background: white;
@@ -606,7 +597,6 @@
         transform: none;
     }
 
-    /* Empty States */
     .empty-state {
         text-align: center;
         padding: 40px 15px;
@@ -680,7 +670,6 @@
         margin-bottom: 15px;
     }
 
-    /* Responsive */
     @media (max-width: 992px) {
         .chat-container {
             grid-template-columns: 260px 1fr;
@@ -712,14 +701,12 @@
 {% block content %}
 <div class="chat-page">
     <div class="container-custom">
-        <!-- Breadcrumb -->
         <div class="breadcrumb-custom">
             <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
             <i class="fas fa-chevron-right"></i>
             <span class="current">Messages</span>
         </div>
 
-        <!-- Page Header -->
         <div class="page-header">
             <h1>
                 <i class="fas fa-comments"></i>
@@ -776,7 +763,6 @@
                     </div>
                 </div>
 
-                <!-- Chat Tabs -->
                 <div class="chat-tabs">
                     <div class="chat-tab active" data-type="all" onclick="filterConversations('all')">
                         <i class="fas fa-globe"></i> All
@@ -789,14 +775,11 @@
                     </div>
                 </div>
 
-                <div class="conversation-items" id="conversationItems">
-                    <!-- Conversations will be loaded here -->
-                </div>
+                <div class="conversation-items" id="conversationItems"></div>
             </div>
 
             <!-- Chat Area -->
             <div class="chat-area" id="chatArea">
-                <!-- No Conversation Selected -->
                 <div id="noConversationSelected" class="no-conversation-selected">
                     <div class="no-conversation-content">
                         <i class="fas fa-comment-dots"></i>
@@ -808,9 +791,7 @@
                     </div>
                 </div>
 
-                <!-- Active Conversation (hidden by default) -->
                 <div id="activeConversation" style="display: none; height: 100%; flex-direction: column;">
-                    <!-- Chat Header -->
                     <div class="chat-header">
                         <div class="chat-user-info">
                             <div class="chat-avatar" id="chatAvatar">
@@ -831,10 +812,8 @@
                         </div>
                     </div>
 
-                    <!-- Messages Area -->
                     <div class="messages-area" id="messagesArea"></div>
 
-                    <!-- Message Input -->
                     <div class="message-input-area">
                         <div class="input-wrapper">
                             <div class="message-input">
@@ -851,7 +830,6 @@
     </div>
 </div>
 
-<!-- Modal CSS -->
 <style>
 .modal {
     position: fixed;
@@ -973,21 +951,16 @@ let currentUserId = {{ session.user_id }};
 let currentUserType = '{{ session.user_type }}';
 let currentFilter = 'all';
 
-// Load conversations on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadConversations();
-    
     if (currentConversationId) {
         loadConversation(currentConversationId);
     }
 });
 
-// Load conversations
 async function loadConversations() {
     try {
         let endpoint = '/api/messages/conversations';
-        
-        // Use appropriate endpoint based on user type
         if (currentUserType === 'seller') {
             endpoint = '/api/seller/messages/conversations';
         } else if (currentUserType === 'admin') {
@@ -1007,55 +980,39 @@ async function loadConversations() {
     }
 }
 
-// Filter conversations by type
 function filterConversations(type) {
     currentFilter = type;
-    
-    // Update active tab
     document.querySelectorAll('.chat-tab').forEach(tab => {
         tab.classList.remove('active');
         if (tab.dataset.type === type) {
             tab.classList.add('active');
         }
     });
-    
     filterAndRenderConversations();
 }
 
-// Filter and render conversations
 function filterAndRenderConversations() {
     let filtered = conversations;
-    
     if (currentFilter !== 'all') {
         if (currentFilter === 'sellers') {
-            filtered = conversations.filter(c => 
-                c.other_participant && c.other_participant.type === 'seller'
-            );
+            filtered = conversations.filter(c => c.other_participant?.type === 'seller');
         } else if (currentFilter === 'admin') {
-            filtered = conversations.filter(c => 
-                c.other_participant && c.other_participant.type === 'admin'
-            );
+            filtered = conversations.filter(c => c.other_participant?.type === 'admin');
         }
     }
-    
     renderConversations(filtered);
 }
 
-// Render conversations list
 function renderConversations(convs) {
     const container = document.getElementById('conversationItems');
     
     if (convs.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-comments"></i>
-                </div>
+                <div class="empty-icon"><i class="fas fa-comments"></i></div>
                 <h3>No conversations</h3>
                 <p>Start a new chat with a seller or admin</p>
-                <button class="empty-btn" onclick="showNewChatOptions()">
-                    <i class="fas fa-plus"></i> New Chat
-                </button>
+                <button class="empty-btn" onclick="showNewChatOptions()"><i class="fas fa-plus"></i> New Chat</button>
             </div>
         `;
         return;
@@ -1067,27 +1024,13 @@ function renderConversations(convs) {
         const isActive = conv.id === currentConversationId;
         const userType = other.type || 'user';
         
-        let badgeClass = '';
-        let badgeText = '';
-        
-        if (userType === 'seller') {
-            badgeClass = 'badge-seller';
-            badgeText = 'Seller';
-        } else if (userType === 'admin') {
-            badgeClass = 'badge-admin';
-            badgeText = 'Admin';
-        } else {
-            badgeClass = 'badge-buyer';
-            badgeText = 'Buyer';
-        }
+        let badgeClass = userType === 'seller' ? 'badge-seller' : (userType === 'admin' ? 'badge-admin' : 'badge-buyer');
+        let badgeText = userType === 'seller' ? 'Seller' : (userType === 'admin' ? 'Admin' : 'Buyer');
         
         return `
-            <div class="conversation-item ${isActive ? 'active' : ''}" 
-                 onclick="loadConversation(${conv.id})">
+            <div class="conversation-item ${isActive ? 'active' : ''}" onclick="loadConversation(${conv.id})">
                 <div class="conversation-avatar ${userType === 'admin' ? 'admin' : ''}">
-                    ${other.avatar ? 
-                      `<img src="${other.avatar}" alt="${other.name}">` : 
-                      `<span>${other.name ? other.name.charAt(0).toUpperCase() : '?'}</span>`}
+                    ${other.avatar ? `<img src="${other.avatar}" alt="${other.name}">` : `<span>${other.name ? other.name.charAt(0).toUpperCase() : '?'}</span>`}
                 </div>
                 <div class="conversation-info">
                     <div class="conversation-header">
@@ -1105,7 +1048,6 @@ function renderConversations(convs) {
     }).join('');
 }
 
-// Load specific conversation
 async function loadConversation(conversationId) {
     currentConversationId = conversationId;
     
@@ -1115,29 +1057,20 @@ async function loadConversation(conversationId) {
         
         if (data.success) {
             messages = data.data || [];
-            
-            // Show active conversation
             document.getElementById('noConversationSelected').style.display = 'none';
             document.getElementById('activeConversation').style.display = 'flex';
             
-            // Get conversation details
             const conv = conversations.find(c => c.id === conversationId);
-            if (conv) {
-                updateChatHeader(conv);
-            }
+            if (conv) updateChatHeader(conv);
             
             renderMessages();
             markAsRead(conversationId);
             
-            // Update URL
             const url = new URL(window.location);
             url.searchParams.set('conversation_id', conversationId);
             window.history.pushState({}, '', url);
             
-            // Start polling
             startPolling(conversationId);
-            
-            // Update conversation list
             filterAndRenderConversations();
         }
     } catch (error) {
@@ -1145,10 +1078,8 @@ async function loadConversation(conversationId) {
     }
 }
 
-// Update chat header
 function updateChatHeader(conversation) {
     const other = conversation.other_participant || {};
-    
     document.getElementById('chatUserName').textContent = other.name || 'Unknown';
     document.getElementById('chatAvatarText').textContent = other.name ? other.name.charAt(0).toUpperCase() : '?';
     
@@ -1169,18 +1100,11 @@ function updateChatHeader(conversation) {
     }
 }
 
-// Render messages
 function renderMessages() {
     const area = document.getElementById('messagesArea');
     
     if (messages.length === 0) {
-        area.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-comments empty-icon"></i>
-                <h3>No messages yet</h3>
-                <p>Send a message to start the conversation</p>
-            </div>
-        `;
+        area.innerHTML = `<div class="empty-state"><i class="fas fa-comments empty-icon"></i><h3>No messages yet</h3><p>Send a message to start the conversation</p></div>`;
         return;
     }
     
@@ -1189,32 +1113,19 @@ function renderMessages() {
     
     messages.forEach(msg => {
         const msgDate = new Date(msg.created_at).toDateString();
-        
         if (msgDate !== lastDate) {
-            html += `
-                <div class="message-date-divider">
-                    <span class="date-text">${formatDate(msg.created_at)}</span>
-                </div>
-            `;
+            html += `<div class="message-date-divider"><span class="date-text">${formatDate(msg.created_at)}</span></div>`;
             lastDate = msgDate;
         }
         
         const isSent = msg.sender_id === currentUserId;
-        
         html += `
             <div class="message-wrapper ${isSent ? 'sent' : 'received'}">
                 <div class="message-bubble">
-                    ${!isSent && msg.sender_name ? '<div class="message-sender">' + msg.sender_name + '</div>' : ''}
+                    ${!isSent && msg.sender_name ? '<div class="message-sender">' + escapeHtml(msg.sender_name) + '</div>' : ''}
                     <div class="message-content">
                         <div class="message-text">${escapeHtml(msg.content)}</div>
-                        <div class="message-time">
-                            ${formatTime(msg.created_at)}
-                            ${isSent ? `
-                                <span class="message-status">
-                                    ${msg.is_read ? '<i class="fas fa-check-double read"></i>' : '<i class="fas fa-check"></i>'}
-                                </span>
-                            ` : ''}
-                        </div>
+                        <div class="message-time">${formatTime(msg.created_at)}</div>
                     </div>
                 </div>
             </div>
@@ -1222,26 +1133,36 @@ function renderMessages() {
     });
     
     area.innerHTML = html;
-    scrollToBottom();
+    area.scrollTop = area.scrollHeight;
 }
 
-// Send message
+// ============ CRITICAL FIX: This is the corrected sendMessage function ============
 async function sendMessage() {
     const input = document.getElementById('messageInput');
     const content = input.value.trim();
     
-    if (!content || !currentConversationId) return;
+    if (!content) {
+        console.log('No message content');
+        return;
+    }
+    
+    if (!currentConversationId) {
+        console.log('No conversation selected');
+        alert('Please select a conversation first');
+        return;
+    }
     
     const sendButton = document.getElementById('sendButton');
     sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     sendButton.disabled = true;
     
     try {
+        console.log('Sending message to conversation:', currentConversationId);
+        console.log('Message content:', content);
+        
         const response = await fetch('/api/messages/send', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 conversation_id: currentConversationId,
                 content: content
@@ -1249,46 +1170,44 @@ async function sendMessage() {
         });
         
         const data = await response.json();
+        console.log('Send response:', data);
         
         if (data.success) {
             input.value = '';
-            messages.push(data.data);
-            renderMessages();
-            loadConversations(); // Update sidebar
+            // Reload messages
+            await loadConversation(currentConversationId);
+            // Update conversation list
+            await loadConversations();
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
         }
     } catch (error) {
         console.error('Error sending message:', error);
+        alert('Error sending message. Please try again.');
     } finally {
         sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
         sendButton.disabled = false;
+        input.focus();
     }
 }
+// ============ END OF FIX ============
 
-// Mark conversation as read
 async function markAsRead(conversationId) {
     try {
-        await fetch(`/api/messages/conversations/${conversationId}/read`, {
-            method: 'PUT'
-        });
+        await fetch(`/api/messages/conversations/${conversationId}/read`, { method: 'PUT' });
         loadConversations();
     } catch (error) {
         console.error('Error marking as read:', error);
     }
 }
 
-// Start polling for new messages
 function startPolling(conversationId) {
-    if (pollingInterval) {
-        clearInterval(pollingInterval);
-    }
-    
+    if (pollingInterval) clearInterval(pollingInterval);
     pollingInterval = setInterval(async () => {
         if (!currentConversationId) return;
-        
         try {
             const response = await fetch(`/api/messages/conversations/${conversationId}/messages`);
             const data = await response.json();
-            
             if (data.success && data.data.length > messages.length) {
                 messages = data.data;
                 renderMessages();
@@ -1300,45 +1219,33 @@ function startPolling(conversationId) {
     }, 3000);
 }
 
-// Update unread count
 function updateUnreadCount() {
     const total = conversations.reduce((sum, conv) => sum + (conv.unread_count || 0), 0);
     document.getElementById('totalUnread').textContent = total;
 }
 
-// Show new chat options
 function showNewChatOptions() {
     document.getElementById('newChatModal').style.display = 'flex';
 }
 
-// Close new chat modal
 function closeNewChatModal() {
     document.getElementById('newChatModal').style.display = 'none';
 }
 
-// Start chat with seller
 function startChatWithSeller() {
     closeNewChatModal();
     window.location.href = '{{ url_for("products") }}';
 }
 
-// Start chat with admin
 async function startChatWithAdmin() {
     closeNewChatModal();
-    
     try {
         const response = await fetch('/api/messages/start-admin-chat', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                initial_message: 'Hello, I need assistance.'
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initial_message: 'Hello, I need assistance.' })
         });
-        
         const data = await response.json();
-        
         if (data.success) {
             window.location.href = `{{ url_for('chat') }}?conversation_id=${data.conversation_id}`;
         } else {
@@ -1350,25 +1257,15 @@ async function startChatWithAdmin() {
     }
 }
 
-// View user profile
 function viewUserProfile() {
     if (currentConversationId) {
         const conv = conversations.find(c => c.id === currentConversationId);
-        if (conv && conv.other_participant) {
-            if (conv.other_participant.type === 'seller') {
-                window.location.href = `/seller/${conv.other_participant.id}/store`;
-            }
+        if (conv && conv.other_participant?.type === 'seller') {
+            window.location.href = `/seller/${conv.other_participant.id}/store`;
         }
     }
 }
 
-// Scroll to bottom
-function scrollToBottom() {
-    const area = document.getElementById('messagesArea');
-    area.scrollTop = area.scrollHeight;
-}
-
-// Enter key handler
 document.getElementById('messageInput')?.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -1376,24 +1273,18 @@ document.getElementById('messageInput')?.addEventListener('keydown', function(e)
     }
 });
 
-// Search conversations
 document.getElementById('searchConversations')?.addEventListener('input', function(e) {
     const term = e.target.value.toLowerCase();
-    const items = document.querySelectorAll('.conversation-item');
-    
-    items.forEach(item => {
-        const text = item.textContent.toLowerCase();
-        item.style.display = text.includes(term) ? '' : 'none';
+    document.querySelectorAll('.conversation-item').forEach(item => {
+        item.style.display = item.textContent.toLowerCase().includes(term) ? '' : 'none';
     });
 });
 
-// Helper functions
 function formatTime(timestamp) {
     if (!timestamp) return '';
     const date = new Date(timestamp);
     const now = new Date();
     const diff = now - date;
-    
     if (diff < 60000) return 'now';
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
     if (diff < 86400000) return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -1406,7 +1297,6 @@ function formatDate(timestamp) {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
     if (date.toDateString() === today.toDateString()) return 'Today';
     if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
     return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
@@ -1419,7 +1309,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Make functions global
 window.filterConversations = filterConversations;
 window.loadConversation = loadConversation;
 window.sendMessage = sendMessage;
