@@ -278,7 +278,7 @@
         font-size: 0.5rem;
     }
 
-    /* Sidebar Stats - Will show real data from database */
+    /* Sidebar Stats */
     .sidebar-stats {
         display: flex;
         gap: 12px;
@@ -336,7 +336,7 @@
         color: #94a3b8;
     }
 
-    /* Category List - Matching base.html categories */
+    /* Category List */
     .category-list {
         display: flex;
         flex-direction: column;
@@ -513,6 +513,7 @@
         padding: 12px;
         border-bottom: 1px solid #e2e8f0;
         position: relative;
+        overflow: hidden;
     }
 
     .product-image img {
@@ -970,16 +971,14 @@
                     </div>
                 </div>
 
-                
                 <!-- Search -->
                 <div class="sidebar-search">
                     <i class="fas fa-search"></i>
                     <input type="text" id="sidebarSearch" placeholder="Search products..." onkeyup="searchProducts()">
                 </div>
 
-                <!-- Category List - Synchronized with base.html -->
+                <!-- Category List -->
                 <div class="category-list">
-                    <!-- Academics Category Group -->
                     <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">📚 ACADEMICS</h4>
                     <a href="{{ url_for('products', category='textbooks') }}" class="category-item">
                         <span class="category-name"><i class="fas fa-book"></i> Textbooks</span>
@@ -1002,7 +1001,6 @@
                         <span class="category-count">{{ category_counts.lab_coats|default(0) }}</span>
                     </a>
 
-                    <!-- Electronics Category Group -->
                     <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">💻 Electronics</h4>
                     <a href="{{ url_for('products', category='laptops') }}" class="category-item">
                         <span class="category-name"><i class="fas fa-laptop"></i> Laptops</span>
@@ -1025,7 +1023,6 @@
                         <span class="category-count">{{ category_counts.chargers|default(0) }}</span>
                     </a>
 
-                    <!-- Clothing Category Group -->
                     <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">👕 Fashion</h4>
                     <a href="{{ url_for('products', category='mens_clothing') }}" class="category-item">
                         <span class="category-name"><i class="fas fa-tshirt"></i> Men's Clothing</span>
@@ -1044,7 +1041,6 @@
                         <span class="category-count">{{ category_counts.bags|default(0) }}</span>
                     </a>
 
-                    <!-- Dorm & Living Category Group -->
                     <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">🏠 Hostel & LIVING</h4>
                     <a href="{{ url_for('products', category='bedding') }}" class="category-item">
                         <span class="category-name"><i class="fas fa-bed"></i> Room needs</span>
@@ -1063,7 +1059,6 @@
                         <span class="category-count">{{ category_counts.storage|default(0) }}</span>
                     </a>
 
-                    <!-- Sports Category Group -->
                     <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">⚽ SPORTS</h4>
                     <a href="{{ url_for('products', category='sports_gear') }}" class="category-item">
                         <span class="category-name"><i class="fas fa-futbol"></i> Sports Gear</span>
@@ -1074,7 +1069,6 @@
                         <span class="category-count">{{ category_counts.gym_equipment|default(0) }}</span>
                     </a>
 
-                    <!-- Entertainment Category Group -->
                     <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">🎮 ENTERTAINMENT</h4>
                     <a href="{{ url_for('products', category='gaming') }}" class="category-item">
                         <span class="category-name"><i class="fas fa-gamepad"></i> Gaming</span>
@@ -1085,7 +1079,6 @@
                         <span class="category-count">{{ category_counts.music|default(0) }}</span>
                     </a>
 
-                    <!-- Second-Hand Category Group -->
                     <h4 style="color: #1a237e; font-size:0.8rem; margin:5px 0; padding-left:5px;">🔄 SECOND-HAND</h4>
                     <a href="{{ url_for('products', category='secondhand_books') }}" class="category-item">
                         <span class="category-name"><i class="fas fa-book-open"></i> Used Books</span>
@@ -1127,9 +1120,13 @@
                             <div class="product-card">
                                 <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-image">
                                     {% if product.image %}
-                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                        {% if product.image.startswith('http') %}
+                                            <img src="{{ product.image }}" alt="{{ product.name }}">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                        {% endif %}
                                     {% else %}
-                                    <i class="fas fa-box"></i>
+                                        <i class="fas fa-box"></i>
                                     {% endif %}
                                 </a>
                                 <div class="product-details">
@@ -1178,9 +1175,13 @@
                             <div class="product-card">
                                 <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-image">
                                     {% if product.image %}
-                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                        {% if product.image.startswith('http') %}
+                                            <img src="{{ product.image }}" alt="{{ product.name }}">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                        {% endif %}
                                     {% else %}
-                                    <i class="fas fa-box"></i>
+                                        <i class="fas fa-box"></i>
                                     {% endif %}
                                 </a>
                                 <div class="product-details">
@@ -1228,9 +1229,13 @@
                             <div class="product-card">
                                 <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-image">
                                     {% if product.image %}
-                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                        {% if product.image.startswith('http') %}
+                                            <img src="{{ product.image }}" alt="{{ product.name }}">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                        {% endif %}
                                     {% else %}
-                                    <i class="fas fa-box"></i>
+                                        <i class="fas fa-box"></i>
                                     {% endif %}
                                 </a>
                                 <div class="product-details">
@@ -1389,6 +1394,19 @@ function showNotification(message, type = 'info') {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
+}
+
+// Update cart count
+function updateCartCount() {
+    fetch('/api/cart/count')
+        .then(response => response.json())
+        .then(data => {
+            const cartCountElements = document.querySelectorAll('.cart-count');
+            cartCountElements.forEach(el => {
+                if (el) el.textContent = data.count;
+            });
+        })
+        .catch(error => console.error('Error updating cart count:', error));
 }
 
 // Search on enter
