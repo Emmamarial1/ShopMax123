@@ -33,7 +33,6 @@
         padding: 0 20px;
     }
 
-    /* Existing styles remain the same... */
     .breadcrumb-custom {
         background: var(--white);
         padding: 10px 16px;
@@ -386,6 +385,7 @@
         overflow: hidden;
         background: var(--gray-light);
         border: 1px solid var(--border);
+        flex-shrink: 0;
     }
 
     .product-image img {
@@ -400,8 +400,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--gray);
+        background: var(--gray-light);
+    }
+
+    .product-image-placeholder i {
         font-size: 1rem;
+        color: var(--gray);
     }
 
     .product-details h4 {
@@ -1364,11 +1368,15 @@
                                     <div class="product-info">
                                         <div class="product-image">
                                             {% if item.product and item.product.image %}
-                                            <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                                {% if item.product.image.startswith('http') %}
+                                                    <img src="{{ item.product.image }}" alt="{{ item.product.name }}">
+                                                {% else %}
+                                                    <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                                {% endif %}
                                             {% else %}
-                                            <div class="product-image-placeholder">
-                                                <i class="fas fa-box"></i>
-                                            </div>
+                                                <div class="product-image-placeholder">
+                                                    <i class="fas fa-box"></i>
+                                                </div>
                                             {% endif %}
                                         </div>
                                         <div class="product-details">
@@ -1376,7 +1384,7 @@
                                             <p><i class="fas fa-store"></i> {{ item.seller.business_name or item.seller.fullname if item.seller else 'Seller' }}</p>
                                         </div>
                                     </div>
-                                 </td>
+                                </td>
                                 <td class="price-cell">UGX {{ "{:,.0f}".format(item.price) }}</td>
                                 <td class="quantity-cell">{{ item.quantity }}</td>
                                 <td class="total-cell">UGX {{ "{:,.0f}".format(item.price * item.quantity) }}</td>
@@ -1400,9 +1408,15 @@
                             <div class="product-review">
                                 <div class="review-product-image">
                                     {% if item.product and item.product.image %}
-                                    <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                        {% if item.product.image.startswith('http') %}
+                                            <img src="{{ item.product.image }}" alt="{{ item.product.name }}">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product.name }}">
+                                        {% endif %}
                                     {% else %}
-                                    <div class="product-image-placeholder"><i class="fas fa-box"></i></div>
+                                        <div class="product-image-placeholder">
+                                            <i class="fas fa-box"></i>
+                                        </div>
                                     {% endif %}
                                 </div>
                                 <div class="review-content">
@@ -1739,11 +1753,8 @@
 <script>
 let currentRating = {};
 
-// Set rating for a product
 function setRating(productId, rating) {
     currentRating[productId] = rating;
-    
-    // Update star display
     const starsContainer = document.getElementById(`stars-${productId}`);
     if (starsContainer) {
         const stars = starsContainer.querySelectorAll('.star');
@@ -1759,7 +1770,6 @@ function setRating(productId, rating) {
     }
 }
 
-// Submit review
 async function submitReview(productId) {
     const rating = currentRating[productId];
     const comment = document.getElementById(`review-text-${productId}`).value.trim();
@@ -1786,7 +1796,6 @@ async function submitReview(productId) {
         
         if (data.success) {
             alert('✅ Review submitted successfully! Thank you for your feedback.');
-            // Reload the page to show the review
             setTimeout(() => location.reload(), 1500);
         } else {
             alert(data.message || 'Error submitting review');
@@ -1799,7 +1808,6 @@ async function submitReview(productId) {
     }
 }
 
-// Confirm Delivery
 async function confirmDelivery(orderId) {
     if (!confirm('Confirm you have received your order and paid the rider?')) return;
     showLoading(true);
@@ -1828,7 +1836,6 @@ async function confirmDelivery(orderId) {
     }
 }
 
-// Cancel order
 async function cancelOrder(orderId) {
     if (!confirm('Are you sure you want to cancel this order?')) return;
     showLoading(true);
@@ -1854,7 +1861,6 @@ async function cancelOrder(orderId) {
     }
 }
 
-// Reorder
 async function reorder(orderId) {
     showLoading(true);
     try {
@@ -1878,7 +1884,6 @@ async function reorder(orderId) {
     }
 }
 
-// Issue Modal functions
 function openIssueModal() {
     document.getElementById('issueModal').classList.add('show');
 }
@@ -1888,7 +1893,6 @@ function closeIssueModal() {
     document.getElementById('issueForm').reset();
 }
 
-// Submit issue
 async function submitIssue(event) {
     event.preventDefault();
     
@@ -1930,7 +1934,6 @@ async function submitIssue(event) {
     }
 }
 
-// Contact support
 function contactSupport(orderId) {
     fetch('/api/messages/start-admin-chat', {
         method: 'POST',
@@ -1953,7 +1956,6 @@ function contactSupport(orderId) {
     });
 }
 
-// Show loading
 function showLoading(show) {
     const overlay = document.getElementById('loadingOverlay');
     if (overlay) {
@@ -1961,7 +1963,6 @@ function showLoading(show) {
     }
 }
 
-// Make functions global
 window.setRating = setRating;
 window.submitReview = submitReview;
 window.confirmDelivery = confirmDelivery;
