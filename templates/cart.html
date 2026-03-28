@@ -32,7 +32,6 @@
         padding: 0 20px;
     }
 
-    /* Breadcrumb */
     .breadcrumb-custom {
         background: var(--white);
         padding: 10px 16px;
@@ -73,7 +72,6 @@
         font-weight: 500;
     }
 
-    /* Page Header */
     .page-header {
         background: var(--primary);
         color: var(--white);
@@ -150,14 +148,12 @@
         transform: translateX(-3px);
     }
 
-    /* Cart Layout */
     .cart-grid {
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 20px;
     }
 
-    /* Cart Items Card */
     .cart-card {
         background: var(--white);
         border-radius: 12px;
@@ -184,7 +180,6 @@
         font-weight: 600;
     }
 
-    /* Cart Item */
     .cart-item {
         display: grid;
         grid-template-columns: auto 1fr auto auto auto;
@@ -335,7 +330,6 @@
         color: var(--white);
     }
 
-    /* Summary Card */
     .summary-card {
         background: var(--white);
         border-radius: 12px;
@@ -446,7 +440,6 @@
         color: var(--secondary);
     }
 
-    /* Empty Cart */
     .empty-cart {
         text-align: center;
         padding: 60px 20px;
@@ -514,7 +507,6 @@
         transform: translateY(-2px);
     }
 
-    /* Loading Overlay */
     .loading-overlay {
         display: none;
         position: fixed;
@@ -546,12 +538,10 @@
         to { transform: rotate(360deg); }
     }
 
-    /* Responsive */
     @media (max-width: 992px) {
         .cart-grid {
             grid-template-columns: 1fr;
         }
-        
         .summary-card {
             position: static;
         }
@@ -563,22 +553,18 @@
             gap: 10px;
             position: relative;
         }
-        
         .item-image {
             width: 100%;
             height: 150px;
         }
-        
         .item-price, .item-total {
             text-align: left;
         }
-        
         .item-remove {
             position: absolute;
             top: 10px;
             right: 10px;
         }
-        
         .empty-actions {
             flex-direction: column;
         }
@@ -589,7 +575,6 @@
 {% block content %}
 <div class="cart-page">
     <div class="container-custom">
-        <!-- Breadcrumb -->
         <div class="breadcrumb-custom">
             <a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
             <i class="fas fa-chevron-right"></i>
@@ -598,7 +583,6 @@
             <span class="current">Cart</span>
         </div>
 
-        <!-- Page Header -->
         <div class="page-header">
             <div class="header-left">
                 <div class="header-icon">
@@ -619,7 +603,6 @@
 
         {% if cart_items %}
         <div class="cart-grid">
-            <!-- Cart Items -->
             <div class="cart-card">
                 <div class="card-header">
                     <i class="fas fa-boxes"></i>
@@ -628,18 +611,20 @@
 
                 {% for cart_item, product in cart_items %}
                 <div class="cart-item" id="cart-item-{{ cart_item.id if cart_item.id else cart_item.id }}">
-                    <!-- Product Image -->
                     <div class="item-image">
                         {% if product.image %}
-                        <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                            {% if product.image.startswith('http') %}
+                                <img src="{{ product.image }}" alt="{{ product.name }}">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                            {% endif %}
                         {% else %}
-                        <div class="item-image-placeholder">
-                            <i class="fas fa-box"></i>
-                        </div>
+                            <div class="item-image-placeholder">
+                                <i class="fas fa-box"></i>
+                            </div>
                         {% endif %}
                     </div>
 
-                    <!-- Product Details -->
                     <div class="item-details">
                         <div class="item-name">{{ product.name }}</div>
                         <div class="item-meta">
@@ -649,12 +634,10 @@
                         </div>
                     </div>
 
-                    <!-- Price -->
                     <div class="item-price">
                         UGX {{ "{:,.0f}".format(product.price) }}
                     </div>
 
-                    <!-- Quantity -->
                     <div class="item-quantity">
                         <button class="qty-btn" onclick="updateQuantity({{ cart_item.id if cart_item.id else cart_item.id }}, 'decrease')" 
                                 {% if cart_item.quantity <= 1 %}disabled{% endif %}>
@@ -672,12 +655,10 @@
                         </button>
                     </div>
 
-                    <!-- Total -->
                     <div class="item-total">
                         UGX {{ "{:,.0f}".format(product.price * cart_item.quantity) }}
                     </div>
 
-                    <!-- Remove Button -->
                     <button class="item-remove" onclick="removeItem({{ cart_item.id if cart_item.id else cart_item.id }})">
                         <i class="fas fa-times"></i>
                     </button>
@@ -685,7 +666,6 @@
                 {% endfor %}
             </div>
 
-            <!-- Order Summary -->
             <div class="summary-card">
                 <div class="card-header">
                     <i class="fas fa-receipt"></i>
@@ -708,7 +688,6 @@
                         <span>💡 You'll pay the rider directly when they deliver your items. No delivery fee added!</span>
                     </div>
 
-                    <!-- Checkout Button -->
                     {% if session.user_id %}
                         {% if session.user_type == 'buyer' %}
                         <a href="{{ url_for('checkout') }}" class="checkout-btn" id="checkoutBtn">
@@ -732,7 +711,6 @@
             </div>
         </div>
         {% else %}
-        <!-- Empty Cart -->
         <div class="empty-cart">
             <div class="empty-icon">
                 <i class="fas fa-shopping-cart"></i>
@@ -754,7 +732,6 @@
     </div>
 </div>
 
-<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
     <p style="font-size:0.8rem; color:var(--primary);">Updating...</p>
@@ -763,78 +740,44 @@
 <script>
 let updating = false;
 
-// Update quantity
 async function updateQuantity(itemId, action) {
     if (updating) return;
-    
     const input = document.getElementById(`qty-${itemId}`);
     const currentQty = parseInt(input.value);
     let newQty = action === 'increase' ? currentQty + 1 : currentQty - 1;
-    
     if (newQty < 1) return;
-    
     showLoading(true);
     updating = true;
-    
     try {
         const response = await fetch('/api/cart/update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                cart_item_id: itemId.toString(),
-                quantity: newQty
-            })
+            body: JSON.stringify({ cart_item_id: itemId.toString(), quantity: newQty })
         });
-        
         const data = await response.json();
-        
-        if (data.success) {
-            input.value = newQty;
-            location.reload(); // Simple reload to update everything
-        } else {
-            alert(data.message || 'Error updating cart');
-        }
-    } catch (error) {
-        alert('Error updating cart');
-    } finally {
-        showLoading(false);
-        updating = false;
-    }
+        if (data.success) { location.reload(); }
+        else { alert(data.message || 'Error updating cart'); showLoading(false); }
+    } catch (error) { alert('Error updating cart'); showLoading(false); }
+    finally { updating = false; }
 }
 
-// Remove item
 async function removeItem(itemId) {
     if (!confirm('Remove this item?')) return;
-    
     showLoading(true);
-    
     try {
         const response = await fetch('/api/cart/remove', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cart_item_id: itemId.toString() })
         });
-        
         const data = await response.json();
-        
-        if (data.success) {
-            location.reload(); // Simple reload
-        } else {
-            alert(data.message || 'Error removing item');
-        }
-    } catch (error) {
-        alert('Error removing item');
-    } finally {
-        showLoading(false);
-    }
+        if (data.success) { location.reload(); }
+        else { alert(data.message || 'Error removing item'); showLoading(false); }
+    } catch (error) { alert('Error removing item'); showLoading(false); }
 }
 
-// Show loading
-function showLoading(show) {
-    document.getElementById('loadingOverlay').classList.toggle('show', show);
-}
+function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('show', show); }
 
-// Make functions global
 window.updateQuantity = updateQuantity;
 window.removeItem = removeItem;
 </script>
