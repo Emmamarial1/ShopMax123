@@ -1302,6 +1302,216 @@ def ping():
 
 
 
+@app.route('/admin/database')
+@admin_required
+def admin_database_view():
+    """View database tables as admin"""
+    try:
+        from sqlalchemy import inspect, text
+        
+        # Get all table names
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
+        
+        # Get selected table from query parameter
+        selected_table = request.args.get('table', 'products')
+        
+        if selected_table not in tables:
+            selected_table = 'products'
+        
+        # Get column info
+        columns = inspector.get_columns(selected_table)
+        
+        # Get data from selected table
+        query = text(f'SELECT * FROM {selected_table} ORDER BY id DESC LIMIT 50')
+        result = db.session.execute(query)
+        rows = result.fetchall()
+        
+        # Build HTML
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Database Admin - ShopMax</title>
+            <style>
+                body { font-family: monospace; padding: 20px; background: #1e293b; color: #e2e8f0; }
+                .container { max-width: 1400px; margin: 0 auto; background: #0f172a; border-radius: 12px; padding: 20px; }
+                h1 { color: #ff6b00; }
+                .table-selector { margin-bottom: 20px; }
+                select, button { padding: 8px 16px; background: #334155; color: white; border: none; border-radius: 6px; cursor: pointer; }
+                select:hover, button:hover { background: #ff6b00; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+                th { background: #ff6b00; color: white; padding: 10px; text-align: left; position: sticky; top: 0; }
+                td { padding: 8px; border-bottom: 1px solid #334155; }
+                tr:hover { background: #1e293b; }
+                .table-stats { margin: 10px 0; padding: 10px; background: #1e293b; border-radius: 6px; }
+                .badge { background: #ff6b00; padding: 2px 8px; border-radius: 20px; font-size: 11px; }
+                .query-box { background: #1e293b; padding: 10px; border-radius: 6px; margin-top: 20px; font-family: monospace; }
+                textarea { width: 100%; background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 10px; border-radius: 6px; font-family: monospace; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🗄️ Database Admin Panel</h1>
+                
+                <div class="table-selector">
+                    <form method="GET">
+                        <select name="table" onchange="this.form.submit()">
+        """
+        
+        for table in sorted(tables):
+            selected = 'selected' if table == selected_table else ''
+            html += f'<option value="{table}" {selected}>{table}</option>'
+        
+        # Get row count
+        count_result = db.session.execute(text(f'SELECT COUNT(*) FROM {selected_table}'))
+        row_count = count_result.scalar()
+        
+        html += f"""
+                        </select>
+                    </form>
+                </div>
+                
+                <div class="table-stats">
+                    📊 Table: <strong>{selected_table}</strong> | 
+                    📈 Rows: <strong>{row_count}</strong> | 
+                    📋 Columns: <strong>{len(columns)}</strong>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+        """
+        
+        # Column headers
+        for col in columns:
+            html += f"<th>{col['name']}</th>"
+        
+        html += "</tr></thead><tbody>"
+        
+        # Data rows
+        for row in rows:
+            html += "<tr>"
+            for value in row:
+                # Truncate long values
+                str_value = str(value) if value is not None else 'NULL'
+                if len(str_value) > 50:
+                    str_value = str_value[:47] + '...'
+                html += f"<td>{str_value}</td>"
+            html += "</tr>"
+        
+        html += """
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="query-box">
+                    <h3>🔧 Run Custom SQL Query</h3>
+                    <form method="POST">
+                        <textarea name="custom_query" rows="3" placeholder="SELECT * FROM products WHERE ..."></textarea>
+                        <br><br>
+                        <button type="submit">Execute Query</button>
+                    </form>
+                </div>
+                
+                <p style="margin-top: 20px;">
+                    <a href="/admin/dashboard" style="color: #ff6b00;">← Back to Admin Dashboard</a>
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return html
+        
+    except Exception as e:
+        return f"<h1>Error: {str(e)}</h1><pre>{traceback.format_exc()}</pre>"
+
+
+@app.route('/admin/database', methods=['POST'])
+@admin_required
+def admin_database_query():
+    """Execute custom SQL query"""
+    try:
+        custom_query = request.form.get('custom_query', '').strip()
+        
+        if not custom_query:
+            flash('Please enter a query', 'danger')
+            return redirect(url_for('admin_database_view'))
+        
+        # Only allow SELECT queries for safety
+        if not custom_query.upper().startswith('SELECT'):
+            flash('Only SELECT queries are allowed for safety', 'danger')
+            return redirect(url_for('admin_database_view'))
+        
+        result = db.session.execute(text(custom_query))
+        rows = result.fetchall()
+        columns = result.keys()
+        
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Query Results - ShopMax</title>
+            <style>
+                body { font-family: monospace; padding: 20px; background: #1e293b; color: #e2e8f0; }
+                .container { max-width: 1400px; margin: 0 auto; background: #0f172a; border-radius: 12px; padding: 20px; }
+                h1 { color: #ff6b00; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+                th { background: #ff6b00; color: white; padding: 10px; text-align: left; }
+                td { padding: 8px; border-bottom: 1px solid #334155; }
+                .query { background: #1e293b; padding: 10px; border-radius: 6px; margin-bottom: 20px; }
+                .btn { background: #ff6b00; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; display: inline-block; margin-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📊 Query Results</h1>
+                <div class="query">
+                    <strong>Query:</strong><br>
+                    <code>{{ custom_query }}</code>
+                </div>
+                <p>✅ Returned {{ rows|length }} rows</p>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+        """
+        
+        for col in columns:
+            html += f"<th>{col}</th>"
+        
+        html += "</tr></thead><tbody>"
+        
+        for row in rows:
+            html += "<tr>"
+            for value in row:
+                str_value = str(value) if value is not None else 'NULL'
+                if len(str_value) > 50:
+                    str_value = str_value[:47] + '...'
+                html += f"<td>{str_value}</td>"
+            html += "</tr>"
+        
+        html += f"""
+                        </tbody>
+                    </table>
+                </div>
+                <a href="/admin/database" class="btn">← Back to Database View</a>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return html
+        
+    except Exception as e:
+        flash(f'Error executing query: {str(e)}', 'danger')
+        return redirect(url_for('admin_database_view'))
+
+
+
+
 
 @app.route('/fix-admin-user')
 def fix_admin_user():
