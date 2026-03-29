@@ -33,7 +33,6 @@
         padding: 0 20px;
     }
 
-    /* Breadcrumb */
     .breadcrumb-custom {
         background: var(--white);
         padding: 10px 16px;
@@ -74,7 +73,6 @@
         font-weight: 500;
     }
 
-    /* Page Header */
     .page-header {
         background: var(--primary);
         color: var(--white);
@@ -161,7 +159,6 @@
         color: var(--primary);
     }
 
-    /* Stats Cards */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -213,7 +210,6 @@
         text-transform: uppercase;
     }
 
-    /* Category Stats */
     .category-stats {
         background: var(--white);
         border-radius: 12px;
@@ -268,7 +264,6 @@
         text-transform: uppercase;
     }
 
-    /* Filter Bar */
     .filter-bar {
         background: var(--white);
         border-radius: 30px;
@@ -344,7 +339,6 @@
         font-size: 0.7rem;
     }
 
-    /* Products Table */
     .table-card {
         background: var(--white);
         border-radius: 12px;
@@ -583,7 +577,6 @@
         background: #b91c1c;
     }
 
-    /* Pagination */
     .pagination {
         display: flex;
         justify-content: center;
@@ -620,7 +613,6 @@
         border-color: var(--secondary);
     }
 
-    /* Loading Overlay */
     .loading-overlay {
         display: none;
         position: fixed;
@@ -652,7 +644,6 @@
         to { transform: rotate(360deg); }
     }
 
-    /* Modal */
     .modal {
         display: none;
         position: fixed;
@@ -783,7 +774,6 @@
         color: var(--primary);
     }
 
-    /* Responsive */
     @media (max-width: 1200px) {
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
@@ -961,9 +951,13 @@
                             <div class="product-info">
                                 <div class="product-image">
                                     {% if product.image %}
-                                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                        {% if product.image.startswith('http') %}
+                                            <img src="{{ product.image }}" alt="{{ product.name }}">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}">
+                                        {% endif %}
                                     {% else %}
-                                    <i class="fas fa-box"></i>
+                                        <i class="fas fa-box"></i>
                                     {% endif %}
                                 </div>
                                 <div class="product-details">
@@ -1105,7 +1099,6 @@
 <script>
 let currentDeleteProductId = null;
 
-// Search products
 function searchProducts() {
     const searchTerm = document.getElementById('searchInput').value.trim();
     const url = new URL(window.location.href);
@@ -1118,7 +1111,6 @@ function searchProducts() {
     window.location.href = url.toString();
 }
 
-// View product details
 async function viewProduct(productId) {
     const modal = document.getElementById('productModal');
     const modalBody = document.getElementById('productModalBody');
@@ -1200,7 +1192,6 @@ async function viewProduct(productId) {
     }
 }
 
-// Toggle product status
 async function toggleProduct(productId, isActive) {
     const action = isActive ? 'deactivate' : 'activate';
     if (!confirm(`Are you sure you want to ${action} this product?`)) return;
@@ -1227,14 +1218,12 @@ async function toggleProduct(productId, isActive) {
     }
 }
 
-// Confirm delete
 function confirmDelete(productId, productName) {
     currentDeleteProductId = productId;
     document.getElementById('deleteProductName').textContent = productName;
     document.getElementById('deleteModal').classList.add('show');
 }
 
-// Delete product
 async function deleteProduct() {
     if (!currentDeleteProductId) return;
     
@@ -1263,19 +1252,16 @@ async function deleteProduct() {
     }
 }
 
-// Export products
 function exportProducts() {
     const search = document.getElementById('searchInput').value;
     const status = new URLSearchParams(window.location.search).get('status') || '';
     window.location.href = `/api/admin/products/export?search=${encodeURIComponent(search)}&status=${status}`;
 }
 
-// Close modal
 function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('show');
 }
 
-// Show loading
 function showLoading(show) {
     const overlay = document.getElementById('loadingOverlay');
     if (overlay) {
@@ -1283,14 +1269,12 @@ function showLoading(show) {
     }
 }
 
-// Search on enter
 document.getElementById('searchInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         searchProducts();
     }
 });
 
-// Make functions global
 window.searchProducts = searchProducts;
 window.viewProduct = viewProduct;
 window.toggleProduct = toggleProduct;
